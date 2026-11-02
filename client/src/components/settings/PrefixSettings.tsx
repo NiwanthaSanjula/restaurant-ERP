@@ -132,8 +132,8 @@ const PrefixSettings: React.FC = () => {
   if (loading) {
     return (
       <div className="flex flex-col items-center justify-center min-h-[400px] space-y-4">
-        <div className="w-10 h-10 border-4 border-slate-200 border-t-[#004080] rounded-full animate-spin"></div>
-        <p className="text-slate-500 font-medium text-sm">Loading prefix configurations...</p>
+        <div className="w-10 h-10 border-4 border-line border-t-[#004080] rounded-full animate-spin"></div>
+        <p className="text-muted font-medium text-sm">Loading prefix configurations...</p>
       </div>
     );
   }
@@ -143,12 +143,12 @@ const PrefixSettings: React.FC = () => {
       {/* Header */}
       <div className="flex items-center justify-between">
       <div className="flex items-center gap-4 mb-8">
-        <div className="p-3 bg-slate-100 rounded-xl text-[#004080]">
+        <div className="p-3 bg-surface-muted rounded-xl text-foreground">
           <Tag size={28} />
         </div>
         <div>
-          <h1 className="text-2xl font-bold text-slate-800">Prefix Settings</h1>
-          <p className="text-slate-500 text-sm">Customize transaction ID formats for your records.</p>
+          <h1 className="text-2xl font-bold text-foreground">Prefix Settings</h1>
+          <p className="text-muted text-sm">Customize transaction ID formats for your records.</p>
         </div>
       </div>
       <div>
@@ -157,9 +157,9 @@ const PrefixSettings: React.FC = () => {
             <div className="mb-6">
               <button 
                 onClick={() => navigate('/SystemSettings')} 
-                className="inline-flex items-center px-4 py-2 text-slate-500 hover:text-[#004080] transition-all"
+                className="inline-flex items-center px-4 py-2 text-muted hover:text-primary transition-all"
                 >
-            <div className="p-1 rounded-lg group-hover:bg-white group-hover:shadow-sm border border-transparent group-hover:border-slate-200 transition-all">
+            <div className="p-1 rounded-lg group-hover:bg-surface border border-transparent group-hover:border-line transition-all">
                  <ArrowLeft size={18} />
             </div>
               <span className="text-sm font-semibold">Back to Settings</span>
@@ -172,18 +172,18 @@ const PrefixSettings: React.FC = () => {
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
         {/* Form Section */}
         <div className="lg:col-span-2">
-          <form onSubmit={handleSubmit} className="bg-white p-6 rounded-2xl shadow-sm border border-slate-200 space-y-6">
+          <form onSubmit={handleSubmit} className="bg-surface p-6 rounded-2xl border border-line space-y-6">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
               
               {/* Sale Prefix */}
               <div className="space-y-1.5">
-                <label className="text-sm font-semibold text-slate-600 flex items-center gap-2">
+                <label className="text-sm font-semibold text-muted flex items-center gap-2">
                   <ShoppingCart size={14} /> Sale Prefix
                 </label>
                 <input
                   type="text"
                   required
-                  className="w-full px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-[#004080]/20 focus:border-[#004080] outline-none transition-all font-mono"
+                  className="w-full px-4 py-2.5 bg-surface-raised border border-line rounded-xl focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none transition-all font-mono"
                   value={formData.salePrefix}
                   onChange={(e) => handlePrefixChange('salePrefix', e.target.value)}
                   placeholder="e.g., SL"
@@ -192,13 +192,13 @@ const PrefixSettings: React.FC = () => {
 
               {/* Sale Return Prefix */}
               <div className="space-y-1.5">
-                <label className="text-sm font-semibold text-slate-600 flex items-center gap-2">
+                <label className="text-sm font-semibold text-muted flex items-center gap-2">
                   <RotateCcw size={14} /> Sale Return Prefix
                 </label>
                 <input
                   type="text"
                   required
-                  className="w-full px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-[#004080]/20 focus:border-[#004080] outline-none transition-all font-mono"
+                  className="w-full px-4 py-2.5 bg-surface-raised border border-line rounded-xl focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none transition-all font-mono"
                   value={formData.saleReturnPrefix}
                   onChange={(e) => handlePrefixChange('saleReturnPrefix', e.target.value)}
                   placeholder="e.g., SLR"
@@ -207,13 +207,13 @@ const PrefixSettings: React.FC = () => {
 
               {/* Purchase Prefix */}
               <div className="space-y-1.5">
-                <label className="text-sm font-semibold text-slate-600 flex items-center gap-2">
+                <label className="text-sm font-semibold text-muted flex items-center gap-2">
                   <Truck size={14} /> Purchase Prefix
                 </label>
                 <input
                   type="text"
                   required
-                  className="w-full px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-[#004080]/20 focus:border-[#004080] outline-none transition-all font-mono"
+                  className="w-full px-4 py-2.5 bg-surface-raised border border-line rounded-xl focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none transition-all font-mono"
                   value={formData.purchasePrefix}
                   onChange={(e) => handlePrefixChange('purchasePrefix', e.target.value)}
                   placeholder="e.g., PR"
@@ -222,13 +222,13 @@ const PrefixSettings: React.FC = () => {
 
               {/* Purchase Return Prefix */}
               <div className="space-y-1.5">
-                <label className="text-sm font-semibold text-slate-600 flex items-center gap-2">
+                <label className="text-sm font-semibold text-muted flex items-center gap-2">
                   <RotateCcw size={14} /> Purchase Return
                 </label>
                 <input
                   type="text"
                   required
-                  className="w-full px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-[#004080]/20 focus:border-[#004080] outline-none transition-all font-mono"
+                  className="w-full px-4 py-2.5 bg-surface-raised border border-line rounded-xl focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none transition-all font-mono"
                   value={formData.purchaseReturnPrefix}
                   onChange={(e) => handlePrefixChange('purchaseReturnPrefix', e.target.value)}
                   placeholder="e.g., PRR"
@@ -237,13 +237,13 @@ const PrefixSettings: React.FC = () => {
 
               {/* Expense Prefix */}
               <div className="md:col-span-2 space-y-1.5">
-                <label className="text-sm font-semibold text-slate-600 flex items-center gap-2">
+                <label className="text-sm font-semibold text-muted flex items-center gap-2">
                   <Wallet size={14} /> Expense Prefix
                 </label>
                 <input
                   type="text"
                   required
-                  className="w-full px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-[#004080]/20 focus:border-[#004080] outline-none transition-all font-mono"
+                  className="w-full px-4 py-2.5 bg-surface-raised border border-line rounded-xl focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none transition-all font-mono"
                   value={formData.expensePrefix}
                   onChange={(e) => handlePrefixChange('expensePrefix', e.target.value)}
                   placeholder="e.g., EX"
@@ -255,7 +255,7 @@ const PrefixSettings: React.FC = () => {
               <button
                 type="button"
                 onClick={() => navigate('/SystemSettings')}
-                className="px-4 py-2.5 rounded-xl text-sm font-semibold text-slate-600 hover:text-[#004080] hover:bg-slate-50 transition-all"
+                className="px-4 py-2.5 rounded-xl text-sm font-semibold text-muted hover:text-primary hover:bg-surface-raised transition-all"
               >
                 Cancel
               </button>
@@ -263,7 +263,7 @@ const PrefixSettings: React.FC = () => {
                 <button
                   type="submit"
                   disabled={saving}
-                  className="bg-[#004080] text-white px-6 py-2.5 rounded-xl font-bold hover:bg-[#002147] transition-all shadow-lg shadow-blue-900/10 disabled:opacity-50"
+                  className="bg-primary text-on-primary px-6 py-2.5 rounded-xl font-bold hover:bg-primary-hover transition-all disabled:opacity-50"
                 >
                   {saving ? 'Updating...' : 'Save Prefixes'}
                 </button>
@@ -271,7 +271,7 @@ const PrefixSettings: React.FC = () => {
                   type="button"
                   disabled={saving}
                   onClick={handleSaveAndLogout}
-                  className="bg-red-600 text-white px-6 py-2.5 rounded-xl font-bold hover:bg-red-700 transition-all disabled:opacity-50"
+                  className="bg-danger text-on-danger px-6 py-2.5 rounded-xl font-bold hover:bg-danger-hover transition-all disabled:opacity-50"
                 >
                   Save & Logout
                 </button>
@@ -282,29 +282,29 @@ const PrefixSettings: React.FC = () => {
 
         {/* Live Preview / Sidebar */}
         <div className="space-y-6">
-          <div className="bg-[#004080] text-white p-6 rounded-2xl shadow-xl">
+          <div className="bg-primary text-on-primary p-6 rounded-2xl">
             <h3 className="text-sm font-bold uppercase tracking-wider mb-4 flex items-center gap-2 opacity-80">
               <Eye size={16} /> Live Preview
             </h3>
             <div className="space-y-4">
-              <div className="bg-white/10 p-3 rounded-lg border border-white/10">
-                <p className="text-[10px] text-white/60 mb-1">New Sale Invoice</p>
+              <div className="bg-surface-muted p-3 rounded-lg border border-line/10">
+                <p className="text-[10px] text-foreground mb-1">New Sale Invoice</p>
                 <p className="font-mono text-lg font-bold">{formData.salePrefix || '??'}-0001</p>
               </div>
-              <div className="bg-white/10 p-3 rounded-lg border border-white/10">
-                <p className="text-[10px] text-white/60 mb-1">Purchase Order</p>
+              <div className="bg-surface-muted p-3 rounded-lg border border-line/10">
+                <p className="text-[10px] text-foreground mb-1">Purchase Order</p>
                 <p className="font-mono text-lg font-bold">{formData.purchasePrefix || '??'}-5420</p>
               </div>
-              <div className="bg-white/10 p-3 rounded-lg border border-white/10">
-                <p className="text-[10px] text-white/60 mb-1">Expense Voucher</p>
+              <div className="bg-surface-muted p-3 rounded-lg border border-line/10">
+                <p className="text-[10px] text-foreground mb-1">Expense Voucher</p>
                 <p className="font-mono text-lg font-bold">{formData.expensePrefix || '??'}-8821</p>
               </div>
             </div>
           </div>
 
-          <div className="bg-amber-50 border border-amber-100 p-4 rounded-xl flex gap-3">
-            <Info className="text-amber-600 shrink-0" size={20} />
-            <p className="text-xs text-amber-800 leading-relaxed">
+          <div className="bg-warning-soft border border-warning-line p-4 rounded-xl flex gap-3">
+            <Info className="text-warning shrink-0" size={20} />
+            <p className="text-xs text-warning leading-relaxed">
               Prefixes can be up to {PREFIX_MAX_LENGTH} characters. Avoid using special characters besides hyphens or underscores.
             </p>
           </div>

@@ -1,14 +1,9 @@
 import mongoose, { Document, Schema } from 'mongoose';
-import { RBAC_COMPONENTS } from '../config/rbac';
+import { RBAC_COMPONENTS, normalizePermissions } from '../config/permissionDefinitions';
 
 export interface IPermission {
   component: string;
-  actions: {
-    create: boolean;
-    read: boolean;
-    update: boolean;
-    delete: boolean;
-  };
+  actions: Record<string, boolean>;
 }
 
 export interface IRole extends Document {
@@ -27,12 +22,7 @@ const PermissionSchema = new Schema({
    
     enum: RBAC_COMPONENTS
   },
-  actions: {
-    create: { type: Boolean, default: false },
-    read: { type: Boolean, default: false },
-    update: { type: Boolean, default: false },
-    delete: { type: Boolean, default: false }
-  }
+  actions: { type: Schema.Types.Mixed, required: true }
 }, { _id: false });
 
 const RoleSchema = new Schema({
@@ -59,17 +49,12 @@ const RoleSchema = new Schema({
 const hasAnyGrantedPermission = (permissions: IPermission[] = []): boolean =>
   Array.isArray(permissions) &&
   permissions.some((permission) =>
-    Boolean(
-      permission?.actions?.create ||
-      permission?.actions?.read ||
-      permission?.actions?.update ||
-      permission?.actions?.delete
-    )
+    Object.values(permission?.actions || {}).some(value => value === true)
   );
 
 // Enforce at schema level so no API path can create/update a role with zero granted actions.
 RoleSchema.path('permissions').validate(function (value: IPermission[]) {
-  return hasAnyGrantedPermission(value);
+  return normalizePermissions(value).issues.length === 0 && hasAnyGrantedPermission(value);
 }, 'At least one permission must be selected');
 
 export default mongoose.model<IRole>('Role', RoleSchema);

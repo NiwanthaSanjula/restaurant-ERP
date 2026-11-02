@@ -1,6 +1,7 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import { useCurrency } from '../../contexts/CurrencyContext';
 import CalculatorModal from './CalculatorModal';
+import ThemeToggle from '../common/ThemeToggle';
 
 type Catalog = {
   categories: Array<{ id: string; name: string }>;
@@ -169,85 +170,86 @@ const POSScreen: React.FC = () => {
   };
 
   return (
-    <div className="min-h-screen flex flex-col bg-[#F7F8FA]">
-      <div className="h-12 bg-white border-b border-gray-200 flex items-center justify-between px-3">
+    <div className="min-h-screen flex flex-col bg-canvas">
+      <div className="h-12 bg-surface border-b border-line flex items-center justify-between px-3">
+        <ThemeToggle />
         <div className="flex items-center gap-2">
-          <button onClick={closePos} className="px-3 h-8 rounded bg-red-600 text-white text-sm hover:bg-red-700">Close POS</button>
-          <button onClick={() => setShowCalc(true)} className="px-3 h-8 rounded bg-gray-100 text-[#001F54] text-sm">🧮 Calculator</button>
+          <button onClick={closePos} className="px-3 h-8 rounded bg-danger text-on-danger text-sm hover:bg-danger-hover">Close POS</button>
+          <button onClick={() => setShowCalc(true)} className="px-3 h-8 rounded bg-surface-muted text-primary text-sm">🧮 Calculator</button>
         </div>
         <div className="flex items-center gap-2">
-          <button onClick={toggleFullscreen} className="px-3 h-8 rounded bg-gray-100 text-[#001F54] text-sm">⛶ Full Screen</button>
-          <button onClick={exitWithoutClosing} className="px-3 h-8 rounded bg-[#4A90E2] text-white text-sm hover:bg-[#004080]">Exit (Keep Session)</button>
+          <button onClick={toggleFullscreen} className="px-3 h-8 rounded bg-surface-muted text-primary text-sm">⛶ Full Screen</button>
+          <button onClick={exitWithoutClosing} className="px-3 h-8 rounded bg-primary text-on-primary text-sm hover:bg-primary-hover">Exit (Keep Session)</button>
         </div>
       </div>
       <div className="flex-1 flex">
       <div className="w-2/3 p-4">
         <div className="flex items-center gap-2 mb-3">
           {catalog.categories.map(c => (
-            <button key={c.id} onClick={() => setActiveCategory(c.id)} className={`px-3 py-2 rounded ${activeCategory === c.id ? 'bg-[#003366] text-white' : 'bg-white text-[#001F54] border border-gray-200'}`}>{c.name}</button>
+            <button key={c.id} onClick={() => setActiveCategory(c.id)} className={`px-3 py-2 rounded ${activeCategory === c.id ? 'bg-primary text-on-primary' : 'bg-surface text-primary border border-line'}`}>{c.name}</button>
           ))}
         </div>
         <div className="flex items-center gap-2 mb-4">
-          <select value={activeBrand} onChange={e => setActiveBrand(e.target.value)} className="border border-gray-200 rounded px-3 py-2">
+          <select value={activeBrand} onChange={e => setActiveBrand(e.target.value)} className="border border-line rounded px-3 py-2">
             <option value="">All Brands</option>
             {catalog.brands.map(b => <option key={b.id} value={b.id}>{b.name}</option>)}
           </select>
         </div>
         <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3">
           {items.map(i => (
-            <button key={i.id} onClick={() => addToCart(i)} className="bg-white border border-gray-200 rounded p-3 text-left hover:border-[#4A90E2]">
-              <div className="font-medium text-[#001F54]">{i.name}</div>
-              <div className="text-sm text-[#7E7F83]">{currencySymbol} {i.price.toFixed(2)}</div>
+            <button key={i.id} onClick={() => addToCart(i)} className="bg-surface border border-line rounded p-3 text-left hover:border-primary">
+              <div className="font-medium text-foreground">{i.name}</div>
+              <div className="text-sm text-muted">{currencySymbol} {i.price.toFixed(2)}</div>
             </button>
           ))}
         </div>
       </div>
-      <div className="w-1/3 p-4 bg-white border-l border-gray-200 flex flex-col min-h-0">
+      <div className="w-1/3 p-4 bg-surface border-l border-line flex flex-col min-h-0">
         <div className="flex items-center justify-between mb-3">
-          <div className="text-lg font-semibold text-[#001F54]">Cart</div>
-          <button onClick={handleReset} className="text-sm text-[#7E7F83] hover:text-[#003366]">Reset</button>
+          <div className="text-lg font-semibold text-foreground">Cart</div>
+          <button onClick={handleReset} className="text-sm text-muted hover:text-primary">Reset</button>
         </div>
         <div className="flex-1 min-h-0 overflow-hidden">
           <div className="space-y-2 h-full min-h-0 overflow-y-auto pr-1">
             {cart.map(line => (
-              <div key={line.id} className="flex items-center justify-between border border-gray-200 rounded p-2">
+              <div key={line.id} className="flex items-center justify-between border border-line rounded p-2">
                 <div>
-                  <div className="font-medium text-[#001F54]">{line.name}</div>
-                  <div className="text-xs text-[#7E7F83]">{currencySymbol} {line.price.toFixed(2)}</div>
+                  <div className="font-medium text-foreground">{line.name}</div>
+                  <div className="text-xs text-muted">{currencySymbol} {line.price.toFixed(2)}</div>
                 </div>
                 <div className="flex items-center gap-2">
-                  <button onClick={() => updateQty(line.id, -1)} className="w-7 h-7 rounded bg-gray-100">-</button>
+                  <button onClick={() => updateQty(line.id, -1)} className="w-7 h-7 rounded bg-surface-muted">-</button>
                   <div className="w-8 text-center">{line.qty}</div>
-                  <button onClick={() => updateQty(line.id, 1)} className="w-7 h-7 rounded bg-gray-100">+</button>
-                  <button onClick={() => removeLine(line.id)} className="text-red-600 text-sm">Remove</button>
+                  <button onClick={() => updateQty(line.id, 1)} className="w-7 h-7 rounded bg-surface-muted">+</button>
+                  <button onClick={() => removeLine(line.id)} className="text-danger text-sm">Remove</button>
                 </div>
               </div>
             ))}
-            {cart.length === 0 && <div className="text-sm text-[#7E7F83]">No items yet</div>}
+            {cart.length === 0 && <div className="text-sm text-muted">No items yet</div>}
           </div>
         </div>
-        <div className="mt-4 space-y-3 pt-4 border-t border-gray-200">
-          <div className="bg-gray-50 p-3 rounded-lg">
-            <div className="text-sm font-semibold text-[#001F54] mb-2">TAX & DISCOUNT</div>
+        <div className="mt-4 space-y-3 pt-4 border-t border-line">
+          <div className="bg-surface-raised p-3 rounded-lg">
+            <div className="text-sm font-semibold text-foreground mb-2">TAX & DISCOUNT</div>
             <div className="space-y-3">
               <div>
-                <label className="block text-xs font-medium text-slate-600 mb-1">DISCOUNT</label>
-                <input type="number" value={discount} onChange={e => setDiscount(Number(e.target.value) || 0)} className="w-full border border-gray-200 rounded px-3 py-2" />
+                <label className="block text-xs font-medium text-muted mb-1">DISCOUNT</label>
+                <input type="number" value={discount} onChange={e => setDiscount(Number(e.target.value) || 0)} className="w-full border border-line rounded px-3 py-2" />
               </div>
               <div>
-                <label className="block text-xs font-medium text-slate-600 mb-1">TAX (%)</label>
-                <input type="number" value={taxPercent} onChange={e => setTaxPercent(Number(e.target.value) || 0)} className="w-full border border-gray-200 rounded px-3 py-2" />
+                <label className="block text-xs font-medium text-muted mb-1">TAX (%)</label>
+                <input type="number" value={taxPercent} onChange={e => setTaxPercent(Number(e.target.value) || 0)} className="w-full border border-line rounded px-3 py-2" />
               </div>
               <div>
-                <label className="block text-xs font-medium text-slate-600 mb-1">SHIPPING</label>
-                <input type="number" value={shipping} onChange={e => setShipping(Number(e.target.value) || 0)} className="w-full border border-gray-200 rounded px-3 py-2" />
+                <label className="block text-xs font-medium text-muted mb-1">SHIPPING</label>
+                <input type="number" value={shipping} onChange={e => setShipping(Number(e.target.value) || 0)} className="w-full border border-line rounded px-3 py-2" />
               </div>
               <div>
-                <label className="block text-xs font-medium text-slate-600 mb-1">Special Offer</label>
+                <label className="block text-xs font-medium text-muted mb-1">Special Offer</label>
                 <select
                   value={selectedOfferId}
                   onChange={(e) => setSelectedOfferId(e.target.value)}
-                  className="w-full border border-gray-200 rounded px-3 py-2 bg-white text-sm"
+                  className="w-full border border-line rounded px-3 py-2 bg-surface text-sm"
                 >
                   <option value="">No offer selected</option>
                   {offersLoading && <option disabled>Loading offers...</option>}
@@ -265,43 +267,43 @@ const POSScreen: React.FC = () => {
             </div>
           </div>
 
-          <textarea value={note} onChange={e => setNote(e.target.value)} placeholder="Notes (optional)" className="w-full border border-gray-200 rounded px-3 py-2" />
+          <textarea value={note} onChange={e => setNote(e.target.value)} placeholder="Notes (optional)" className="w-full border border-line rounded px-3 py-2" />
 
           <div className="flex flex-col gap-1">
-            <div className="flex items-center justify-between text-sm text-slate-600">
+            <div className="flex items-center justify-between text-sm text-muted">
               <span>Subtotal</span>
               <span>{currencySymbol} {subtotal.toFixed(2)}</span>
             </div>
             {selectedOffer && specialOfferDiscount > 0 && (
-              <div className="flex items-center justify-between text-sm text-emerald-700">
+              <div className="flex items-center justify-between text-sm text-secondary">
                 <span>Offer: {selectedOffer.offerName} ({selectedOffer.percentage}%)</span>
                 <span>-{currencySymbol} {specialOfferDiscount.toFixed(2)}</span>
               </div>
             )}
             {discountAmount > 0 && (
-              <div className="flex items-center justify-between text-sm text-rose-600">
+              <div className="flex items-center justify-between text-sm text-danger">
                 <span>Discount</span>
                 <span>-{currencySymbol} {discountAmount.toFixed(2)}</span>
               </div>
             )}
-            <div className="flex items-center justify-between text-sm text-slate-600">
+            <div className="flex items-center justify-between text-sm text-muted">
               <span>Tax</span>
               <span>{currencySymbol} {taxAmount.toFixed(2)}</span>
             </div>
-            <div className="flex items-center justify-between text-sm text-slate-600">
+            <div className="flex items-center justify-between text-sm text-muted">
               <span>Shipping</span>
               <span>{currencySymbol} {shipping.toFixed(2)}</span>
             </div>
-            <div className="flex items-center justify-between text-lg font-semibold text-[#001F54] border-t border-gray-200 pt-2">
+            <div className="flex items-center justify-between text-lg font-semibold text-foreground border-t border-line pt-2">
               <span>Total</span>
               <span>{currencySymbol} {totalAfterOffer.toFixed(2)}</span>
             </div>
           </div>
 
           <div className="grid grid-cols-3 gap-2">
-            <button onClick={handleHold} disabled={cart.length === 0} className="py-3 rounded-xl bg-[#f3f4f6] text-[#1f2937] hover:bg-[#e5e7eb] transition disabled:opacity-50">Hold</button>
-            <button onClick={handleReset} className="py-3 rounded-xl bg-[#f8fafc] text-[#1f2937] border border-gray-200 hover:bg-[#eef2f6] transition">Reset</button>
-            <button onClick={checkout} disabled={cart.length === 0} className="py-3 rounded-xl bg-[#003366] text-white hover:bg-[#004080] disabled:opacity-50">Pay Now</button>
+            <button onClick={handleHold} disabled={cart.length === 0} className="py-3 rounded-xl bg-surface-muted text-foreground hover:bg-surface-muted transition disabled:opacity-50">Hold</button>
+            <button onClick={handleReset} className="py-3 rounded-xl bg-surface-raised text-foreground border border-line hover:bg-surface-muted transition">Reset</button>
+            <button onClick={checkout} disabled={cart.length === 0} className="py-3 rounded-xl bg-primary text-on-primary hover:bg-primary-hover disabled:opacity-50">Pay Now</button>
           </div>
         </div>
       </div>

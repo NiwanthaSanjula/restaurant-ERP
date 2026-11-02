@@ -309,37 +309,37 @@ const CreateQuotation: React.FC = () => {
   };
 
   return (
-    <div className="p-6 bg-[#F8FAFC] min-h-screen">
+    <div className="p-6 bg-canvas min-h-screen">
       {loading && <Loader text="Saving Quotation..." />}
       
       <div className="max-w-7xl mx-auto">
         <div className="flex justify-between items-center mb-6">
-          <h1 className="text-2xl font-bold text-[#1e293b]">Create Quotation</h1>
+          <h1 className="text-2xl font-bold text-foreground">Create Quotation</h1>
           <button 
             onClick={() => navigate('/quotations')}
-            className="bg-[#3B82F610] text-[#3B82F6] px-6 py-2 rounded-xl font-bold border border-[#3B82F630] hover:bg-[#3B82F620] transition-all flex items-center gap-2"
+            className="bg-primary-soft text-primary px-6 py-2 rounded-xl font-bold border border-primary-line hover:bg-primary-soft transition-all flex items-center gap-2"
           >
             Back
           </button>
         </div>
 
         <form onSubmit={handleSubmit} className="space-y-6">
-          <div className="grid grid-cols-1 md:grid-cols-4 gap-6 bg-white p-6 rounded-2xl shadow-sm border border-slate-100">
+          <div className="grid grid-cols-1 md:grid-cols-4 gap-6 bg-surface p-6 rounded-2xl border border-line">
             <div className="space-y-2">
-              <label className="text-xs font-bold text-slate-500 uppercase tracking-wider">Date:*</label>
+              <label className="text-xs font-bold text-muted uppercase tracking-wider">Date:*</label>
               <input 
                 type="date" 
-                className="w-full p-3 border border-slate-200 rounded-xl font-medium text-slate-700 outline-none focus:border-[#3B82F6]"
+                className="w-full p-3 border border-line rounded-xl font-medium text-foreground outline-none focus:border-primary"
                 value={date}
                 onChange={(e) => setDate(e.target.value)}
                 required
               />
             </div>
             <div className="space-y-2">
-              <label className="text-xs font-bold text-slate-500 uppercase tracking-wider">Expiry Date:*</label>
+              <label className="text-xs font-bold text-muted uppercase tracking-wider">Expiry Date:*</label>
               <input 
                 type="date" 
-                className="w-full p-3 border border-slate-200 rounded-xl font-medium text-slate-700 outline-none focus:border-[#3B82F6]"
+                className="w-full p-3 border border-line rounded-xl font-medium text-foreground outline-none focus:border-primary"
                 value={validUntil}
                 onChange={(e) => setValidUntil(e.target.value)}
                 min={todayStr}
@@ -347,9 +347,9 @@ const CreateQuotation: React.FC = () => {
               />
             </div>
             <div className="space-y-2">
-              <label className="text-xs font-bold text-slate-500 uppercase tracking-wider">Warehouse:*</label>
+              <label className="text-xs font-bold text-muted uppercase tracking-wider">Warehouse:*</label>
               <select 
-                className="w-full p-3 border border-slate-200 rounded-xl font-medium text-slate-700 outline-none focus:border-[#3B82F6] appearance-none bg-[url('data:image/svg+xml;charset=utf-8,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20fill%3D%22none%22%20viewBox%3D%220%200%2024%2024%22%20stroke%3D%22currentColor%22%3E%3Cpath%20stroke-linecap%3D%22round%22%20stroke-linejoin%3D%22round%22%20stroke-width%3D%222%22%20d%3D%22m19%209-7%207-7-7%22%2F%3E%3C%2Fsvg%3E')] bg-[length:1.25rem_1.25rem] bg-[right_1rem_center] bg-no-repeat"
+                className="w-full p-3 border border-line rounded-xl font-medium text-foreground outline-none focus:border-primary appearance-none bg-[url('data:image/svg+xml;charset=utf-8,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20fill%3D%22none%22%20viewBox%3D%220%200%2024%2024%22%20stroke%3D%22currentColor%22%3E%3Cpath%20stroke-linecap%3D%22round%22%20stroke-linejoin%3D%22round%22%20stroke-width%3D%222%22%20d%3D%22m19%209-7%207-7-7%22%2F%3E%3C%2Fsvg%3E')] bg-[length:1.25rem_1.25rem] bg-[right_1rem_center] bg-no-repeat"
                 value={selectedWarehouseId}
                 onChange={(e) => {
                   setSelectedWarehouseId(e.target.value);
@@ -362,7 +362,7 @@ const CreateQuotation: React.FC = () => {
               </select>
             </div>
             <div className="space-y-2">
-              <label className="text-xs font-bold text-slate-500 uppercase tracking-wider">Customer:*</label>
+              <label className="text-xs font-bold text-muted uppercase tracking-wider">Customer:*</label>
               <SearchableDropdown 
                 value={customerSearch}
                 onChange={(c) => {
@@ -375,8 +375,8 @@ const CreateQuotation: React.FC = () => {
             </div>
           </div>
 
-          <div className="bg-white p-6 rounded-2xl shadow-sm border border-slate-100 space-y-2">
-            <label className="text-xs font-bold text-slate-500 uppercase tracking-wider">Product:</label>
+          <div className="bg-surface p-6 rounded-2xl border border-line space-y-2">
+            <label className="text-xs font-bold text-muted uppercase tracking-wider">Product:</label>
             <SearchableDropdown 
               value=""
               onChange={handleProductSelect}
@@ -385,9 +385,9 @@ const CreateQuotation: React.FC = () => {
             />
           </div>
 
-          <div className="bg-white rounded-2xl shadow-sm border border-slate-100 overflow-hidden">
+          <div className="bg-surface rounded-2xl border border-line overflow-hidden">
             <table className="w-full text-left border-collapse">
-              <thead className="bg-[#F8FAFC] text-slate-500 text-[10px] font-bold uppercase tracking-widest border-b border-slate-100">
+              <thead className="bg-surface-raised text-muted text-[10px] font-bold uppercase tracking-widest border-b border-line">
                 <tr>
                   <th className="px-6 py-4">PRODUCT</th>
                   <th className="px-6 py-4 text-center">NET UNIT PRICE</th>
@@ -399,25 +399,25 @@ const CreateQuotation: React.FC = () => {
                   <th className="px-6 py-4 text-center">ACTION</th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-slate-50">
+              <tbody className="divide-y divide-line">
                 {items.map((item, index) => (
-                  <tr key={item.id} className="hover:bg-slate-50/50 transition-all">
+                  <tr key={item.id} className="hover:bg-surface-raised/50 transition-all">
                     <td className="px-6 py-4">
                       <div className="flex items-center gap-3">
-                        <div className="w-12 h-12 rounded-xl overflow-hidden bg-slate-100 border border-slate-200 flex items-center justify-center">
+                        <div className="w-12 h-12 rounded-xl overflow-hidden bg-surface-muted border border-line flex items-center justify-center">
                           {item.image ? (
                             <img src={item.image} alt={item.productName} className="w-full h-full object-cover" />
                           ) : (
-                            <span className="text-[10px] font-black uppercase text-slate-500">No Image</span>
+                            <span className="text-[10px] font-black uppercase text-muted">No Image</span>
                           )}
                         </div>
                         <div>
-                          <div className="font-bold text-slate-700">{item.productName}</div>
+                          <div className="font-bold text-foreground">{item.productName}</div>
                           <div className="flex items-center gap-2 mt-1">
-                            <span className="px-2 py-0.5 bg-[#E2F1FF] text-[#3B82F6] text-[10px] font-bold rounded-lg uppercase tracking-wider">
+                            <span className="px-2 py-0.5 bg-surface-muted text-primary text-[10px] font-bold rounded-lg uppercase tracking-wider">
                               {item.productCode}
                             </span>
-                            <Edit2 size={12} className="text-[#3B82F6] cursor-pointer" />
+                            <Edit2 size={12} className="text-primary cursor-pointer" />
                           </div>
                         </div>
                       </div>
@@ -426,20 +426,20 @@ const CreateQuotation: React.FC = () => {
                       <div className="relative inline-block w-24">
                         <input 
                           type="number" 
-                          className="w-full p-2 border border-slate-200 rounded-lg text-center font-bold text-slate-600 outline-none focus:border-[#3B82F6]"
+                          className="w-full p-2 border border-line rounded-lg text-center font-bold text-muted outline-none focus:border-primary"
                           value={item.price}
                           onChange={(e) => updateItem(index, 'price', Number(e.target.value))}
                         />
-                        <span className="absolute right-2 top-1/2 -translate-y-1/2 text-slate-400 text-[10px] font-bold">{currencyCode}</span>
+                        <span className="absolute right-2 top-1/2 -translate-y-1/2 text-subtle text-[10px] font-bold">{currencyCode}</span>
                       </div>
                     </td>
                     <td className="px-6 py-4 text-center">
                       {item.stock <= 0 ? (
-                        <span className="px-3 py-1 bg-red-50 text-red-500 text-[11px] font-bold rounded-full border border-red-100">
+                        <span className="px-3 py-1 bg-danger-soft text-danger text-[11px] font-bold rounded-full border border-danger-line">
                           Out of Stock
                         </span>
                       ) : (
-                        <span className="px-3 py-1 bg-[#FFF7ED] text-[#F97316] text-[11px] font-bold rounded-full">
+                        <span className="px-3 py-1 bg-warning text-warning text-[11px] font-bold rounded-full">
                           {item.stock} {item.unit}
                         </span>
                       )}
@@ -449,20 +449,20 @@ const CreateQuotation: React.FC = () => {
                         <button 
                           type="button"
                           onClick={() => updateItem(index, 'qty', Math.max(1, item.qty - 1))}
-                          className="w-8 h-8 flex items-center justify-center bg-[#6366F1] text-white rounded-l-lg hover:bg-[#4F46E5] transition-colors"
+                          className="w-8 h-8 flex items-center justify-center bg-primary text-on-primary rounded-l-lg hover:bg-primary-hover transition-colors"
                         >
                           <Minus size={14} />
                         </button>
                         <input 
                           type="text" 
                           readOnly 
-                          className="w-10 h-8 border-y border-slate-200 text-center font-bold text-slate-700 outline-none" 
+                          className="w-10 h-8 border-y border-line text-center font-bold text-foreground outline-none"
                           value={item.qty} 
                         />
                         <button 
                           type="button"
                           onClick={() => updateItem(index, 'qty', item.qty + 1)}
-                          className="w-8 h-8 flex items-center justify-center bg-[#6366F1] text-white rounded-r-lg hover:bg-[#4F46E5] transition-colors"
+                          className="w-8 h-8 flex items-center justify-center bg-primary text-on-primary rounded-r-lg hover:bg-primary-hover transition-colors"
                         >
                           <Plus size={14} />
                         </button>
@@ -472,29 +472,29 @@ const CreateQuotation: React.FC = () => {
                       <div className="relative inline-block w-24">
                         <input 
                           type="number" 
-                          className="w-full p-2 border border-slate-200 rounded-lg text-center font-bold text-slate-600 outline-none focus:border-[#3B82F6]"
+                          className="w-full p-2 border border-line rounded-lg text-center font-bold text-muted outline-none focus:border-primary"
                           value={item.discount}
                           onChange={(e) => updateItem(index, 'discount', Number(e.target.value))}
                         />
-                        <span className="absolute right-2 top-1/2 -translate-y-1/2 text-slate-400 text-[10px] font-bold">{currencyCode}</span>
+                        <span className="absolute right-2 top-1/2 -translate-y-1/2 text-subtle text-[10px] font-bold">{currencyCode}</span>
                       </div>
                     </td>
                     <td className="px-6 py-4 text-center">
                       <div className="relative inline-block w-20">
                         <input 
                           type="number" 
-                          className="w-full p-2 border border-slate-200 rounded-lg text-center font-bold text-slate-600 outline-none focus:border-[#3B82F6]"
+                          className="w-full p-2 border border-line rounded-lg text-center font-bold text-muted outline-none focus:border-primary"
                           value={item.tax}
                           onChange={(e) => updateItem(index, 'tax', Number(e.target.value))}
                         />
-                        <span className="absolute right-2 top-1/2 -translate-y-1/2 text-slate-400 text-[10px] font-bold">%</span>
+                        <span className="absolute right-2 top-1/2 -translate-y-1/2 text-subtle text-[10px] font-bold">%</span>
                       </div>
                     </td>
-                    <td className="px-6 py-4 text-center font-bold text-slate-600">
+                    <td className="px-6 py-4 text-center font-bold text-muted">
                       {currencyCode} {item.subtotal.toFixed(2)}
                     </td>
                     <td className="px-6 py-4 text-center">
-                      <button type="button" onClick={() => removeItem(index)} className="text-[#EF4444] hover:text-[#DC2626] transition-colors">
+                      <button type="button" onClick={() => removeItem(index)} className="text-danger hover:text-danger transition-colors">
                         <Trash2 size={20} />
                       </button>
                     </td>
@@ -503,21 +503,21 @@ const CreateQuotation: React.FC = () => {
               </tbody>
             </table>
 
-            <div className="p-6 border-t border-slate-100 flex justify-end">
-              <div className="w-80 space-y-3 bg-[#F8FAFC] p-4 rounded-xl border border-slate-100">
-                <div className="flex justify-between items-center text-sm font-bold text-slate-500">
+            <div className="p-6 border-t border-line flex justify-end">
+              <div className="w-80 space-y-3 bg-surface-raised p-4 rounded-xl border border-line">
+                <div className="flex justify-between items-center text-sm font-bold text-muted">
                   <span>Order Tax</span>
                   <span>{currencyCode} {totals.orderTaxAmount.toFixed(2)} ({taxValue.toFixed(2)}) %</span>
                 </div>
-                <div className="flex justify-between items-center text-sm font-bold text-slate-500 border-t border-slate-200 pt-3">
+                <div className="flex justify-between items-center text-sm font-bold text-muted border-t border-line pt-3">
                   <span>Discount</span>
                   <span>{currencyCode} {totals.orderDiscountAmount.toFixed(2)}</span>
                 </div>
-                <div className="flex justify-between items-center text-sm font-bold text-slate-500 border-t border-slate-200 pt-3">
+                <div className="flex justify-between items-center text-sm font-bold text-muted border-t border-line pt-3">
                   <span>Shipping</span>
                   <span>{currencyCode} {Number(shippingCost).toFixed(2)}</span>
                 </div>
-                <div className="flex justify-between items-center text-lg font-black text-[#6366F1] border-t-2 border-slate-200 pt-3">
+                <div className="flex justify-between items-center text-lg font-black text-primary border-t-2 border-line pt-3">
                   <span>Grand Total</span>
                   <span>{currencyCode} {totals.total.toFixed(2)}</span>
                 </div>
@@ -525,57 +525,57 @@ const CreateQuotation: React.FC = () => {
             </div>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 bg-white p-6 rounded-2xl shadow-sm border border-slate-100">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 bg-surface p-6 rounded-2xl border border-line">
             <div className="space-y-2">
-              <label className="text-xs font-bold text-slate-500 uppercase tracking-wider">Order Tax:</label>
+              <label className="text-xs font-bold text-muted uppercase tracking-wider">Order Tax:</label>
               <div className="relative">
                 <input 
                   type="number" 
-                  className="w-full p-3 border border-slate-200 rounded-xl font-medium text-slate-700 outline-none pr-8"
+                  className="w-full p-3 border border-line rounded-xl font-medium text-foreground outline-none pr-8"
                   value={taxValue}
                   onChange={(e) => setTaxValue(Number(e.target.value))}
                 />
-                <span className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 font-bold">%</span>
+                <span className="absolute right-3 top-1/2 -translate-y-1/2 text-subtle font-bold">%</span>
               </div>
             </div>
             <div className="space-y-2">
-              <label className="text-xs font-bold text-slate-500 uppercase tracking-wider">Discount:</label>
+              <label className="text-xs font-bold text-muted uppercase tracking-wider">Discount:</label>
               <div className="relative">
                 <input 
                   type="number" 
-                  className="w-full p-3 border border-slate-200 rounded-xl font-medium text-slate-700 outline-none pr-8"
+                  className="w-full p-3 border border-line rounded-xl font-medium text-foreground outline-none pr-8"
                   value={discountValue}
                   onChange={(e) => setDiscountValue(Number(e.target.value))}
                 />
-                <span className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 font-bold">{currencyCode}</span>
+                <span className="absolute right-3 top-1/2 -translate-y-1/2 text-subtle font-bold">{currencyCode}</span>
               </div>
             </div>
             <div className="space-y-2">
-              <label className="text-xs font-bold text-slate-500 uppercase tracking-wider">Shipping:</label>
+              <label className="text-xs font-bold text-muted uppercase tracking-wider">Shipping:</label>
               <div className="relative">
                 <input 
                   type="number" 
-                  className="w-full p-3 border border-slate-200 rounded-xl font-medium text-slate-700 outline-none pr-8"
+                  className="w-full p-3 border border-line rounded-xl font-medium text-foreground outline-none pr-8"
                   value={shippingCost}
                   onChange={(e) => setShippingCost(Number(e.target.value))}
                 />
-                <span className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 font-bold">{currencyCode}</span>
+                <span className="absolute right-3 top-1/2 -translate-y-1/2 text-subtle font-bold">{currencyCode}</span>
               </div>
             </div>
             <div className="space-y-2">
-              <label className="text-xs font-bold text-slate-500 uppercase tracking-wider">Reference No:</label>
+              <label className="text-xs font-bold text-muted uppercase tracking-wider">Reference No:</label>
               <input 
                 type="text" 
-                className="w-full p-3 border border-slate-200 rounded-xl font-medium text-slate-700 outline-none pr-8"
+                className="w-full p-3 border border-line rounded-xl font-medium text-foreground outline-none pr-8"
                 value={referenceNumber}
                 onChange={(e) => setReferenceNumber(e.target.value)}
                 placeholder="Reference No"
               />
             </div>
             <div className="space-y-2">
-              <label className="text-xs font-bold text-slate-500 uppercase tracking-wider">Status:*</label>
+              <label className="text-xs font-bold text-muted uppercase tracking-wider">Status:*</label>
               <select 
-                className="w-full p-3 border border-slate-200 rounded-xl font-medium text-slate-700 outline-none appearance-none bg-[url('data:image/svg+xml;charset=utf-8,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20fill%3D%22none%22%20viewBox%3D%220%200%2024%2024%22%20stroke%3D%22currentColor%22%3E%3Cpath%20stroke-linecap%3D%22round%22%20stroke-linejoin%3D%22round%22%20stroke-width%3D%222%22%20d%3D%22m19%209-7%207-7-7%22%2F%3E%3C%2Fsvg%3E')] bg-[length:1.25rem_1.25rem] bg-[right_1rem_center] bg-no-repeat"
+                className="w-full p-3 border border-line rounded-xl font-medium text-foreground outline-none appearance-none bg-[url('data:image/svg+xml;charset=utf-8,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20fill%3D%22none%22%20viewBox%3D%220%200%2024%2024%22%20stroke%3D%22currentColor%22%3E%3Cpath%20stroke-linecap%3D%22round%22%20stroke-linejoin%3D%22round%22%20stroke-width%3D%222%22%20d%3D%22m19%209-7%207-7-7%22%2F%3E%3C%2Fsvg%3E')] bg-[length:1.25rem_1.25rem] bg-[right_1rem_center] bg-no-repeat"
                 value={status}
                 onChange={(e) => setStatus(e.target.value)}
                 required
@@ -588,9 +588,9 @@ const CreateQuotation: React.FC = () => {
               </select>
             </div>
             <div className="md:col-span-3 space-y-2">
-              <label className="text-xs font-bold text-slate-500 uppercase tracking-wider">Note:</label>
+              <label className="text-xs font-bold text-muted uppercase tracking-wider">Note:</label>
               <textarea 
-                className="w-full p-3 border border-slate-200 rounded-xl font-medium text-slate-700 outline-none h-24"
+                className="w-full p-3 border border-line rounded-xl font-medium text-foreground outline-none h-24"
                 value={notes}
                 onChange={(e) => setNotes(e.target.value)}
                 placeholder="Enter Note"
@@ -601,14 +601,14 @@ const CreateQuotation: React.FC = () => {
           <div className="flex justify-end gap-3 pb-6">
              <button 
               type="submit"
-              className="bg-[#6366F1] text-white px-8 py-2.5 rounded-xl font-bold hover:bg-[#4F46E5] transition-all shadow-lg shadow-indigo-100"
+              className="bg-primary text-on-primary px-8 py-2.5 rounded-xl font-bold hover:bg-primary-hover transition-all"
             >
               Save
             </button>
             <button 
               type="button"
               onClick={() => navigate('/quotations')}
-              className="bg-[#E2E8F0] text-[#475569] px-8 py-2.5 rounded-xl font-bold hover:bg-[#CBD5E1] transition-all"
+              className="bg-surface-muted text-muted px-8 py-2.5 rounded-xl font-bold hover:bg-surface-muted transition-all"
             >
               Cancel
             </button>

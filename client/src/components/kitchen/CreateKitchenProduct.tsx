@@ -7,15 +7,15 @@ type UnitOpt = { _id: string; unitName: string; shortName: string };
 type InvProd = { _id: string; name: string; code: string; isInventory?: boolean };
 
 const fieldClass =
-  'w-full rounded-lg border border-gray-300 bg-white px-3 py-2.5 text-sm text-gray-900 shadow-sm transition placeholder:text-gray-400 focus:border-[#003366] focus:outline-none focus:ring-2 focus:ring-[#003366]/20';
+  'w-full rounded-lg border border-line-strong bg-surface px-3 py-2.5 text-sm text-foreground transition placeholder:text-subtle focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20';
 
 const selectChevronClass =
   "cursor-pointer appearance-none bg-[url('data:image/svg+xml,%3Csvg xmlns=%27http://www.w3.org/2000/svg%27 fill=%27none%27 viewBox=%270 0 24 24%27 stroke=%27%236b7280%27%3E%3Cpath stroke-linecap=%27round%27 stroke-linejoin=%27round%27 stroke-width=%272%27 d=%27M19 9l-7 7-7-7%27/%3E%3C/svg%3E')] bg-[length:1.25rem] bg-[right_0.65rem_center] bg-no-repeat pr-10";
 
 const Label: React.FC<{ children: React.ReactNode; required?: boolean }> = ({ children, required }) => (
-  <label className="mb-1.5 block text-xs font-semibold uppercase tracking-wide text-gray-500">
+  <label className="mb-1.5 block text-xs font-semibold uppercase tracking-wide text-muted">
     {children}
-    {required && <span className="ml-0.5 text-red-500">*</span>}
+    {required && <span className="ml-0.5 text-danger">*</span>}
   </label>
 );
 
@@ -115,16 +115,16 @@ const CreateKitchenProduct: React.FC = () => {
   };
 
   return (
-    <div className="min-h-screen bg-[#eef1f4]">
+    <div className="min-h-screen bg-canvas">
       {loading && <Loader text="Saving" />}
       <div className="mx-auto max-w-4xl px-4 py-6 sm:px-6 sm:py-8">
-        <div className="overflow-hidden rounded-lg border border-gray-200 bg-white shadow-sm">
+        <div className="overflow-hidden rounded-lg border border-line bg-surface">
           {/* Header */}
-          <div className="flex flex-col gap-4 border-b border-gray-200 px-5 py-6 sm:flex-row sm:items-start sm:px-8">
+          <div className="flex flex-col gap-4 border-b border-line px-5 py-6 sm:flex-row sm:items-start sm:px-8">
             <button
               type="button"
               onClick={() => navigate('/kitchen/inventory')}
-              className="inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-lg border border-gray-200 bg-white text-gray-500 shadow-sm transition hover:border-gray-300 hover:bg-gray-50 hover:text-gray-800"
+              className="inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-lg border border-line bg-surface text-muted transition hover:border-line-strong hover:bg-surface-raised hover:text-foreground"
               aria-label="Back to inventory"
             >
               <svg className="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -132,13 +132,13 @@ const CreateKitchenProduct: React.FC = () => {
               </svg>
             </button>
             <div className="min-w-0 flex-1 sm:pl-2">
-              <p className="text-[11px] font-semibold uppercase tracking-[0.2em] text-gray-500">Kitchen</p>
-              <h1 className="mt-1 text-2xl font-bold tracking-tight text-gray-900 sm:text-3xl">
+              <p className="text-[11px] font-semibold uppercase tracking-[0.2em] text-muted">Kitchen</p>
+              <h1 className="mt-1 text-2xl font-bold tracking-tight text-foreground sm:text-3xl">
                 Add ingredient
               </h1>
-              <p className="mt-2 max-w-2xl text-sm leading-relaxed text-gray-600">
+              <p className="mt-2 max-w-2xl text-sm leading-relaxed text-muted">
                 Define how this item is counted and alerted. Set optional opening stock, or start at zero and use{' '}
-                <span className="font-medium text-gray-800">Stock In</span> from the inventory list.
+                <span className="font-medium text-foreground">Stock In</span> from the inventory list.
               </p>
             </div>
           </div>
@@ -146,8 +146,8 @@ const CreateKitchenProduct: React.FC = () => {
           <form onSubmit={submit} className="px-5 py-6 sm:px-8 sm:py-8">
             <div className="space-y-8">
               <section>
-                <h2 className="mb-4 flex items-center gap-2 text-sm font-bold text-gray-900">
-                  <span className="flex h-8 w-8 items-center justify-center rounded-lg bg-[#003366]/10 text-[#003366]">
+                <h2 className="mb-4 flex items-center gap-2 text-sm font-bold text-foreground">
+                  <span className="flex h-8 w-8 items-center justify-center rounded-lg bg-primary-soft text-primary">
                     <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path
                         strokeLinecap="round"
@@ -190,8 +190,8 @@ const CreateKitchenProduct: React.FC = () => {
               </section>
 
               <section>
-                <h2 className="mb-4 flex items-center gap-2 text-sm font-bold text-gray-900">
-                  <span className="flex h-8 w-8 items-center justify-center rounded-lg bg-amber-50 text-amber-700">
+                <h2 className="mb-4 flex items-center gap-2 text-sm font-bold text-foreground">
+                  <span className="flex h-8 w-8 items-center justify-center rounded-lg bg-warning-soft text-warning">
                     <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path
                         strokeLinecap="round"
@@ -215,8 +215,8 @@ const CreateKitchenProduct: React.FC = () => {
                       className={fieldClass}
                       placeholder="0"
                     />
-                    <p className="mt-1.5 text-xs text-gray-500">
-                      Logged as <span className="font-medium text-gray-600">Opening balance</span> in movement history.
+                    <p className="mt-1.5 text-xs text-muted">
+                      Logged as <span className="font-medium text-muted">Opening balance</span> in movement history.
                     </p>
                   </div>
                   <div>
@@ -230,14 +230,14 @@ const CreateKitchenProduct: React.FC = () => {
                       className={fieldClass}
                       placeholder="Optional"
                     />
-                    <p className="mt-1.5 text-xs text-gray-500">Used when no inventory product is linked.</p>
+                    <p className="mt-1.5 text-xs text-muted">Used when no inventory product is linked.</p>
                   </div>
                 </div>
               </section>
 
               <section>
-                <h2 className="mb-4 flex items-center gap-2 text-sm font-bold text-gray-900">
-                  <span className="flex h-8 w-8 items-center justify-center rounded-lg bg-sky-50 text-sky-700">
+                <h2 className="mb-4 flex items-center gap-2 text-sm font-bold text-foreground">
+                  <span className="flex h-8 w-8 items-center justify-center rounded-lg bg-primary-soft text-primary">
                     <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path
                         strokeLinecap="round"
@@ -263,19 +263,19 @@ const CreateKitchenProduct: React.FC = () => {
                       </option>
                     ))}
                   </select>
-                  <div className="mt-3 rounded-lg border border-gray-100 bg-gray-50/80 px-4 py-3 text-xs leading-relaxed text-gray-600">
-                    Only <span className="font-semibold text-gray-800">inventory products</span> (
-                    <code className="rounded bg-white px-1 py-0.5 text-[10px] text-gray-700">isInventory: true</code>)
+                  <div className="mt-3 rounded-lg border border-line bg-surface-raised/80 px-4 py-3 text-xs leading-relaxed text-muted">
+                    Only <span className="font-semibold text-foreground">inventory products</span> (
+                    <code className="rounded bg-surface px-1 py-0.5 text-[10px] text-foreground">isInventory: true</code>)
                     appear here. Alerts use the linked product&apos;s{' '}
-                    <code className="rounded bg-white px-1 py-0.5 text-[10px] text-gray-700">stockAlert</code> for the
+                    <code className="rounded bg-surface px-1 py-0.5 text-[10px] text-foreground">stockAlert</code> for the
                     warehouse you choose on the kitchen list.
                   </div>
                 </div>
               </section>
 
               <section>
-                <h2 className="mb-4 flex items-center gap-2 text-sm font-bold text-gray-900">
-                  <span className="flex h-8 w-8 items-center justify-center rounded-lg bg-slate-100 text-slate-600">
+                <h2 className="mb-4 flex items-center gap-2 text-sm font-bold text-foreground">
+                  <span className="flex h-8 w-8 items-center justify-center rounded-lg bg-surface-muted text-muted">
                     <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path
                         strokeLinecap="round"
@@ -300,17 +300,17 @@ const CreateKitchenProduct: React.FC = () => {
               </section>
             </div>
 
-            <div className="mt-8 flex flex-col-reverse gap-3 border-t border-gray-100 pt-6 sm:flex-row sm:justify-end">
+            <div className="mt-8 flex flex-col-reverse gap-3 border-t border-line pt-6 sm:flex-row sm:justify-end">
               <button
                 type="button"
                 onClick={() => navigate('/kitchen/inventory')}
-                className="rounded-lg border border-gray-300 bg-white px-5 py-2.5 text-sm font-semibold text-gray-700 shadow-sm transition hover:bg-gray-50"
+                className="rounded-lg border border-line-strong bg-surface px-5 py-2.5 text-sm font-semibold text-foreground transition hover:bg-surface-raised"
               >
                 Cancel
               </button>
               <button
                 type="submit"
-                className="rounded-lg bg-[#003366] px-6 py-2.5 text-sm font-semibold text-white shadow-sm transition hover:bg-[#004080]"
+                className="rounded-lg bg-primary px-6 py-2.5 text-sm font-semibold text-on-primary transition hover:bg-primary-hover"
               >
                 Create ingredient
               </button>

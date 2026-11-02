@@ -118,7 +118,7 @@ const ZBillReport: React.FC = () => {
   };
 
   return (
-    <div className="p-4 md:p-6 bg-slate-50 min-h-screen">
+    <div className="p-4 md:p-6 bg-canvas min-h-screen">
       <style>{`
         @media print {
           body * { visibility: hidden !important; }
@@ -137,20 +137,20 @@ const ZBillReport: React.FC = () => {
       `}</style>
       <div className="mb-5 flex flex-wrap items-center justify-between gap-3">
         <div>
-          <h1 className="text-xl md:text-2xl font-bold text-[#1e3a5f]">Z-bill Report</h1>
-          <p className="text-sm text-slate-500">POS session based sales summary</p>
+          <h1 className="text-xl md:text-2xl font-bold text-foreground">Z-bill Report</h1>
+          <p className="text-sm text-muted">POS session based sales summary</p>
         </div>
       </div>
 
-      <div className="bg-white border border-slate-200 rounded-2xl shadow-sm p-4 md:p-5 mb-4">
+      <div className="bg-surface border border-line rounded-2xl p-4 md:p-5 mb-4">
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4 items-end">
           <div>
-            <label className="text-xs font-semibold uppercase tracking-wide text-slate-500">From date</label>
-            <input value={fromDate} onChange={(e) => setFromDate(e.target.value)} type="date" className="mt-1 w-full border border-slate-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-[#1e3a5f]/25 focus:outline-none" />
+            <label className="text-xs font-semibold uppercase tracking-wide text-muted">From date</label>
+            <input value={fromDate} onChange={(e) => setFromDate(e.target.value)} type="date" className="mt-1 w-full border border-line-strong rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-primary/25 focus:outline-none" />
           </div>
           <div>
-            <label className="text-xs font-semibold uppercase tracking-wide text-slate-500">To date</label>
-            <input value={toDate} onChange={(e) => setToDate(e.target.value)} type="date" className="mt-1 w-full border border-slate-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-[#1e3a5f]/25 focus:outline-none" />
+            <label className="text-xs font-semibold uppercase tracking-wide text-muted">To date</label>
+            <input value={toDate} onChange={(e) => setToDate(e.target.value)} type="date" className="mt-1 w-full border border-line-strong rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-primary/25 focus:outline-none" />
           </div>
         </div>
       </div>
@@ -161,17 +161,17 @@ const ZBillReport: React.FC = () => {
             type="button"
             onClick={handleBulkDelete}
             disabled={bulkDeleting}
-            className="px-5 py-2.5 rounded-xl bg-red-600 text-white font-semibold hover:bg-red-700 disabled:opacity-50 disabled:cursor-not-allowed"
+            className="px-5 py-2.5 rounded-xl bg-danger text-on-danger font-semibold hover:bg-danger-hover disabled:opacity-50 disabled:cursor-not-allowed"
           >
             {bulkDeleting ? 'Deleting...' : 'Delete Multiples'}
           </button>
         </div>
       )}
 
-      <div className="bg-white border border-slate-200 rounded-2xl shadow-sm overflow-hidden">
+      <div className="bg-surface border border-line rounded-2xl overflow-hidden">
         <div className="overflow-x-auto">
           <table className="min-w-full text-sm">
-            <thead className="bg-slate-100/80 text-slate-600 uppercase text-[11px] tracking-wider">
+            <thead className="bg-surface-muted text-muted uppercase text-[11px] tracking-wider">
               <tr>
                 <th className="px-3 py-3 text-center">
                   <input
@@ -179,7 +179,7 @@ const ZBillReport: React.FC = () => {
                     aria-label="Select all z-bills"
                     checked={rows.length > 0 && selectedIds.length === rows.length}
                     onChange={(e) => toggleSelectAll(e.target.checked)}
-                    className="w-4 h-4 accent-[#1e3a5f]"
+                    className="w-4 h-4 accent-primary"
                   />
                 </th>
                 <th className="px-4 py-3 text-left">Date</th>
@@ -199,21 +199,21 @@ const ZBillReport: React.FC = () => {
             <tbody>
               {loading && (
                 <tr>
-                  <td className="px-4 py-6 text-center text-slate-500" colSpan={14}>
+                  <td className="px-4 py-6 text-center text-muted" colSpan={14}>
                     Loading Z-bills...
                   </td>
                 </tr>
               )}
               {!loading && error && (
                 <tr>
-                  <td className="px-4 py-6 text-center text-red-600" colSpan={14}>
+                  <td className="px-4 py-6 text-center text-danger" colSpan={14}>
                     {error}
                   </td>
                 </tr>
               )}
               {!loading && !error && rows.length === 0 && (
                 <tr>
-                  <td className="px-4 py-6 text-center text-slate-500" colSpan={14}>
+                  <td className="px-4 py-6 text-center text-muted" colSpan={14}>
                     No sessions found for selected dates.
                   </td>
                 </tr>
@@ -221,33 +221,33 @@ const ZBillReport: React.FC = () => {
               {!loading &&
                 !error &&
                 rows.map((item) => (
-                  <tr key={item.sessionId} className="border-t border-slate-100 hover:bg-slate-50/80">
+                  <tr key={item.sessionId} className="border-t border-line hover:bg-surface-raised/80">
                     <td className="px-3 py-3 text-center">
                       <input
                         type="checkbox"
                         checked={selectedIds.includes(item.sessionId)}
                         onChange={() => toggleSelectOne(item.sessionId)}
                         aria-label={`Select z-bill ${item.sessionId}`}
-                        className="w-4 h-4 accent-[#1e3a5f]"
+                        className="w-4 h-4 accent-primary"
                       />
                     </td>
-                    <td className="px-4 py-3 text-slate-700">{dateOnly(item.openTime)}</td>
-                    <td className="px-4 py-3 text-slate-700">{timeOnly(item.openTime)}</td>
-                    <td className="px-4 py-3 text-slate-700">{timeOnly(item.closeTime)}</td>
-                    <td className="px-4 py-3 text-slate-700 font-medium">{item.username}</td>
-                    <td className="px-4 py-3 text-right font-semibold text-blue-700">{money(item.cashHandIn)}</td>
-                    <td className="px-4 py-3 text-right font-semibold text-emerald-700">{money(item.cardPayment)}</td>
-                    <td className="px-4 py-3 text-right font-semibold text-emerald-700">{money(item.cashPayment)}</td>
-                    <td className="px-4 py-3 text-right font-semibold text-emerald-700">{money(item.bankTransfer)}</td>
-                    <td className="px-4 py-3 text-right font-semibold text-rose-700">{money(item.cashVariance)}</td>
-                    <td className="px-4 py-3 text-right font-semibold text-emerald-700">{money(item.discount)}</td>
-                    <td className="px-4 py-3 text-right font-semibold text-emerald-700">{money(item.total)}</td>
+                    <td className="px-4 py-3 text-foreground">{dateOnly(item.openTime)}</td>
+                    <td className="px-4 py-3 text-foreground">{timeOnly(item.openTime)}</td>
+                    <td className="px-4 py-3 text-foreground">{timeOnly(item.closeTime)}</td>
+                    <td className="px-4 py-3 text-foreground font-medium">{item.username}</td>
+                    <td className="px-4 py-3 text-right font-semibold text-primary">{money(item.cashHandIn)}</td>
+                    <td className="px-4 py-3 text-right font-semibold text-secondary">{money(item.cardPayment)}</td>
+                    <td className="px-4 py-3 text-right font-semibold text-secondary">{money(item.cashPayment)}</td>
+                    <td className="px-4 py-3 text-right font-semibold text-secondary">{money(item.bankTransfer)}</td>
+                    <td className="px-4 py-3 text-right font-semibold text-danger">{money(item.cashVariance)}</td>
+                    <td className="px-4 py-3 text-right font-semibold text-secondary">{money(item.discount)}</td>
+                    <td className="px-4 py-3 text-right font-semibold text-secondary">{money(item.total)}</td>
                     <td className="px-4 py-3">
                       <div className="flex items-center justify-center gap-2">
                         <button
                           type="button"
                           onClick={() => openView(item.sessionId)}
-                          className="w-8 h-8 rounded-md bg-blue-100 text-blue-700 hover:bg-blue-200 inline-flex items-center justify-center"
+                          className="w-8 h-8 rounded-md bg-primary-soft text-primary hover:bg-primary-soft inline-flex items-center justify-center"
                           aria-label="View z-bill"
                           title="View"
                         >
@@ -260,7 +260,7 @@ const ZBillReport: React.FC = () => {
                           type="button"
                           disabled={deletingId === item.sessionId}
                           onClick={() => handleDelete(item.sessionId)}
-                          className="w-8 h-8 rounded-md bg-rose-100 text-rose-700 hover:bg-rose-200 disabled:opacity-60 inline-flex items-center justify-center"
+                          className="w-8 h-8 rounded-md bg-danger-soft text-danger hover:bg-danger-soft disabled:opacity-60 inline-flex items-center justify-center"
                           aria-label="Delete z-bill"
                           title="Delete"
                         >
@@ -283,17 +283,17 @@ const ZBillReport: React.FC = () => {
 
       {activeId && (
         <div className="fixed inset-0 z-[70] flex items-center justify-center p-4">
-          <div className="absolute inset-0 bg-slate-950/55 backdrop-blur-sm" onClick={() => setActiveId(null)} aria-hidden />
-          <div className="zbill-print-area relative w-full max-w-2xl bg-white border border-slate-200 rounded-2xl shadow-2xl max-h-[90vh] overflow-y-auto">
-            <div className="px-5 py-4 border-b border-slate-100 flex items-center justify-between">
-              <h2 className="text-lg font-bold text-[#1e3a5f]">Z-bill View</h2>
-              <button type="button" onClick={() => setActiveId(null)} className="text-slate-400 hover:text-slate-700 text-xl leading-none px-1">
+          <div className="absolute inset-0 bg-surface-muted backdrop-blur-sm" onClick={() => setActiveId(null)} aria-hidden />
+          <div className="zbill-print-area relative w-full max-w-2xl bg-surface border border-line rounded-2xl shadow-elevated max-h-[90vh] overflow-y-auto">
+            <div className="px-5 py-4 border-b border-line flex items-center justify-between">
+              <h2 className="text-lg font-bold text-foreground">Z-bill View</h2>
+              <button type="button" onClick={() => setActiveId(null)} className="text-subtle hover:text-foreground text-xl leading-none px-1">
                 x
               </button>
             </div>
             <div className="p-5 space-y-4">
-              {detailLoading && <div className="text-sm text-slate-500">Loading details...</div>}
-              {detailError && <div className="text-sm text-red-600">{detailError}</div>}
+              {detailLoading && <div className="text-sm text-muted">Loading details...</div>}
+              {detailError && <div className="text-sm text-danger">{detailError}</div>}
               {!detailLoading && !detailError && detail && (
                 <>
                   {(() => {
@@ -311,70 +311,70 @@ const ZBillReport: React.FC = () => {
                       .filter(Boolean) as Array<{ note: string; qty: number; amount: number }>;
                     return (
                       <>
-                  <div className="rounded-xl border border-slate-200 bg-white p-4">
-                    <div className="font-semibold text-slate-800 mb-3">Cashier: {detail.cashierName}</div>
+                  <div className="rounded-xl border border-line bg-surface p-4">
+                    <div className="font-semibold text-foreground mb-3">Cashier: {detail.cashierName}</div>
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-2 text-sm">
-                      <div className="rounded-lg bg-slate-50 border border-slate-100 px-3 py-2 flex justify-between">
-                        <span className="text-slate-500">Open Date</span>
-                        <span className="font-semibold text-slate-800">{dateOnly(detail.openTime)}</span>
+                      <div className="rounded-lg bg-surface-raised border border-line px-3 py-2 flex justify-between">
+                        <span className="text-muted">Open Date</span>
+                        <span className="font-semibold text-foreground">{dateOnly(detail.openTime)}</span>
                       </div>
-                      <div className="rounded-lg bg-slate-50 border border-slate-100 px-3 py-2 flex justify-between">
-                        <span className="text-slate-500">Open Time</span>
-                        <span className="font-semibold text-slate-800">{timeOnly(detail.openTime)}</span>
+                      <div className="rounded-lg bg-surface-raised border border-line px-3 py-2 flex justify-between">
+                        <span className="text-muted">Open Time</span>
+                        <span className="font-semibold text-foreground">{timeOnly(detail.openTime)}</span>
                       </div>
-                      <div className="rounded-lg bg-slate-50 border border-slate-100 px-3 py-2 flex justify-between">
-                        <span className="text-slate-500">Close Date</span>
-                        <span className="font-semibold text-slate-800">{dateOnly(detail.closeTime)}</span>
+                      <div className="rounded-lg bg-surface-raised border border-line px-3 py-2 flex justify-between">
+                        <span className="text-muted">Close Date</span>
+                        <span className="font-semibold text-foreground">{dateOnly(detail.closeTime)}</span>
                       </div>
-                      <div className="rounded-lg bg-slate-50 border border-slate-100 px-3 py-2 flex justify-between">
-                        <span className="text-slate-500">Close Time</span>
-                        <span className="font-semibold text-slate-800">{timeOnly(detail.closeTime)}</span>
+                      <div className="rounded-lg bg-surface-raised border border-line px-3 py-2 flex justify-between">
+                        <span className="text-muted">Close Time</span>
+                        <span className="font-semibold text-foreground">{timeOnly(detail.closeTime)}</span>
                       </div>
-                      <div className="rounded-lg bg-slate-50 border border-slate-100 px-3 py-2 flex justify-between">
-                        <span className="text-slate-500">Cash Hand In</span>
-                        <span className="font-semibold text-slate-800">{money(detail.openingCash)}</span>
+                      <div className="rounded-lg bg-surface-raised border border-line px-3 py-2 flex justify-between">
+                        <span className="text-muted">Cash Hand In</span>
+                        <span className="font-semibold text-foreground">{money(detail.openingCash)}</span>
                       </div>
-                      <div className="rounded-lg bg-slate-50 border border-slate-100 px-3 py-2 flex justify-between">
-                        <span className="text-slate-500">Cash Payment</span>
-                        <span className="font-semibold text-slate-800">{money(detail.cashPayments)}</span>
+                      <div className="rounded-lg bg-surface-raised border border-line px-3 py-2 flex justify-between">
+                        <span className="text-muted">Cash Payment</span>
+                        <span className="font-semibold text-foreground">{money(detail.cashPayments)}</span>
                       </div>
-                      <div className="rounded-lg bg-slate-50 border border-slate-100 px-3 py-2 flex justify-between">
-                        <span className="text-slate-500">Card Payment</span>
-                        <span className="font-semibold text-slate-800">{money(detail.cardPayments)}</span>
+                      <div className="rounded-lg bg-surface-raised border border-line px-3 py-2 flex justify-between">
+                        <span className="text-muted">Card Payment</span>
+                        <span className="font-semibold text-foreground">{money(detail.cardPayments)}</span>
                       </div>
-                      <div className="rounded-lg bg-slate-50 border border-slate-100 px-3 py-2 flex justify-between">
-                        <span className="text-slate-500">Bank Transfer</span>
-                        <span className="font-semibold text-slate-800">{money(detail.bankTransferPayments)}</span>
+                      <div className="rounded-lg bg-surface-raised border border-line px-3 py-2 flex justify-between">
+                        <span className="text-muted">Bank Transfer</span>
+                        <span className="font-semibold text-foreground">{money(detail.bankTransferPayments)}</span>
                       </div>
-                      <div className="rounded-lg bg-slate-50 border border-slate-100 px-3 py-2 flex justify-between">
-                        <span className="text-slate-500">Discount</span>
-                        <span className="font-semibold text-slate-800">{money(detail.totalDiscount)}</span>
+                      <div className="rounded-lg bg-surface-raised border border-line px-3 py-2 flex justify-between">
+                        <span className="text-muted">Discount</span>
+                        <span className="font-semibold text-foreground">{money(detail.totalDiscount)}</span>
                       </div>
-                      <div className="rounded-lg bg-slate-50 border border-slate-100 px-3 py-2 flex justify-between">
-                        <span className="text-slate-500">Cash Variance</span>
-                        <span className={`font-semibold ${detail.cashVariance > 0 ? 'text-rose-700' : 'text-slate-800'}`}>{money(detail.cashVariance)}</span>
+                      <div className="rounded-lg bg-surface-raised border border-line px-3 py-2 flex justify-between">
+                        <span className="text-muted">Cash Variance</span>
+                        <span className={`font-semibold ${detail.cashVariance > 0 ? 'text-danger' : 'text-foreground'}`}>{money(detail.cashVariance)}</span>
                       </div>
                     </div>
                   </div>
 
-                  <div className="rounded-xl border border-slate-200 overflow-hidden">
-                    <div className="px-4 py-2 bg-slate-50 border-b border-slate-200 text-sm font-semibold text-slate-700">Denominations</div>
+                  <div className="rounded-xl border border-line overflow-hidden">
+                    <div className="px-4 py-2 bg-surface-raised border-b border-line text-sm font-semibold text-foreground">Denominations</div>
                     <table className="w-full text-sm">
-                      <thead className="bg-white">
-                        <tr className="border-b border-slate-100">
-                          <th className="text-left px-4 py-2 text-slate-500">Note / Coin</th>
-                          <th className="text-right px-4 py-2 text-slate-500">Quantity</th>
-                          <th className="text-right px-4 py-2 text-slate-500">Amount</th>
+                      <thead className="bg-surface">
+                        <tr className="border-b border-line">
+                          <th className="text-left px-4 py-2 text-muted">Note / Coin</th>
+                          <th className="text-right px-4 py-2 text-muted">Quantity</th>
+                          <th className="text-right px-4 py-2 text-muted">Amount</th>
                         </tr>
                       </thead>
                       <tbody>
                         {denominationRows.length === 0 ? (
                           <tr>
-                            <td className="px-4 py-2 text-slate-500" colSpan={3}>No denomination data available.</td>
+                            <td className="px-4 py-2 text-muted" colSpan={3}>No denomination data available.</td>
                           </tr>
                         ) : (
                           denominationRows.map((row) => (
-                            <tr key={row.note} className="border-b border-slate-50">
+                            <tr key={row.note} className="border-b border-line">
                               <td className="px-4 py-2">{row.note}</td>
                               <td className="px-4 py-2 text-right">{row.qty}</td>
                               <td className="px-4 py-2 text-right font-medium">{money(row.amount)}</td>
@@ -385,9 +385,9 @@ const ZBillReport: React.FC = () => {
                     </table>
                   </div>
 
-                  <div className="rounded-xl border border-[#1f3b63]/20 bg-[#e8f4fd] px-4 py-3 text-center">
-                    <div className="text-xs uppercase font-bold text-[#1f3b63]">Total when close the POS by admin</div>
-                    <div className="text-2xl font-bold text-[#1f3b63] mt-1">{money(detail.closingCash)}</div>
+                  <div className="rounded-xl border border-primary/20 bg-surface-muted px-4 py-3 text-center">
+                    <div className="text-xs uppercase font-bold text-foreground">Total when close the POS by admin</div>
+                    <div className="text-2xl font-bold text-foreground mt-1">{money(detail.closingCash)}</div>
                   </div>
                       </>
                     );
@@ -400,14 +400,14 @@ const ZBillReport: React.FC = () => {
                 type="button"
                 onClick={printZBill}
                 disabled={!detail || detailLoading || !!detailError}
-                className="px-4 py-2 rounded-lg bg-[#1f3b63] text-white font-semibold hover:bg-[#243b53] disabled:opacity-50 disabled:cursor-not-allowed"
+                className="px-4 py-2 rounded-lg bg-primary text-on-primary font-semibold hover:bg-primary-hover disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 Print Z Bill
               </button>
               <button
                 type="button"
                 onClick={() => setActiveId(null)}
-                className="px-4 py-2 rounded-lg bg-gray-200 text-gray-700 font-semibold hover:bg-gray-300"
+                className="px-4 py-2 rounded-lg bg-surface-muted text-foreground font-semibold hover:bg-surface-muted"
               >
                 Close
               </button>

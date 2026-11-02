@@ -1,5 +1,42 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { NavLink, useLocation, useNavigate } from 'react-router-dom';
+import {
+  Activity,
+  ArrowLeftRight,
+  Barcode,
+  BarChart3,
+  BookOpen,
+  Boxes,
+  ChefHat,
+  ChevronLeft,
+  ChevronRight,
+  Circle,
+  ClipboardList,
+  Clock,
+  CookingPot,
+  FileText,
+  Hash,
+  House,
+  LogOut,
+  Mail,
+  Package,
+  Percent,
+  Printer,
+  Receipt,
+  RotateCcw,
+  Settings,
+  ShieldCheck,
+  ShoppingCart,
+  Tag,
+  Truck,
+  UserRound,
+  Users,
+  Warehouse,
+  X,
+  type LucideIcon
+} from 'lucide-react';
+import { usePermissions } from '../../contexts/PermissionContext';
+import { permissionForPath } from '../../utils/permissionRoutes';
 
 /** Leaf link in the sidebar */
 export type MenuLeaf = { label: string; to: string };
@@ -10,6 +47,60 @@ type MenuItem = {
   label: string;
   to?: string;
   children?: MenuChild[];
+};
+
+const menuIcons: Record<string, LucideIcon> = {
+  Home: House,
+  Products: Package,
+  Units: Boxes,
+  'Kitchen inventory': CookingPot,
+  Inventory: Boxes,
+  'Recipe configuration': BookOpen,
+  Categories: ClipboardList,
+  Variations: Circle,
+  Brands: Tag,
+  'Barcode Print': Barcode,
+  People: Users,
+  Customers: UserRound,
+  Users: Users,
+  Suppliers: Truck,
+  'Roles & Permissions': ShieldCheck,
+  Warehouse,
+  Transfers: ArrowLeftRight,
+  Sale: ShoppingCart,
+  Sales: Receipt,
+  'Sale Returns': RotateCcw,
+  'Return To Supplier': Truck,
+  'Purchase / Inventory': ClipboardList,
+  Purchases: ShoppingCart,
+  'Purchase Returns': RotateCcw,
+  'Stock Adjustments': Activity,
+  Quotations: FileText,
+  Expenses: Receipt,
+  'Expense Categories': Tag,
+  'Special Offers': Percent,
+  'Z-bill': Printer,
+  Reports: BarChart3,
+  'Sales Reports': BarChart3,
+  'Register Reports': ClipboardList,
+  'Inventory Reports': Boxes,
+  'Kitchen Waste Report': ChefHat,
+  'Purchase Reports': ShoppingCart,
+  'Expense Reports': Receipt,
+  'Customer Reports': UserRound,
+  'Supplier Reports': Truck,
+  Settings,
+  'System Settings': Settings,
+  'Activity Logs': Clock,
+  'Mail Settings': Mail,
+  'Prefix Settings': Hash,
+  'Receipt Settings': Receipt,
+  Logout: LogOut
+};
+
+const MenuIcon: React.FC<{ label: string; size?: number }> = ({ label, size = 18 }) => {
+  const Icon = menuIcons[label.trim()] ?? Circle;
+  return <Icon size={size} aria-hidden="true" className="shrink-0" />;
 };
 
 const isMenuGroup = (child: MenuChild): child is { label: string; children: MenuLeaf[] } =>
@@ -125,8 +216,10 @@ const Sidebar: React.FC<SidebarProps> = ({
   onToggleCollapse
 }) => {
   const [open, setOpen] = useState<Record<string, boolean>>({});
+  const sidebarRef = useRef<HTMLElement>(null);
   const navigate = useNavigate();
   const location = useLocation();
+  const { hasPermission } = usePermissions();
 
   const toggle = (label: string) => setOpen(prev => ({ ...prev, [label]: !prev[label] }));
 
@@ -153,40 +246,95 @@ const Sidebar: React.FC<SidebarProps> = ({
     onClose?.();
   }, [location.pathname, onClose]);
 
-  const menuToRender: MenuItem[] = buildRestaurantMenu();
+  useEffect(() => {
+    if (!mobileOpen) return;
+    const previous = document.querySelector<HTMLElement>('[aria-controls="primary-navigation"]');
+    const sidebar = sidebarRef.current;
+    const focusable = () => Array.from(sidebar?.querySelectorAll<HTMLElement>('a[href], button:not(:disabled)') || [])
+      .filter(element => element.getClientRects().length > 0 && getComputedStyle(element).visibility === 'visible');
+    let focusFrame = 0;
+    const focusWhenVisible = () => {
+      const close = sidebar?.querySelector<HTMLElement>('[aria-label="Close navigation"]');
+      if (close && getComputedStyle(close).visibility === 'visible') close.focus();
+      else focusFrame = requestAnimationFrame(focusWhenVisible);
+    };
+    focusFrame = requestAnimationFrame(focusWhenVisible);
+    const keyboard = (event: KeyboardEvent) => {
+      if (event.key === 'Escape') onClose?.();
+      if (event.key !== 'Tab') return;
+      const elements = focusable();
+      const first = elements[0], last = elements[elements.length - 1];
+      if (!sidebar?.contains(document.activeElement)) { event.preventDefault(); first?.focus(); }
+      else if (event.shiftKey && document.activeElement === first) { event.preventDefault(); last?.focus(); }
+      else if (!event.shiftKey && document.activeElement === last) { event.preventDefault(); first?.focus(); }
+    };
+    document.addEventListener('keydown', keyboard);
+    return () => {
+      document.removeEventListener('keydown', keyboard);
+      cancelAnimationFrame(focusFrame);
+      if (previous instanceof HTMLElement) previous.focus();
+    };
+  }, [mobileOpen, onClose]);
+
+  const visible = (to: string) => {
+    const required = permissionForPath(to);
+    return !required || hasPermission(required.component, required.action);
+  };
+  const menuToRender: MenuItem[] = buildRestaurantMenu().map(item => ({
+    ...item,
+    children: item.children?.map(child => isMenuGroup(child)
+      ? { ...child, children: child.children.filter(leaf => visible(leaf.to)) } : child)
+      .filter(child => isMenuGroup(child) ? child.children.length > 0 : visible(child.to))
+  })).filter(item => item.children ? item.children.length > 0 : !item.to || visible(item.to));
 
   return (
     <aside
-      className={`${collapsed ? 'md:w-20' : 'md:w-72'} w-72 min-h-screen h-auto self-stretch bg-[#001F54] text-white flex-shrink-0 overflow-y-auto transition-all duration-200 fixed inset-y-0 left-0 z-40 transform ${mobileOpen ? 'translate-x-0' : '-translate-x-full'} md:translate-x-0`}
+      ref={sidebarRef}
+      id="primary-navigation"
+      aria-label="Primary navigation"
+      role={mobileOpen ? 'dialog' : undefined}
+      aria-modal={mobileOpen ? true : undefined}
+      className={`ss-sidebar ${collapsed ? 'md:w-20' : 'md:w-72'} w-72 h-dvh min-h-0 self-stretch flex-shrink-0 overflow-y-auto sidebar-scrollbar transition-[transform,width] duration-200 fixed inset-y-0 left-0 z-40 transform ${mobileOpen ? 'translate-x-0 visible' : '-translate-x-full invisible'} md:translate-x-0 md:visible`}
     >
-      <div className={`${collapsed ? 'px-3' : 'px-5'} py-4 border-b border-white/10`}>
+      <div className={`${collapsed ? 'px-3' : 'px-5'} py-5 border-b border-line`}>
         <div className="flex items-center justify-between">
           <div className="flex items-center space-x-3">
-            <div className="w-9 h-9 rounded bg-white/20 flex items-center justify-center">
-              <span className="text-white font-bold">SS</span>
+            <div className="ss-brand-mark w-10 h-10 flex items-center justify-center">
+              <span>SS</span>
             </div>
             {!collapsed && (
               <div>
-                <div className="text-lg font-semibold">ServeSmart</div>
-                <div className="text-xs text-white/70">Restaurant POS</div>
+                <div className="text-lg font-semibold text-foreground">ServeSmart</div>
+                <div className="text-xs text-muted">Restaurant POS</div>
               </div>
             )}
           </div>
-          <button onClick={onToggleCollapse} className="hidden md:flex w-8 h-8 rounded hover:bg-white/10 items-center justify-center">
-            <span className={`transition-transform ${collapsed ? '' : 'rotate-180'}`}>❮</span>
+          <button onClick={onToggleCollapse} aria-label={collapsed ? 'Expand navigation' : 'Collapse navigation'} className="ss-icon-button hidden md:flex">
+            <ChevronLeft size={18} aria-hidden="true" className={`transition-transform ${collapsed ? '' : 'rotate-180'}`} />
           </button>
+          <button type="button" onClick={onClose} aria-label="Close navigation" className="ss-icon-button md:hidden"><X size={20} /></button>
         </div>
         {/* Business type dropdown removed for restaurant-only build */}
       </div>
-      <nav className="px-2 py-3">
+      <nav aria-label="Main" className="px-3 py-4">
         {menuToRender.map(item => (
           <div key={item.label}>
             {item.children ? (
               <div>
-                <button onClick={() => !collapsed && toggle(item.label)} className="w-full flex items-center justify-between px-3 py-2 rounded hover:bg-[#002147]">
-                  <span className="font-medium truncate">{collapsed ? item.label[0] : item.label}</span>
+                <button
+                  type="button"
+                  title={collapsed ? item.label.trim() : undefined}
+                  aria-label={item.label.trim()}
+                  aria-expanded={!collapsed && (open[item.label] || isItemActive(item))}
+                  onClick={() => { if (collapsed) onToggleCollapse?.(); toggle(item.label); }}
+                  className="ss-nav-link w-full flex items-center justify-between px-3 py-2.5"
+                >
+                  <span className="flex min-w-0 items-center gap-3">
+                    <MenuIcon label={item.label} />
+                    {!collapsed && <span className="font-medium truncate">{item.label.trim()}</span>}
+                  </span>
                   {!collapsed && (
-                    <span className={`transition-transform text-[10px] ${(open[item.label] || isItemActive(item)) ? 'rotate-90' : ''}`}>▶</span>
+                    <ChevronRight size={16} aria-hidden="true" className={`shrink-0 transition-transform ${(open[item.label] || isItemActive(item)) ? 'rotate-90' : ''}`} />
                   )}
                 </button>
                 {!collapsed && (open[item.label] || isItemActive(item)) && (
@@ -199,23 +347,28 @@ const Sidebar: React.FC<SidebarProps> = ({
                             <button
                               type="button"
                               onClick={() => toggle(groupKey)}
-                              className="w-full flex items-center justify-between px-3 py-2 rounded text-sm text-left truncate whitespace-nowrap hover:bg-[#002147]"
+                              aria-expanded={!!open[groupKey]}
+                              className="ss-nav-link w-full flex items-center justify-between px-3 py-2 rounded text-sm text-left truncate whitespace-nowrap"
                             >
-                              <span>{child.label}</span>
-                              <span className={`transition-transform text-[10px] ${open[groupKey] ? 'rotate-90' : ''}`}>▶</span>
+                              <span className="flex min-w-0 items-center gap-2">
+                                <MenuIcon label={child.label} size={16} />
+                                <span className="truncate">{child.label}</span>
+                              </span>
+                              <ChevronRight size={14} aria-hidden="true" className={`shrink-0 transition-transform ${open[groupKey] ? 'rotate-90' : ''}`} />
                             </button>
                             {open[groupKey] && (
-                              <div className="ml-3 mt-1 space-y-1 border-l border-white/20 pl-2">
+                              <div className="ml-3 mt-1 space-y-1 border-l border-line/20 pl-2">
                                 {child.children.map(sub => (
                                   <NavLink
                                     key={sub.label}
                                     to={sub.to}
                                     onClick={handleMenuItemClick}
                                     className={({ isActive }) =>
-                                      `block px-3 py-1.5 rounded text-xs transition-colors truncate whitespace-nowrap ${isActive ? 'bg-[#004080]' : 'hover:bg-[#002147]'}`
+                                      `flex items-center gap-2 px-3 py-1.5 rounded text-xs transition-colors truncate whitespace-nowrap ${isActive ? 'ss-nav-active' : 'ss-nav-link'}`
                                     }
                                   >
-                                    {sub.label}
+                                    <MenuIcon label={sub.label} size={14} />
+                                    <span className="truncate">{sub.label}</span>
                                   </NavLink>
                                 ))}
                               </div>
@@ -229,10 +382,11 @@ const Sidebar: React.FC<SidebarProps> = ({
                           to={child.to}
                           onClick={handleMenuItemClick}
                           className={({ isActive }) =>
-                            `block px-3 py-2 rounded text-sm transition-colors truncate whitespace-nowrap ${isActive ? 'bg-[#004080]' : 'hover:bg-[#002147]'}`
+                            `flex items-center gap-2 px-3 py-2 rounded text-sm transition-colors truncate whitespace-nowrap ${isActive ? 'ss-nav-active' : 'ss-nav-link'}`
                           }
                         >
-                          {child.label}
+                          <MenuIcon label={child.label} size={16} />
+                          <span className="truncate">{child.label}</span>
                         </NavLink>
                       );
                     })}
@@ -241,10 +395,23 @@ const Sidebar: React.FC<SidebarProps> = ({
               </div>
             ) : (
               item.label === 'Logout' ? (
-                <button onClick={handleLogout} className="w-full text-left px-3 py-2 rounded hover:bg-[#002147] transition-colors">{collapsed ? '⎋' : 'Logout'}</button>
+                <button
+                  onClick={handleLogout}
+                  title={collapsed ? item.label : undefined}
+                  className="ss-nav-link w-full flex items-center gap-3 px-3 py-2.5 transition-colors"
+                >
+                  <MenuIcon label={item.label} />
+                  {!collapsed && <span>Logout</span>}
+                </button>
               ) : (
-                <NavLink to={item.to || '#'} onClick={handleMenuItemClick} className={({ isActive }) => `block px-3 py-2 rounded transition-colors ${isActive ? 'bg-[#004080]' : 'hover:bg-[#002147]'}`}>
-                  {collapsed ? item.label[0] : item.label}
+                <NavLink
+                  to={item.to || '#'}
+                  onClick={handleMenuItemClick}
+                  title={collapsed ? item.label.trim() : undefined}
+                  className={({ isActive }) => `flex items-center gap-3 px-3 py-2 rounded transition-colors ${isActive ? 'ss-nav-active' : 'ss-nav-link'}`}
+                >
+                  <MenuIcon label={item.label} />
+                  {!collapsed && <span className="truncate">{item.label.trim()}</span>}
                 </NavLink>
               )
             )}

@@ -56,36 +56,36 @@ const CreatePermission: React.FC = () => {
     <div>
       {loading && <Loader text="Creating permission" />}
         <div className="flex items-center justify-between mb-4">
-        <div className="text-2xl font-semibold text-[#001F54]">Create Permission</div>
+        <div className="text-2xl font-semibold text-foreground">Create Permission</div>
         <button 
           onClick={() => navigate('/viewRoles')}
-          className="px-4 py-2 rounded border border-gray-300 text-gray-700 hover:bg-gray-50"
+          className="px-4 py-2 rounded border border-line-strong text-foreground hover:bg-surface-raised"
         >
           Back to Roles
         </button>
       </div>
       
-      <form onSubmit={submit} className="bg-white border border-gray-200 rounded-lg p-6 max-w-2xl mx-auto space-y-6">
+      <form onSubmit={submit} className="bg-surface border border-line rounded-lg p-6 max-w-2xl mx-auto space-y-6">
         <div>
-          <label className="block text-base font-medium text-[#001F54] mb-2">Permission Name</label>
+          <label className="block text-base font-medium text-foreground mb-2">Permission Name</label>
           <input 
             required 
             value={name} 
             onChange={e => setName(e.target.value)} 
-            className="w-full text-base border border-gray-200 rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-[#001F54] focus:border-transparent" 
+            className="w-full text-base border border-line rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
             placeholder="e.g., create_user, read_orders"
           />
-          <p className="text-sm text-gray-500 mt-1">Use lowercase with underscores (e.g., create_user, read_orders)</p>
+          <p className="text-sm text-muted mt-1">Use lowercase with underscores (e.g., create_user, read_orders)</p>
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div>
-            <label className="block text-base font-medium text-[#001F54] mb-2">Component</label>
+            <label className="block text-base font-medium text-foreground mb-2">Component</label>
             <select
               required
               value={component}
               onChange={e => setComponent(e.target.value)}
-              className="w-full text-base border border-gray-200 rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-[#001F54] focus:border-transparent"
+              className="w-full text-base border border-line rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
             >
               <option value="">Select component</option>
               {components.map(comp => (
@@ -94,12 +94,12 @@ const CreatePermission: React.FC = () => {
             </select>
           </div>
           <div>
-            <label className="block text-base font-medium text-[#001F54] mb-2">Action</label>
+            <label className="block text-base font-medium text-foreground mb-2">Action</label>
             <select
               required
               value={action}
               onChange={e => setAction(e.target.value)}
-              className="w-full text-base border border-gray-200 rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-[#001F54] focus:border-transparent"
+              className="w-full text-base border border-line rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
             >
               <option value="">Select action</option>
               {actions.map(act => (
@@ -110,11 +110,11 @@ const CreatePermission: React.FC = () => {
         </div>
 
         <div>
-          <label className="block text-base font-medium text-[#001F54] mb-2">Description</label>
+          <label className="block text-base font-medium text-foreground mb-2">Description</label>
           <textarea 
             value={description} 
             onChange={e => setDescription(e.target.value)} 
-            className="w-full text-base border border-gray-200 rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-[#001F54] focus:border-transparent" 
+            className="w-full text-base border border-line rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
             rows={3}
             placeholder="Describe what this permission allows"
           />
@@ -124,13 +124,13 @@ const CreatePermission: React.FC = () => {
           <button 
             type="button" 
             onClick={() => navigate('/viewRoles')}
-            className="px-4 py-2 text-base font-medium rounded border border-gray-300 text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#003366] transition-colors duration-200"
+            className="px-4 py-2 text-base font-medium rounded border border-line-strong text-foreground hover:bg-surface-raised focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary transition-colors duration-200"
           >
             Cancel
           </button>
           <button 
             type="submit" 
-            className="px-4 py-2 text-base font-medium rounded bg-[#003366] text-white hover:bg-[#004080] focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#003366] transition-colors duration-200"
+            className="px-4 py-2 text-base font-medium rounded bg-primary text-on-primary hover:bg-primary-hover focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary transition-colors duration-200"
           >
             Create Permission
           </button>

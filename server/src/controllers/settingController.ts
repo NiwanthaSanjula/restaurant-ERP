@@ -1,52 +1,55 @@
 import { Request, Response } from 'express';
 import Setting from '../models/Setting';
+import { checkPermissionInMap, getRolePermissions } from '../config/rbac';
+import { AuthRequest } from '../middleware/auth';
+import { pickSettingsFields, STAFF_SYSTEM_FIELDS, SYSTEM_FIELDS } from '../utils/settingsFields';
 
-export const getSettings = async (req: Request, res: Response) => {
+export const getSettings = async (req: AuthRequest, res: Response) => {
   try {
-    let settings = await Setting.findOne();
-    if (!settings) {
-      return res.status(200).json({
-        success: true,
-        data: {
-          system: {
-            companyLogo: '',
-            defaultEmail: '',
-            currency: '',
-            companyName: '',
-            companyMobile: '',
-            developedBy: '',
-            address: ''
-          }
-        }
-      });
+    if (!req.user) {
+      return res.status(401).json({ success: false, message: 'Authentication required.' });
     }
+    const permissions = await getRolePermissions(req.user);
+    const canViewSettings = checkPermissionInMap(permissions, 'manageSettings', 'view_settings');
+    const settings = await Setting.findOne();
+    const system = settings?.system || {
+      companyLogo: '', defaultEmail: '', currency: '', companyName: '',
+      companyMobile: '', developedBy: '', address: ''
+    };
 
     return res.status(200).json({
       success: true,
-      data: { system: settings.system }
+      data: { system: pickSettingsFields(system, canViewSettings ? SYSTEM_FIELDS : STAFF_SYSTEM_FIELDS) }
     });
   } catch (error: any) {
-    return res.status(500).json({ success: false, message: error.message });
+    return res.status(500).json({ success: false, message: 'Unable to load system settings.' });
   }
 };
 
 
 export const updateSettings = async (req: Request, res: Response) => {
   try {
-    const updates = req.body;
-    const settings = await Setting.findOneAndUpdate({}, updates, {
+    const fields = pickSettingsFields(req.body?.system, SYSTEM_FIELDS);
+    for (const field of SYSTEM_FIELDS) {
+      const dotted = pickSettingsFields(req.body, [`system.${field}`]);
+      if (Object.keys(dotted).length) fields[field] = dotted[`system.${field}`];
+    }
+    if (!Object.keys(fields).length) {
+      return res.status(400).json({ success: false, message: 'No supported system settings provided.' });
+    }
+    const updates = Object.fromEntries(Object.entries(fields).map(([field, value]) => [`system.${field}`, value]));
+    const settings = await Setting.findOneAndUpdate({}, { $set: updates }, {
       new: true,
       upsert: true,
       runValidators: true 
     });
 
-    return res.status(200).json({ success: true, message: 'Settings updated successfully', data: settings });
+    return res.status(200).json({ success: true, message: 'Settings updated successfully', data: { system: pickSettingsFields(settings?.system, SYSTEM_FIELDS) } });
   } catch (error: any) {
     if (error.name === 'ValidationError') {
-      const messages = Object.values(error.errors).map((val: any) => val.message);
-      return res.status(400).json({ success: false, message: messages.join(', ') });
+      return res.status(400).json({ success: false, message: 'Invalid system settings.' });
     }
 
-    return res.status(500).json({ success: false, message: error.message });
+    return res.status(500).json({ success: false, message: 'Unable to update system settings.' });
   }
 };

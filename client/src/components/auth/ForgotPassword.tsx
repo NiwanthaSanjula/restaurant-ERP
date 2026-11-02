@@ -34,7 +34,7 @@ const ForgotPassword: React.FC = () => {
 
   return (
     <div className="min-h-screen flex items-center justify-center p-6">
-      <div className="w-full max-w-md bg-white shadow rounded p-6">
+      <div className="w-full max-w-md bg-surface shadow rounded p-6">
         <h1 className="text-2xl font-semibold mb-4">Forgot password</h1>
         {message && <div className="mb-3 text-sm">{message}</div>}
         <form onSubmit={handleSubmit} className="space-y-4">
@@ -42,7 +42,7 @@ const ForgotPassword: React.FC = () => {
             <label className="block text-sm mb-1">Email</label>
             <input value={email} onChange={e => setEmail(e.target.value)} type="email" required className="w-full border rounded px-3 py-2" />
           </div>
-          <button disabled={loading} type="submit" className="w-full bg-blue-600 text-white py-2 rounded">
+          <button disabled={loading} type="submit" className="w-full bg-primary text-on-primary py-2 rounded">
             {loading ? 'Sending...' : 'Send OTP'}
           </button>
         </form>

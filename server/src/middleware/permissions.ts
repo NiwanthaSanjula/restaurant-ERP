@@ -20,13 +20,7 @@ export const requirePermission = (component: string, action: string) => {
         return;
       }
 
-      if (component === 'manageProducts') {
-        next();
-        return;
-      }
-
-      // Fetch permissions from RolePermissions collection using user's role
-      const rolePermissions = await getRolePermissions(req.user.role);
+      const rolePermissions = await getRolePermissions(req.user);
 
       // Handle case where role permissions don't exist
       if (!rolePermissions) {
@@ -79,8 +73,8 @@ export const requireAnyPermission = (permissions: Array<{ component: string; act
         return;
       }
 
-      // Fetch permissions from RolePermissions collection using user's role
-      const rolePermissions = await getRolePermissions(req.user.role);
+      // Fetch current grants from the explicitly assigned Role.
+      const rolePermissions = await getRolePermissions(req.user);
 
       // Handle case where role permissions don't exist
       if (!rolePermissions) {

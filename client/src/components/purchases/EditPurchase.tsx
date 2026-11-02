@@ -519,10 +519,10 @@ const EditPurchase = () => {
 
   if (loadingPurchase) {
     return (
-      <div className="p-8 bg-[#F8FAFC] min-h-screen flex items-center justify-center">
+      <div className="p-8 bg-canvas min-h-screen flex items-center justify-center">
         <div className="text-center">
           <Loader2 className="animate-spin mx-auto mb-4" size={48} />
-          <p className="text-[#64748B] font-bold">Loading purchase...</p>
+          <p className="text-muted font-bold">Loading purchase...</p>
         </div>
       </div>
     );
@@ -530,21 +530,21 @@ const EditPurchase = () => {
 
   if (loadError) {
     return (
-      <div className="p-8 bg-[#F8FAFC] min-h-screen">
-        <div className="max-w-2xl mx-auto text-center bg-white rounded-[32px] shadow-sm border border-slate-100 p-8">
-          <p className="text-[#64748B] font-bold mb-6">{loadError}</p>
+      <div className="p-8 bg-canvas min-h-screen">
+        <div className="max-w-2xl mx-auto text-center bg-surface rounded-2xl border border-line p-8">
+          <p className="text-muted font-bold mb-6">{loadError}</p>
           <div className="flex items-center justify-center gap-3">
             <button
               type="button"
               onClick={() => navigate('/purchases')}
-              className="px-5 py-3 rounded-2xl border-2 border-[#B9D5F2] text-[#1A3E73] font-black hover:bg-slate-50 transition"
+              className="px-5 py-3 rounded-2xl border-2 border-line-strong text-primary font-black hover:bg-surface-raised transition"
             >
               Back to Purchases
             </button>
             <button
               type="button"
               onClick={() => window.location.reload()}
-              className="px-5 py-3 rounded-2xl bg-[#1A3E73] text-white font-black hover:bg-[#0F2A55] transition"
+              className="px-5 py-3 rounded-2xl bg-primary text-on-primary font-black hover:bg-primary-hover transition"
             >
               Retry
             </button>
@@ -555,47 +555,47 @@ const EditPurchase = () => {
   }
 
   return (
-    <div className="p-8 bg-[#F8FAFC] min-h-screen">
+    <div className="p-8 bg-canvas min-h-screen">
       <div className="mb-8 flex items-center gap-4">
         <button
           type="button"
           onClick={() => navigate('/purchases')}
-          className="text-[#1A3E73] hover:text-[#0F2A55] transition p-1 rounded-lg hover:bg-slate-100"
+          className="text-primary hover:text-primary transition p-1 rounded-lg hover:bg-surface-muted"
           title="Back to Purchases"
         >
           <ArrowLeft size={24} />
         </button>
-        <h1 className="text-3xl font-black text-[#1A3E73] mb-0">Edit Purchase</h1>
+        <h1 className="text-3xl font-black text-foreground mb-0">Edit Purchase</h1>
       </div>
       
       {/* Header Fields */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6 bg-white p-8 rounded-[32px] shadow-sm border border-slate-100 mb-8">
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-6 bg-surface p-8 rounded-2xl border border-line mb-8">
         <div className="space-y-3">
-          <label className="text-[10px] font-black text-[#64748B] uppercase tracking-widest flex items-center gap-2"><Users size={14} /> Supplier</label>
-          <select className="w-full p-4 border-2 border-[#B9D5F2] rounded-2xl font-bold text-[#1A3E73]" value={selectedSupplier} onChange={(e) => setSelectedSupplier(e.target.value)}>
+          <label className="text-[10px] font-black text-muted uppercase tracking-widest flex items-center gap-2"><Users size={14} /> Supplier</label>
+          <select className="w-full p-4 border-2 border-line-strong rounded-2xl font-bold text-foreground" value={selectedSupplier} onChange={(e) => setSelectedSupplier(e.target.value)}>
             <option value="">{suppliers.length === 0 ? 'Loading suppliers...' : 'Select Supplier'}</option>
             {suppliers.map(s => <option key={s._id || s.id} value={s._id || s.id}>{s.name}</option>)}
           </select>
         </div>
 
         <div className="space-y-3">
-          <label className="text-[10px] font-black text-[#64748B] uppercase tracking-widest flex items-center gap-2"><Warehouse size={14} /> Warehouse</label>
-          <select className="w-full p-4 border-2 border-[#B9D5F2] rounded-2xl font-bold text-[#1A3E73]" value={selectedWarehouseId} onChange={handleWarehouseChange}>
+          <label className="text-[10px] font-black text-muted uppercase tracking-widest flex items-center gap-2"><Warehouse size={14} /> Warehouse</label>
+          <select className="w-full p-4 border-2 border-line-strong rounded-2xl font-bold text-foreground" value={selectedWarehouseId} onChange={handleWarehouseChange}>
             <option value="">{warehouses.length === 0 ? 'Loading warehouses...' : 'Select Warehouse'}</option>
             {warehouses.map(w => <option key={w._id || w.id} value={w._id || w.id}>{w.name}</option>)}
           </select>
         </div>
 
         <div className="space-y-3">
-          <label className="text-[10px] font-black text-[#64748B] uppercase tracking-widest flex items-center gap-2"><Calendar size={14} /> Date</label>
-          <input type="date" className="w-full p-4 border-2 border-[#B9D5F2] rounded-2xl font-bold text-[#1A3E73]" value={purchaseDate} onChange={(e) => setPurchaseDate(e.target.value)} />
+          <label className="text-[10px] font-black text-muted uppercase tracking-widest flex items-center gap-2"><Calendar size={14} /> Date</label>
+          <input type="date" className="w-full p-4 border-2 border-line-strong rounded-2xl font-bold text-foreground" value={purchaseDate} onChange={(e) => setPurchaseDate(e.target.value)} />
         </div>
       </div>
 
       {/* Product Table */}
-      <div className="bg-white rounded-[32px] shadow-sm border border-slate-100 overflow-hidden mb-8">
+      <div className="bg-surface rounded-2xl border border-line overflow-hidden mb-8">
         <table className="w-full text-left">
-          <thead className="bg-[#F8FAFC] text-[#64748B] text-[10px] font-black uppercase tracking-widest border-b border-slate-100">
+          <thead className="bg-surface-raised text-muted text-[10px] font-black uppercase tracking-widest border-b border-line">
             <tr>
               <th className="p-6">Product Info</th>
               <th className="p-6 text-center">Variation</th>
@@ -606,9 +606,9 @@ const EditPurchase = () => {
               <th className="p-6 text-center">Action</th>
             </tr>
           </thead>
-          <tbody className="divide-y divide-slate-50">
+          <tbody className="divide-y divide-line">
             {items.map((item, index) => (
-              <tr key={item.id} className="hover:bg-slate-50/50 transition-all">
+              <tr key={item.id} className="hover:bg-surface-raised/50 transition-all">
                 <td className="p-6 w-1/3">
                   <SearchableDropdown 
                     key={`${item.id}-${item.productId || 'empty'}`}
@@ -618,10 +618,10 @@ const EditPurchase = () => {
                     placeholder="Search product..." 
                   />
                 </td>
-                <td className="p-6 text-center text-[#64748B] font-medium">
+                <td className="p-6 text-center text-muted font-medium">
                   {item.variation || '—'}
                 </td>
-                <td className="p-6 text-center text-[#3B82F6] font-black">
+                <td className="p-6 text-center text-primary font-black">
                   {Number((Math.max(0, item.stock || 0)).toFixed(2))}
                 </td>
                 <td className="p-6 text-center">
@@ -629,7 +629,7 @@ const EditPurchase = () => {
                     type="number" 
                     step="any" 
                     min="0" 
-                    className="w-20 p-2 border border-slate-200 rounded-lg text-center" 
+                    className="w-20 p-2 border border-line rounded-lg text-center"
                     value={typeof item.qty === 'string' ? item.qty : (item.qty || '')} 
                     onChange={(e) => handleQtyChange(index, e.target.value)}
                     onWheel={(e) => {
@@ -689,7 +689,7 @@ const EditPurchase = () => {
                     type="number" 
                     step="any" 
                     min="0" 
-                    className="w-24 p-2 border border-slate-200 rounded-lg text-center" 
+                    className="w-24 p-2 border border-line rounded-lg text-center"
                     value={typeof item.cost === 'string' && item.cost !== '' && item.cost !== '.' ? item.cost : (item.cost ? parseFloat(String(item.cost)).toFixed(2) : '0.00')} 
                     onChange={(e) => handleCostChange(index, e.target.value)}
                     onBlur={() => handleCostBlur(index)}
@@ -767,27 +767,27 @@ const EditPurchase = () => {
                 </td>
                 <td className="p-6 text-right font-black">{currencyCode} {item.subTotal.toLocaleString()}</td>
                 <td className="p-6 text-center">
-                  <button onClick={() => setItems(items.filter(i => i.id !== item.id))} className="text-red-400 hover:text-red-600"><Trash2 size={18} /></button>
+                  <button onClick={() => setItems(items.filter(i => i.id !== item.id))} className="text-danger hover:text-danger"><Trash2 size={18} /></button>
                 </td>
               </tr>
             ))}
           </tbody>
         </table>
         <div className="p-6">
-          <button onClick={addItemRow} className="flex items-center gap-2 text-[#3B82F6] font-bold text-sm"><Plus size={16} /> Add Item</button>
+          <button onClick={addItemRow} className="flex items-center gap-2 text-primary font-bold text-sm"><Plus size={16} /> Add Item</button>
         </div>
       </div>
 
       {/* Discount, Tax, and Payment Fields */}
       <div className="mt-8 grid grid-cols-1 md:grid-cols-2 gap-6">
-        <div className="bg-white rounded-[32px] shadow-sm border border-slate-100 p-6">
-          <h3 className="text-lg font-black text-[#1A3E73] mb-4">Discount & Tax</h3>
+        <div className="bg-surface rounded-2xl border border-line p-6">
+          <h3 className="text-lg font-black text-foreground mb-4">Discount & Tax</h3>
           <div className="space-y-4">
             <div className="grid grid-cols-2 gap-4">
               <div>
-                <label className="text-xs font-black text-[#64748B] uppercase tracking-widest mb-2 block">Discount Type</label>
+                <label className="text-xs font-black text-muted uppercase tracking-widest mb-2 block">Discount Type</label>
                 <select 
-                  className="w-full p-3 border-2 border-[#B9D5F2] rounded-xl font-bold text-[#1A3E73]"
+                  className="w-full p-3 border-2 border-line-strong rounded-xl font-bold text-foreground"
                   value={discountType} 
                   onChange={(e) => {
                     setDiscountType(e.target.value as 'fixed' | 'percentage');
@@ -801,13 +801,13 @@ const EditPurchase = () => {
                 </select>
               </div>
               <div>
-                <label className="text-xs font-black text-[#64748B] uppercase tracking-widest mb-2 block">Discount {discountType === 'percentage' && '(%)'}</label>
+                <label className="text-xs font-black text-muted uppercase tracking-widest mb-2 block">Discount {discountType === 'percentage' && '(%)'}</label>
                 <input 
                   type="number" 
                   step="0.01" 
                   min="0" 
                   max={discountType === 'percentage' ? 100 : undefined}
-                  className="w-full p-3 border-2 border-[#B9D5F2] rounded-xl font-bold text-[#1A3E73]" 
+                  className="w-full p-3 border-2 border-line-strong rounded-xl font-bold text-foreground"
                   value={discount || ''} 
                   onChange={(e) => {
                     const val = parseFloat(e.target.value) || 0;
@@ -821,9 +821,9 @@ const EditPurchase = () => {
             </div>
             <div className="grid grid-cols-2 gap-4">
               <div>
-                <label className="text-xs font-black text-[#64748B] uppercase tracking-widest mb-2 block">Tax Type</label>
+                <label className="text-xs font-black text-muted uppercase tracking-widest mb-2 block">Tax Type</label>
                 <select 
-                  className="w-full p-3 border-2 rounded-xl font-bold text-[#1A3E73] border-[#B9D5F2]"
+                  className="w-full p-3 border-2 rounded-xl font-bold text-foreground border-line-strong"
                   value={taxType} 
                   onChange={(e) => {
                     setTaxType(e.target.value as 'fixed' | 'percentage');
@@ -837,13 +837,13 @@ const EditPurchase = () => {
                 </select>
               </div>
               <div>
-                <label className="text-xs font-black text-[#64748B] uppercase tracking-widest mb-2 block">Tax {taxType === 'percentage' && '(%)'}</label>
+                <label className="text-xs font-black text-muted uppercase tracking-widest mb-2 block">Tax {taxType === 'percentage' && '(%)'}</label>
                 <input 
                   type="number" 
                   step="0.01" 
                   min="0" 
                   max={taxType === 'percentage' ? 100 : undefined}
-                  className="w-full p-3 border-2 border-[#B9D5F2] rounded-xl font-bold text-[#1A3E73]" 
+                  className="w-full p-3 border-2 border-line-strong rounded-xl font-bold text-foreground"
                   value={tax || ''} 
                   onChange={(e) => {
                     const val = parseFloat(e.target.value) || 0;
@@ -858,27 +858,27 @@ const EditPurchase = () => {
           </div>
         </div>
 
-        <div className="bg-white rounded-[32px] shadow-sm border border-slate-100 p-6">
-          <h3 className="text-lg font-black text-[#1A3E73] mb-4">Payment Information</h3>
+        <div className="bg-surface rounded-2xl border border-line p-6">
+          <h3 className="text-lg font-black text-foreground mb-4">Payment Information</h3>
           <div className="space-y-4">
             <div>
-              <label className="text-xs font-black text-[#64748B] uppercase tracking-widest mb-2 block">Payment Status</label>
-              <select className="w-full p-3 border-2 border-[#B9D5F2] rounded-xl font-bold text-[#1A3E73]" value={paymentStatus} onChange={(e) => setPaymentStatus(e.target.value as 'Paid' | 'Partial' | 'Unpaid')}>
+              <label className="text-xs font-black text-muted uppercase tracking-widest mb-2 block">Payment Status</label>
+              <select className="w-full p-3 border-2 border-line-strong rounded-xl font-bold text-foreground" value={paymentStatus} onChange={(e) => setPaymentStatus(e.target.value as 'Paid' | 'Partial' | 'Unpaid')}>
                 <option value="Unpaid">Unpaid</option>
                 <option value="Partial">Partial</option>
                 <option value="Paid">Paid</option>
               </select>
             </div>
             <div>
-              <label className="text-xs font-black text-[#64748B] uppercase tracking-widest mb-2 block">
+              <label className="text-xs font-black text-muted uppercase tracking-widest mb-2 block">
                 Payment Method 
-                {(paymentStatus === 'Paid' || paymentStatus === 'Partial') && <span className="text-red-500">*</span>}
+                {(paymentStatus === 'Paid' || paymentStatus === 'Partial') && <span className="text-danger">*</span>}
               </label>
               <select
-                className={`w-full p-3 border-2 rounded-xl font-bold text-[#1A3E73] ${
+                className={`w-full p-3 border-2 rounded-xl font-bold text-foreground ${
                   (paymentStatus === 'Paid' || paymentStatus === 'Partial') && !paymentMethod.trim() 
-                    ? 'border-red-300 bg-red-50' 
-                    : 'border-[#B9D5F2]'
+                    ? 'border-danger-line bg-danger-soft'
+                    : 'border-line-strong'
                 }`}
                 value={paymentMethod} 
                 onChange={(e) => setPaymentMethod(e.target.value)}
@@ -890,7 +890,7 @@ const EditPurchase = () => {
                 ))}
               </select>
               {(paymentStatus === 'Paid' || paymentStatus === 'Partial') && !paymentMethod.trim() && (
-                <p className="text-xs text-red-500 mt-1">Payment method is required for {paymentStatus.toLowerCase()} payments</p>
+                <p className="text-xs text-danger mt-1">Payment method is required for {paymentStatus.toLowerCase()} payments</p>
               )}
             </div>
           </div>
@@ -899,7 +899,7 @@ const EditPurchase = () => {
 
       {/* Footer / Grand Total */}
       <div className="mt-8 flex justify-end">
-        <div className="bg-[#1A3E73] p-8 rounded-[32px] w-full md:w-1/3 text-white shadow-2xl">
+        <div className="bg-primary p-8 rounded-2xl w-full md:w-1/3 text-on-primary shadow-elevated">
           <div className="space-y-3 mb-6">
             <div className="flex justify-between items-center">
               <span className="opacity-60 text-xs font-bold uppercase tracking-widest">Subtotal</span>
@@ -917,7 +917,7 @@ const EditPurchase = () => {
                 <span className="text-lg font-black">+ {currencyCode} {taxAmount.toLocaleString()}</span>
               </div>
             )}
-            <div className="flex justify-between items-center pt-2 border-t border-white/20">
+            <div className="flex justify-between items-center pt-2 border-t border-line/20">
               <span className="opacity-60 text-xs font-bold uppercase tracking-widest">Grand Total</span>
               <span className="text-2xl font-black">{currencyCode} {grandTotal.toLocaleString()}</span>
             </div>
@@ -925,7 +925,7 @@ const EditPurchase = () => {
           <div className="flex gap-4">
             <button 
               onClick={() => navigate('/purchases')} 
-              className="flex-1 py-3 bg-white/20 hover:bg-white/30 text-white rounded-xl font-bold transition-all"
+              className="flex-1 py-3 bg-surface-muted hover:bg-surface-muted text-foreground rounded-xl font-bold transition-all"
             >
               Cancel
             </button>
@@ -934,8 +934,8 @@ const EditPurchase = () => {
               disabled={isLoading || !isFormValid} 
               className={`flex-1 py-3 rounded-xl font-black flex items-center justify-center gap-2 transition-all ${
                 isLoading || !isFormValid
-                  ? 'bg-gray-400 cursor-not-allowed opacity-50'
-                  : 'bg-white text-[#1A3E73] hover:bg-white/90'
+                  ? 'bg-surface-muted cursor-not-allowed opacity-50'
+                  : 'bg-surface text-primary hover:bg-surface'
               }`}
             >
               {isLoading ? <Loader2 className="animate-spin" /> : <Save size={20} />} UPDATE PURCHASE
@@ -946,74 +946,74 @@ const EditPurchase = () => {
 
       {/* Review & Confirm Modal */}
       {showConfirmModal && (
-        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
-          <div className="bg-white rounded-[32px] shadow-2xl max-w-2xl w-full p-8">
+        <div className="fixed inset-0 bg-overlay flex items-center justify-center z-50 p-4">
+          <div className="bg-surface rounded-2xl shadow-elevated max-w-2xl w-full p-8">
             <div className="flex justify-between items-center mb-6">
-              <h3 className="text-2xl font-black text-[#1A3E73]">Review Purchase Updates</h3>
-              <button onClick={() => setShowConfirmModal(false)} className="text-[#64748B] hover:text-[#1A3E73]">
+              <h3 className="text-2xl font-black text-foreground">Review Purchase Updates</h3>
+              <button onClick={() => setShowConfirmModal(false)} className="text-muted hover:text-primary">
                 <X size={24} />
               </button>
             </div>
-            <div className="space-y-4 mb-6 bg-[#F8FAFC] p-6 rounded-2xl border border-slate-100">
+            <div className="space-y-4 mb-6 bg-surface-raised p-6 rounded-2xl border border-line">
               <div className="grid grid-cols-2 gap-4">
                 <div>
-                  <p className="text-xs font-black text-[#64748B] uppercase tracking-widest mb-1">Supplier</p>
-                  <p className="text-lg font-black text-[#1A3E73]">{suppliers.find(s => s._id === selectedSupplier)?.name || 'N/A'}</p>
+                  <p className="text-xs font-black text-muted uppercase tracking-widest mb-1">Supplier</p>
+                  <p className="text-lg font-black text-foreground">{suppliers.find(s => s._id === selectedSupplier)?.name || 'N/A'}</p>
                 </div>
                 <div>
-                  <p className="text-xs font-black text-[#64748B] uppercase tracking-widest mb-1">Warehouse</p>
-                  <p className="text-lg font-black text-[#1A3E73]">{selectedWarehouseName || 'N/A'}</p>
+                  <p className="text-xs font-black text-muted uppercase tracking-widest mb-1">Warehouse</p>
+                  <p className="text-lg font-black text-foreground">{selectedWarehouseName || 'N/A'}</p>
                 </div>
                 <div>
-                  <p className="text-xs font-black text-[#64748B] uppercase tracking-widest mb-1">Date</p>
-                  <p className="text-lg font-black text-[#1A3E73]">{purchaseDate}</p>
+                  <p className="text-xs font-black text-muted uppercase tracking-widest mb-1">Date</p>
+                  <p className="text-lg font-black text-foreground">{purchaseDate}</p>
                 </div>
                 <div>
-                  <p className="text-xs font-black text-[#64748B] uppercase tracking-widest mb-1">Payment Status</p>
-                  <p className="text-lg font-black text-[#1A3E73]">{paymentStatus}</p>
+                  <p className="text-xs font-black text-muted uppercase tracking-widest mb-1">Payment Status</p>
+                  <p className="text-lg font-black text-foreground">{paymentStatus}</p>
                 </div>
               </div>
-              <div className="mt-4 pt-4 border-t border-slate-200">
-                <p className="text-xs font-black text-[#64748B] uppercase tracking-widest mb-3">Items ({items.filter(i => i.productId).length})</p>
+              <div className="mt-4 pt-4 border-t border-line">
+                <p className="text-xs font-black text-muted uppercase tracking-widest mb-3">Items ({items.filter(i => i.productId).length})</p>
                 <div className="space-y-2 max-h-40 overflow-y-auto">
                   {items.filter(i => i.productId).map((item: any, idx: number) => (
-                    <div key={idx} className="flex justify-between items-center bg-white p-2 rounded-lg">
-                      <span className="text-sm font-bold text-[#1A3E73]">{item.name} × {item.qty}</span>
-                      <span className="text-sm font-black text-[#3B82F6]">{currencyCode} {item.subTotal.toLocaleString()}</span>
+                    <div key={idx} className="flex justify-between items-center bg-surface p-2 rounded-lg">
+                      <span className="text-sm font-bold text-primary">{item.name} × {item.qty}</span>
+                      <span className="text-sm font-black text-primary">{currencyCode} {item.subTotal.toLocaleString()}</span>
                     </div>
                   ))}
                 </div>
               </div>
-              <div className="mt-4 pt-4 border-t border-slate-200 space-y-2">
+              <div className="mt-4 pt-4 border-t border-line space-y-2">
                 <div className="flex justify-between items-center">
-                  <span className="text-sm font-bold text-[#64748B]">Subtotal</span>
-                  <span className="text-lg font-black text-[#1A3E73]">{currencyCode} {subtotal.toLocaleString()}</span>
+                  <span className="text-sm font-bold text-muted">Subtotal</span>
+                  <span className="text-lg font-black text-primary">{currencyCode} {subtotal.toLocaleString()}</span>
                 </div>
                 <div className="flex justify-between items-center">
-                  <span className="text-sm font-bold text-[#64748B]">Discount</span>
-                  <span className="text-lg font-black text-red-600">- {currencyCode} {discountAmount.toLocaleString()}</span>
+                  <span className="text-sm font-bold text-muted">Discount</span>
+                  <span className="text-lg font-black text-danger">- {currencyCode} {discountAmount.toLocaleString()}</span>
                 </div>
                 <div className="flex justify-between items-center">
-                  <span className="text-sm font-bold text-[#64748B]">Tax</span>
-                  <span className="text-lg font-black text-[#1A3E73]">+ {currencyCode} {taxAmount.toLocaleString()}</span>
+                  <span className="text-sm font-bold text-muted">Tax</span>
+                  <span className="text-lg font-black text-primary">+ {currencyCode} {taxAmount.toLocaleString()}</span>
                 </div>
-                <div className="flex justify-between items-center pt-2 border-t border-slate-200">
-                  <span className="text-lg font-black text-[#1A3E73]">Grand Total</span>
-                  <span className="text-2xl font-black text-[#3B82F6]">{currencyCode} {grandTotal.toLocaleString()}</span>
+                <div className="flex justify-between items-center pt-2 border-t border-line">
+                  <span className="text-lg font-black text-primary">Grand Total</span>
+                  <span className="text-2xl font-black text-primary">{currencyCode} {grandTotal.toLocaleString()}</span>
                 </div>
               </div>
             </div>
             <div className="flex gap-4">
               <button
                 onClick={() => setShowConfirmModal(false)}
-                className="flex-1 py-3 bg-[#E2E8F0] text-[#1A3E73] rounded-2xl font-bold hover:bg-[#CBD5E1] transition-all"
+                className="flex-1 py-3 bg-surface-muted text-primary rounded-2xl font-bold hover:bg-surface-muted transition-all"
               >
                 Cancel
               </button>
               <button
                 onClick={handleSubmit}
                 disabled={isLoading}
-                className="flex-1 py-3 bg-[#3B82F6] text-white rounded-2xl font-bold hover:bg-[#2563EB] transition-all flex items-center justify-center gap-2 disabled:opacity-50"
+                className="flex-1 py-3 bg-primary text-on-primary rounded-2xl font-bold hover:bg-primary-hover transition-all flex items-center justify-center gap-2 disabled:opacity-50"
               >
                 {isLoading ? <Loader2 className="animate-spin" /> : <Save size={20} />} Confirm & Update
               </button>

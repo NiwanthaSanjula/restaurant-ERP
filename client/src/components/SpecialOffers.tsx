@@ -102,17 +102,17 @@ const SpecialOffers: React.FC = () => {
   };
 
   if (loading) return (
-    <div className="h-screen flex items-center justify-center bg-slate-50">
-      <Loader2 className="animate-spin text-[#001F54]" size={40} />
+    <div className="h-screen flex items-center justify-center bg-surface-raised">
+      <Loader2 className="animate-spin text-primary" size={40} />
     </div>
   );
 
   if (error) return (
-    <div className="h-screen flex flex-col items-center justify-center bg-slate-50 gap-4">
-      <p className="text-slate-600 font-semibold">Failed to load offers</p>
+    <div className="h-screen flex flex-col items-center justify-center bg-surface-raised gap-4">
+      <p className="text-muted font-semibold">Failed to load offers</p>
       <button 
         onClick={fetchOffers}
-        className="bg-[#001F54] text-white px-6 py-2 rounded-xl font-bold hover:bg-[#002147] transition-all active:scale-95 shadow-md"
+        className="bg-primary text-on-primary px-6 py-2 rounded-xl font-bold hover:bg-primary-hover transition-all active:scale-95"
       >
         Retry
       </button>
@@ -120,16 +120,16 @@ const SpecialOffers: React.FC = () => {
   );
 
   return (
-    <div className="p-4 md:p-8 bg-slate-50 min-h-screen">
+    <div className="p-4 md:p-8 bg-canvas min-h-screen">
       {/* Header Section */}
       <div className="flex items-center justify-between">
       <div className="flex items-center gap-4 mb-8">
-        <div className="p-3 bg-[#001F54] rounded-2xl text-white shadow-lg">
+        <div className="p-3 bg-primary rounded-2xl text-on-primary">
           <Tag size={28} />
         </div>
         <div>
-          <h1 className="text-2xl font-bold text-[#001F54]">Special Offers</h1>
-          <p className="text-slate-500 text-sm">Manage promotional discounts and seasonal offers.</p>
+          <h1 className="text-2xl font-bold text-foreground">Special Offers</h1>
+          <p className="text-muted text-sm">Manage promotional discounts and seasonal offers.</p>
         </div>
       </div>
       <div>
@@ -138,9 +138,9 @@ const SpecialOffers: React.FC = () => {
                   <div className="mb-6">
                     <button 
                       onClick={() => navigate(-1)} 
-                      className="inline-flex items-center px-4 py-2 text-slate-500 hover:text-[#004080] transition-all"
+                      className="inline-flex items-center px-4 py-2 text-muted hover:text-primary transition-all"
                       >
-                  <div className="p-1 rounded-lg group-hover:bg-white group-hover:shadow-sm border border-transparent group-hover:border-slate-200 transition-all">
+                  <div className="p-1 rounded-lg group-hover:bg-surface border border-transparent group-hover:border-line transition-all">
                        <ArrowLeft size={18} />
                   </div>
                     <span className="text-sm font-semibold">Back</span>
@@ -152,50 +152,50 @@ const SpecialOffers: React.FC = () => {
 
       <div className="max-w-6xl">
         {/* Offers Table */}
-        <div className="bg-white rounded-3xl border border-slate-200 shadow-sm overflow-hidden animate-in fade-in duration-500 mb-6">
+        <div className="bg-surface rounded-3xl border border-line overflow-hidden animate-in fade-in duration-500 mb-6">
           <div className="overflow-x-auto">
             <table className="w-full text-left border-collapse">
               <thead>
-                <tr className="bg-slate-50 border-b border-slate-200">
-                  <th className="p-5 text-xs font-bold uppercase text-slate-500 tracking-wider">Offer Details</th>
-                  <th className="p-5 text-xs font-bold uppercase text-slate-500 tracking-wider">Expiry</th>
-                  <th className="p-5 text-xs font-bold uppercase text-slate-500 tracking-wider">Status</th>
-                  <th className="p-5 text-xs font-bold uppercase text-slate-500 tracking-wider text-right">Actions</th>
+                <tr className="bg-surface-raised border-b border-line">
+                  <th className="p-5 text-xs font-bold uppercase text-muted tracking-wider">Offer Details</th>
+                  <th className="p-5 text-xs font-bold uppercase text-muted tracking-wider">Expiry</th>
+                  <th className="p-5 text-xs font-bold uppercase text-muted tracking-wider">Status</th>
+                  <th className="p-5 text-xs font-bold uppercase text-muted tracking-wider text-right">Actions</th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-slate-100">
+              <tbody className="divide-y divide-line">
                 {offers.length === 0 ? (
-                  <tr><td colSpan={4} className="p-10 text-center text-slate-400 font-medium">No offers found.</td></tr>
+                  <tr><td colSpan={4} className="p-10 text-center text-subtle font-medium">No offers found.</td></tr>
                 ) : (
                   offers.map((offer: any) => (
-                    <tr key={offer._id} className="hover:bg-slate-50/50 transition-colors">
+                    <tr key={offer._id} className="hover:bg-surface-raised/50 transition-colors">
                       <td className="p-5">
-                        <div className="font-bold text-slate-800">{offer.offerName}</div>
-                        <div className="text-[#001F54] text-sm font-mono font-bold mt-1 flex items-center gap-1">
+                        <div className="font-bold text-foreground">{offer.offerName}</div>
+                        <div className="text-foreground text-sm font-mono font-bold mt-1 flex items-center gap-1">
                           <Percent size={12} /> {offer.percentage}% Off
                         </div>
                       </td>
                       <td className="p-5">
-                        <div className="flex items-center gap-2 text-slate-500 text-sm">
+                        <div className="flex items-center gap-2 text-muted text-sm">
                           <Calendar size={14} />
                           {offer.endDate ? formatDate(offer.endDate) : 'No Expiry'}
                         </div>
                       </td>
                       <td className="p-5">
                         <span className={`inline-flex items-center px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-widest ${
-                          offer.status === 'Active' ? 'bg-emerald-100 text-emerald-600' : 
-                          offer.status === 'Expired' ? 'bg-amber-100 text-amber-600' : 
-                          'bg-rose-100 text-rose-600'
+                          offer.status === 'Active' ? 'bg-secondary-soft text-secondary' :
+                          offer.status === 'Expired' ? 'bg-warning-soft text-warning' :
+                          'bg-danger-soft text-danger'
                         }`}>
                           {offer.status}
                         </span>
                       </td>
                       <td className="p-5 text-right">
                         <div className="flex justify-end gap-2">
-                          <button onClick={() => handleEdit(offer)} className="p-2 text-blue-600 hover:bg-blue-50 rounded-lg">
+                          <button onClick={() => handleEdit(offer)} className="p-2 text-primary hover:bg-primary-soft rounded-lg">
                             <Edit size={18} />
                           </button>
-                          <button onClick={() => handleDelete(offer._id)} className="p-2 text-rose-600 hover:bg-rose-50 rounded-lg">
+                          <button onClick={() => handleDelete(offer._id)} className="p-2 text-danger hover:bg-danger-soft rounded-lg">
                             <Trash2 size={18} />
                           </button>
                         </div>
@@ -213,7 +213,7 @@ const SpecialOffers: React.FC = () => {
           <div className="flex justify-end">
             <button 
               onClick={() => setShowForm(true)}
-              className="flex items-center gap-2 bg-[#001F54] text-white px-6 py-3 rounded-xl font-bold hover:bg-[#002147] transition-all shadow-md active:scale-95"
+              className="flex items-center gap-2 bg-primary text-on-primary px-6 py-3 rounded-xl font-bold hover:bg-primary-hover transition-all active:scale-95"
             >
               <Plus size={18} />
               Create New Offer
@@ -224,23 +224,23 @@ const SpecialOffers: React.FC = () => {
 
       {/* MODAL FORM OVERLAY */}
       {showForm && (
-        <div className="fixed inset-0 bg-slate-900/40 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-          <div className="bg-white w-full max-w-md rounded-3xl shadow-2xl overflow-hidden animate-in zoom-in duration-200">
-            <div className="bg-[#001F54] p-6 text-white flex justify-between items-center">
+        <div className="fixed inset-0 bg-overlay backdrop-blur-sm z-50 flex items-center justify-center p-4">
+          <div className="bg-surface w-full max-w-md rounded-3xl shadow-elevated overflow-hidden animate-in zoom-in duration-200">
+            <div className="bg-primary p-6 text-on-primary flex justify-between items-center">
               <h3 className="text-xl font-bold flex items-center gap-2">
                 <Tag size={20} /> {editId ? 'Update Offer' : 'New Offer'}
               </h3>
-              <button onClick={resetForm} className="hover:bg-white/20 p-2 rounded-full transition-colors">
+              <button onClick={resetForm} className="hover:bg-surface-muted p-2 rounded-full transition-colors">
                 <X size={24} />
               </button>
             </div>
             
             <form onSubmit={handleSubmit} className="p-8 space-y-6">
               <div className="space-y-1.5">
-                <label className="text-sm font-bold text-slate-600 uppercase">Offer Name *</label>
+                <label className="text-sm font-bold text-muted uppercase">Offer Name *</label>
                 <input 
                   type="text" required
-                  className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl focus:border-[#001F54] outline-none"
+                  className="w-full px-4 py-3 bg-surface-raised border border-line rounded-xl focus:border-primary outline-none"
                   value={formData.offerName}
                   onChange={(e) => setFormData({...formData, offerName: e.target.value})}
                   placeholder="e.g. Summer Sale"
@@ -249,19 +249,19 @@ const SpecialOffers: React.FC = () => {
 
               <div className="grid grid-cols-2 gap-4">
                 <div className="space-y-1.5">
-                  <label className="text-sm font-bold text-slate-600 uppercase">Discount % *</label>
+                  <label className="text-sm font-bold text-muted uppercase">Discount % *</label>
                   <input 
                     type="number" required min="0" max="100"
-                    className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl focus:border-[#001F54] outline-none"
+                    className="w-full px-4 py-3 bg-surface-raised border border-line rounded-xl focus:border-primary outline-none"
                     value={formData.percentage}
                     onChange={(e) => setFormData({...formData, percentage: e.target.value})}
                   />
                 </div>
                 <div className="space-y-1.5">
-                  <label className="text-sm font-bold text-slate-600 uppercase">Expiry Date</label>
+                  <label className="text-sm font-bold text-muted uppercase">Expiry Date</label>
                   <input 
                     type="date"
-                    className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl focus:border-[#001F54] outline-none"
+                    className="w-full px-4 py-3 bg-surface-raised border border-line rounded-xl focus:border-primary outline-none"
                     value={formData.endDate}
                     onChange={(e) => setFormData({...formData, endDate: e.target.value})}
                   />
@@ -270,7 +270,7 @@ const SpecialOffers: React.FC = () => {
 
               <button 
                 type="submit" disabled={saving}
-                className="w-full bg-[#001F54] text-white py-4 rounded-2xl font-bold hover:bg-[#002147] transition-all disabled:opacity-50 shadow-lg shadow-blue-900/20"
+                className="w-full bg-primary text-on-primary py-4 rounded-2xl font-bold hover:bg-primary-hover transition-all disabled:opacity-50"
               >
                 {saving ? 'Processing...' : (editId ? 'Update Offer' : 'Save Offer')}
               </button>

@@ -1,4 +1,4 @@
-import React, { useRef, useState } from 'react';
+import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { Outlet } from 'react-router-dom';
 import Navbar from '../util/navbar';
 import Sidebar from '../util/sidebar';
@@ -6,7 +6,15 @@ import Sidebar from '../util/sidebar';
 const DashboardLayout: React.FC = () => {
   const [mobileSidebarOpen, setMobileSidebarOpen] = useState(false);
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
+  const closeSidebar = useCallback(() => setMobileSidebarOpen(false), []);
   const touchStartRef = useRef<{ x: number; y: number } | null>(null);
+
+  useEffect(() => {
+    const desktop = window.matchMedia('(min-width: 768px)');
+    const sync = () => { if (desktop.matches) closeSidebar(); };
+    desktop.addEventListener('change', sync);
+    return () => desktop.removeEventListener('change', sync);
+  }, [closeSidebar]);
 
   const handleTouchStart = (event: React.TouchEvent<HTMLDivElement>) => {
     const touch = event.changedTouches[0];
@@ -41,21 +49,22 @@ const DashboardLayout: React.FC = () => {
     >
       <Sidebar
         mobileOpen={mobileSidebarOpen}
-        onClose={() => setMobileSidebarOpen(false)}
+        onClose={closeSidebar}
         collapsed={sidebarCollapsed}
         onToggleCollapse={() => setSidebarCollapsed((prev) => !prev)}
       />
 
       {mobileSidebarOpen && (
         <div
-          className="fixed inset-0 z-30 bg-black/40 md:hidden"
+          className="fixed inset-0 z-30 bg-overlay md:hidden"
           onClick={() => setMobileSidebarOpen(false)}
         />
       )}
 
-      <div className={`flex-1 min-h-screen bg-[#F7F8FA] transition-[margin] duration-200 ${sidebarCollapsed ? 'md:ml-20' : 'md:ml-72'}`}>
-        <Navbar />
-        <main className="p-6">
+      <div inert={mobileSidebarOpen} className={`flex-1 min-w-0 min-h-screen bg-canvas transition-[margin] duration-200 ${sidebarCollapsed ? 'md:ml-20' : 'md:ml-72'}`}>
+        <a href="#main-content" className="ss-skip-link">Skip to content</a>
+        <Navbar onMenuToggle={() => setMobileSidebarOpen(true)} mobileMenuOpen={mobileSidebarOpen} />
+        <main id="main-content" tabIndex={-1} className="p-3 sm:p-5 lg:p-7 min-w-0">
           <Outlet />
         </main>
       </div>

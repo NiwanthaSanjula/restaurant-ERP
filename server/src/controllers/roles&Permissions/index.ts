@@ -1,10 +1,15 @@
 import express from 'express';
 import { body, param, validationResult } from 'express-validator';
-import { RBAC_COMPONENTS } from '../../config/rbac';
+import { RBAC_COMPONENTS, normalizePermissions } from '../../config/rbac';
 import { authenticate } from '../../middleware/auth';
 import { checkPermission } from '../../middleware/permissions';
 import Permission from '../../models/Permission';
 import Role from '../../models/Role';
+
+const validRolePermissions = (value: unknown) => {
+  const normalized = normalizePermissions(value);
+  return normalized.issues.length === 0 && normalized.permissions.some(permission => Object.values(permission.actions).some(granted => granted === true));
+};
 
 // Get all roles
 export const getRoles = [authenticate, checkPermission('manageRoles', 'read'), async (req: express.Request, res: express.Response): Promise<void> => {
@@ -27,7 +32,8 @@ export const getRoleById = [authenticate, checkPermission('manageRoles', 'read')
       res.status(404).json({ status: 'error', message: 'Role not found' });
       return;
     }
-    res.json({ status: 'success', data: role });
+    const normalized = normalizePermissions(role.permissions);
+    res.json({ status: 'success', data: { ...role.toObject(), permissions: normalized.permissions, permissionIssues: normalized.issues } });
   } catch (e) {
     res.status(500).json({ status: 'error', message: 'Failed to fetch role' });
   }
@@ -39,12 +45,7 @@ export const createRoleValidators = [
   checkPermission('manageRoles', 'create'),
   body('name').isString().trim().isLength({ min: 1 }).withMessage('Role name is required'),
   body('description').optional().isString().trim(),
-  body('permissions').isArray().withMessage('Permissions must be an array'),
-  body('permissions.*.component').isIn(RBAC_COMPONENTS).withMessage('Invalid component'),
-  body('permissions.*.actions.create').isBoolean().withMessage('Create action must be boolean'),
-  body('permissions.*.actions.read').isBoolean().withMessage('Read action must be boolean'),
-  body('permissions.*.actions.update').isBoolean().withMessage('Update action must be boolean'),
-  body('permissions.*.actions.delete').isBoolean().withMessage('Delete action must be boolean')
+  body('permissions').custom(validRolePermissions).withMessage('Select recognized permissions with boolean grants.')
 ];
 
 // Create role
@@ -61,10 +62,7 @@ export const createRole = async (req: express.Request, res: express.Response): P
       typeof req.body.description === 'string' ? req.body.description.trim() : '';
 
     // ✅ FIX: reject if no permission entry has at least one action set to true
-    const hasAtLeastOnePermission = Array.isArray(permissions) && permissions.some(
-      (p: { actions: { create: boolean; read: boolean; update: boolean; delete: boolean } }) =>
-        p.actions?.create || p.actions?.read || p.actions?.update || p.actions?.delete
-    );
+    const hasAtLeastOnePermission = validRolePermissions(permissions);
 
     if (!hasAtLeastOnePermission) {
       res.status(400).json({
@@ -81,7 +79,7 @@ export const createRole = async (req: express.Request, res: express.Response): P
       return;
     }
 
-    const role = await Role.create({ name, description, permissions });
+    const role = await Role.create({ name, description, permissions: normalizePermissions(permissions).permissions });
     res.status(201).json({ status: 'success', data: { id: role._id, name: role.name } });
   } catch (e) {
     res.status(500).json({ status: 'error', message: 'Failed to create role' });
@@ -95,12 +93,8 @@ export const updateRoleValidators = [
   param('id').isString().notEmpty(),
   body('name').optional().isString().trim().isLength({ min: 1 }),
   body('description').optional().isString().trim(),
-  body('permissions').optional().isArray(),
-  body('permissions.*.component').optional().isIn(RBAC_COMPONENTS),
-  body('permissions.*.actions.create').optional().isBoolean(),
-  body('permissions.*.actions.read').optional().isBoolean(),
-  body('permissions.*.actions.update').optional().isBoolean(),
-  body('permissions.*.actions.delete').optional().isBoolean()
+  body('permissions').optional().custom(validRolePermissions).withMessage('Select recognized permissions with boolean grants.'),
+  body('isActive').optional().isBoolean()
 ];
 
 // Update role
@@ -122,9 +116,13 @@ export const updateRole = async (req: express.Request, res: express.Response): P
     if (typeof req.body.description === 'string') {
       updateData.description = req.body.description.trim();
     }
-    if (Array.isArray(req.body.permissions)) {
-      updateData.permissions = req.body.permissions;
+    if (req.body.permissions !== undefined) {
+      if (!validRolePermissions(req.body.permissions)) {
+        res.status(400).json({ status: 'error', message: 'Invalid or ambiguous role permissions.' }); return;
+      }
+      updateData.permissions = normalizePermissions(req.body.permissions).permissions;
     }
+    if (typeof req.body.isActive === 'boolean') updateData.isActive = req.body.isActive;
 
     // Check if role exists
     const existingRole = await Role.findById(id);
@@ -144,10 +142,7 @@ export const updateRole = async (req: express.Request, res: express.Response): P
 
     // Prevent updates that remove all granted actions.
     if (Array.isArray(updateData.permissions)) {
-      const hasAtLeastOnePermission = updateData.permissions.some(
-        (p: { actions?: { create?: boolean; read?: boolean; update?: boolean; delete?: boolean } }) =>
-          p?.actions?.create || p?.actions?.read || p?.actions?.update || p?.actions?.delete
-      );
+      const hasAtLeastOnePermission = validRolePermissions(updateData.permissions);
       if (!hasAtLeastOnePermission) {
         res.status(400).json({
           status: 'error',
@@ -157,7 +152,7 @@ export const updateRole = async (req: express.Request, res: express.Response): P
       }
     }
 
-    const updatedRole = await Role.findByIdAndUpdate(id, updateData, { new: true });
+    const updatedRole = await Role.findByIdAndUpdate(id, updateData, { new: true, runValidators: true });
     if (!updatedRole) {
       res.status(500).json({ status: 'error', message: 'Failed to update role' });
       return;

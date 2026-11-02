@@ -120,23 +120,23 @@ const ViewUnits: React.FC = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-canvas">
       {loading && <Loader text="Loading" />}
       
       {/* Header Section */}
-      <div className="bg-white shadow-sm border-b">
+      <div className="bg-surface border-b">
         <div className="px-6 py-4">
           <div className="flex items-center justify-between">
             <div>
-              <h1 className="text-2xl font-bold text-gray-900">Units</h1>
-              <p className="text-sm text-gray-600 mt-1">
+              <h1 className="text-2xl font-bold text-foreground">Units</h1>
+              <p className="text-sm text-muted mt-1">
                 Manage restaurant units
               </p>
             </div>
             <PermissionGate component="manageUnits" action="create">
               <Link 
                 to="/createUnit" 
-                className="inline-flex items-center px-4 py-2 bg-[#003366] text-white rounded-lg hover:bg-[#004080] transition-colors duration-200 font-medium"
+                className="inline-flex items-center px-4 py-2 bg-primary text-on-primary rounded-lg hover:bg-primary-hover transition-colors duration-200 font-medium"
               >
                 <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
@@ -157,39 +157,39 @@ const ViewUnits: React.FC = () => {
             className="max-w-md"
           />
         </div>
-        <div className="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden">
+        <div className="bg-surface rounded-lg border border-line overflow-hidden">
           <div className="overflow-x-auto">
-            <table className="min-w-full divide-y divide-gray-200">
-              <thead className="bg-gray-50">
+            <table className="min-w-full divide-y divide-line">
+              <thead className="bg-surface-raised">
                 <tr>
-                  <th className="px-6 py-4 text-left text-sm font-semibold text-gray-700 uppercase tracking-wider">Unit</th>
-                  <th className="px-6 py-4 text-left text-sm font-semibold text-gray-700 uppercase tracking-wider">Short Name</th>
-                  <th className="px-6 py-4 text-left text-sm font-semibold text-gray-700 uppercase tracking-wider">Created</th>
-                  <th className="px-6 py-4 text-right text-sm font-semibold text-gray-700 uppercase tracking-wider">Actions</th>
+                  <th className="px-6 py-4 text-left text-sm font-semibold text-foreground uppercase tracking-wider">Unit</th>
+                  <th className="px-6 py-4 text-left text-sm font-semibold text-foreground uppercase tracking-wider">Short Name</th>
+                  <th className="px-6 py-4 text-left text-sm font-semibold text-foreground uppercase tracking-wider">Created</th>
+                  <th className="px-6 py-4 text-right text-sm font-semibold text-foreground uppercase tracking-wider">Actions</th>
                 </tr>
               </thead>
-              <tbody className="bg-white divide-y divide-gray-200">
+              <tbody className="bg-surface divide-y divide-line">
                 {units.map(unit => (
-                  <tr key={unit.id} className="hover:bg-gray-50 transition-colors duration-150">
+                  <tr key={unit.id} className="hover:bg-surface-raised transition-colors duration-150">
                     <td className="px-6 py-5 whitespace-nowrap">
                       <div className="flex items-center">
                         <div className="flex-shrink-0 h-14 w-14">
-                          <div className="h-14 w-14 rounded-full bg-[#003366] flex items-center justify-center">
-                            <svg className="h-8 w-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <div className="h-14 w-14 rounded-full bg-primary flex items-center justify-center">
+                            <svg className="h-8 w-8 text-on-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z" />
                             </svg>
                           </div>
                         </div>
                         <div className="ml-4">
-                          <div className="text-base font-semibold text-gray-900">{unit.unitName}</div>
+                          <div className="text-base font-semibold text-foreground">{unit.unitName}</div>
                         </div>
                       </div>
                     </td>
                     <td className="px-6 py-5 whitespace-nowrap">
-                      <div className="text-base text-gray-900">{unit.shortName}</div>
+                      <div className="text-base text-foreground">{unit.shortName}</div>
                     </td>
                     <td className="px-6 py-5 whitespace-nowrap">
-                      <div className="text-base text-gray-900">
+                      <div className="text-base text-foreground">
                         {formatDate(unit.createdAt)}
                       </div>
                     </td>
@@ -198,7 +198,7 @@ const ViewUnits: React.FC = () => {
                         <PermissionGate component="manageUnits" action="update">
                           <button
                             onClick={() => navigate(`/editUnit/${unit.id}`)}
-                            className="inline-flex items-center p-2.5 text-[#003366] hover:text-[#003366] hover:bg-gray-100 rounded-lg transition-colors duration-200"
+                            className="inline-flex items-center p-2.5 text-primary hover:text-primary hover:bg-surface-muted rounded-lg transition-colors duration-200"
                             title="Edit unit"
                           >
                             <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -209,7 +209,7 @@ const ViewUnits: React.FC = () => {
                         <PermissionGate component="manageUnits" action="delete">
                           <button
                             onClick={() => setToDelete(unit.id)}
-                            className="inline-flex items-center p-2.5 text-red-600 hover:text-red-700 hover:bg-red-50 rounded-lg transition-colors duration-200"
+                            className="inline-flex items-center p-2.5 text-danger hover:text-danger hover:bg-danger-soft rounded-lg transition-colors duration-200"
                             title="Delete unit"
                           >
                             <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -225,15 +225,15 @@ const ViewUnits: React.FC = () => {
                   <tr>
                     <td colSpan={7} className="px-6 py-12 text-center">
                       <div className="flex flex-col items-center">
-                        <svg className="w-12 h-12 text-gray-400 mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <svg className="w-12 h-12 text-subtle mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z" />
                         </svg>
-                        <h3 className="text-lg font-medium text-gray-900 mb-2">No units found</h3>
-                        <p className="text-gray-500 mb-4">Get started by creating your first unit.</p>
+                        <h3 className="text-lg font-medium text-foreground mb-2">No units found</h3>
+                        <p className="text-muted mb-4">Get started by creating your first unit.</p>
                         <PermissionGate component="manageUnits" action="create">
                           <Link 
                             to="/createUnit" 
-                            className="inline-flex items-center px-4 py-2 bg-[#003366] text-white rounded-lg hover:bg-[#004080] transition-colors duration-200"
+                            className="inline-flex items-center px-4 py-2 bg-primary text-on-primary rounded-lg hover:bg-primary-hover transition-colors duration-200"
                           >
                             <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
@@ -250,36 +250,36 @@ const ViewUnits: React.FC = () => {
           </div>
           {/* Pagination UI */}
           {totalPages > 1 && (
-            <div className="flex items-center justify-between px-4 py-3 bg-white border-t border-gray-200 sm:px-6">
+            <div className="flex items-center justify-between px-4 py-3 bg-surface border-t border-line sm:px-6">
               <div className="flex justify-between flex-1 sm:hidden">
                 <button
                   onClick={() => handlePageChange(currentPage - 1)}
                   disabled={currentPage === 1}
-                  className="relative inline-flex items-center px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md hover:bg-gray-50 disabled:opacity-50"
+                  className="relative inline-flex items-center px-4 py-2 text-sm font-medium text-foreground bg-surface border border-line-strong rounded-md hover:bg-surface-raised disabled:opacity-50"
                 >
                   Previous
                 </button>
                 <button
                   onClick={() => handlePageChange(currentPage + 1)}
                   disabled={currentPage === totalPages}
-                  className="relative ml-3 inline-flex items-center px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md hover:bg-gray-50 disabled:opacity-50"
+                  className="relative ml-3 inline-flex items-center px-4 py-2 text-sm font-medium text-foreground bg-surface border border-line-strong rounded-md hover:bg-surface-raised disabled:opacity-50"
                 >
                   Next
                 </button>
               </div>
               <div className="hidden sm:flex-1 sm:flex sm:items-center sm:justify-between">
                 <div>
-                  <p className="text-sm text-gray-700">
+                  <p className="text-sm text-foreground">
                     Showing <span className="font-medium">{totalResults === 0 ? 0 : (currentPage - 1) * limit + 1}</span> to <span className="font-medium">{Math.min(currentPage * limit, totalResults)}</span> of{' '}
                     <span className="font-medium">{totalResults}</span> results
                   </p>
                 </div>
                 <div>
-                  <nav className="relative z-0 inline-flex -space-x-px rounded-md shadow-sm" aria-label="Pagination">
+                  <nav className="relative z-0 inline-flex -space-x-px rounded-md" aria-label="Pagination">
                     <button
                       onClick={() => handlePageChange(currentPage - 1)}
                       disabled={currentPage === 1}
-                      className="relative inline-flex items-center px-2 py-2 text-sm font-medium text-gray-500 bg-white border border-gray-300 rounded-l-md hover:bg-gray-50 disabled:opacity-50"
+                      className="relative inline-flex items-center px-2 py-2 text-sm font-medium text-muted bg-surface border border-line-strong rounded-l-md hover:bg-surface-raised disabled:opacity-50"
                     >
                       <span className="sr-only">Previous</span>
                       <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -293,8 +293,8 @@ const ViewUnits: React.FC = () => {
                         onClick={() => handlePageChange(i + 1)}
                         className={`relative inline-flex items-center px-4 py-2 border text-sm font-medium ${
                           currentPage === i + 1
-                            ? 'z-10 bg-[#003366] border-[#003366] text-white'
-                            : 'bg-white border-gray-300 text-gray-500 hover:bg-gray-50'
+                            ? 'z-10 bg-primary border-primary text-on-primary'
+                            : 'bg-surface border-line-strong text-muted hover:bg-surface-raised'
                         }`}
                       >
                         {i + 1}
@@ -304,7 +304,7 @@ const ViewUnits: React.FC = () => {
                     <button
                       onClick={() => handlePageChange(currentPage + 1)}
                       disabled={currentPage === totalPages}
-                      className="relative inline-flex items-center px-2 py-2 text-sm font-medium text-gray-500 bg-white border border-gray-300 rounded-r-md hover:bg-gray-50 disabled:opacity-50"
+                      className="relative inline-flex items-center px-2 py-2 text-sm font-medium text-muted bg-surface border border-line-strong rounded-r-md hover:bg-surface-raised disabled:opacity-50"
                     >
                       <span className="sr-only">Next</span>
                       <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">

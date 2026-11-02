@@ -67,19 +67,19 @@ const SupplierReport: React.FC = () => {
   const handleEndDateChange = (e: React.ChangeEvent<HTMLInputElement>) => setEndDate(e.target.value);
 
   return (
-    <div className="max-w-7xl mx-auto p-4 md:p-8 bg-slate-50 min-h-screen">
+    <div className="max-w-7xl mx-auto p-4 md:p-8 bg-canvas min-h-screen">
       {loading && <Loader text="Loading Suppliers..." />}
 
       <div className="flex items-center justify-between mb-6">
         <div className="flex items-center gap-4">
-          <div className="p-3 bg-[#004080] text-white rounded-xl">
+          <div className="p-3 bg-primary text-on-primary rounded-xl">
             <Truck size={26} />
           </div>
           <div>
-            <h1 className="text-xl md:text-2xl font-bold text-slate-800">
+            <h1 className="text-xl md:text-2xl font-bold text-foreground">
               Supplier Report
             </h1>
-            <p className="text-slate-500 text-sm">Supplier purchase summary</p>
+            <p className="text-muted text-sm">Supplier purchase summary</p>
           </div>
         </div>
 
@@ -100,7 +100,7 @@ const SupplierReport: React.FC = () => {
 
           <button
             onClick={() => navigate(-1)}
-            className="flex items-center text-slate-500 hover:text-[#004080] px-3 py-2 rounded-lg"
+            className="flex items-center text-muted hover:text-primary px-3 py-2 rounded-lg"
           >
             <ArrowLeft size={18} className="mr-2" />
             Back
@@ -116,30 +116,30 @@ const SupplierReport: React.FC = () => {
 
       <div className="flex flex-col sm:flex-row gap-4 mb-4">
         <div className="flex flex-col">
-          <label htmlFor="startDate" className="text-sm font-medium text-slate-700 mb-1">Start Date</label>
+          <label htmlFor="startDate" className="text-sm font-medium text-foreground mb-1">Start Date</label>
           <input
             type="date"
             id="startDate"
             value={startDate}
             onChange={handleStartDateChange}
-            className="px-3 py-2 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#004080] focus:border-transparent"
+            className="px-3 py-2 border border-line-strong rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
           />
         </div>
         <div className="flex flex-col">
-          <label htmlFor="endDate" className="text-sm font-medium text-slate-700 mb-1">End Date</label>
+          <label htmlFor="endDate" className="text-sm font-medium text-foreground mb-1">End Date</label>
           <input
             type="date"
             id="endDate"
             value={endDate}
             onChange={handleEndDateChange}
-            className="px-3 py-2 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#004080] focus:border-transparent"
+            className="px-3 py-2 border border-line-strong rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
           />
         </div>
       </div>
 
-      <div className="bg-white rounded-2xl border border-slate-200 overflow-x-auto">
+      <div className="bg-surface rounded-2xl border border-line overflow-x-auto">
         <table className="w-full text-sm">
-          <thead className="bg-slate-100">
+          <thead className="bg-surface-muted">
             <tr>
               <th className="px-4 py-3 text-left">Supplier</th>
               <th className="px-4 py-3 text-left">Purchases</th>
@@ -155,7 +155,7 @@ const SupplierReport: React.FC = () => {
               </tr>
             ) : (
               suppliers.map((row, i) => (
-                <tr key={i} className="border-t hover:bg-slate-50">
+                <tr key={i} className="border-t hover:bg-surface-raised">
                   <td className="px-4 py-3">{row.supplier}</td>
                   <td className="px-4 py-3">{row.purchases}</td>
                   <td className="px-4 py-3 font-semibold">{currencyCode} {row.total}</td>

@@ -97,12 +97,12 @@ const ViewCustomers: React.FC = () => {
     <div>
       {loading && <Loader text="Loading" />}
       <div className="flex items-center justify-between mb-4">
-        <div className="text-2xl font-semibold text-[#001F54]">Customers</div>
+        <div className="text-2xl font-semibold text-foreground">Customers</div>
         <div className="flex gap-3">
           <PermissionGate component="manageCustomers" action="update">
             <Link 
               to="/importCustomer" 
-              className="px-4 py-2 rounded bg-[#0066CC] text-white hover:bg-[#0052A3] transition-colors duration-200"
+              className="px-4 py-2 rounded bg-primary text-on-primary hover:bg-primary-hover transition-colors duration-200"
             >
               Import Customer
             </Link>
@@ -110,7 +110,7 @@ const ViewCustomers: React.FC = () => {
           <PermissionGate component="manageCustomers" action="create">
             <Link 
               to="/createCustomer" 
-              className="px-4 py-2 rounded bg-[#003366] text-white hover:bg-[#004080] transition-colors duration-200"
+              className="px-4 py-2 rounded bg-primary text-on-primary hover:bg-primary-hover transition-colors duration-200"
             >
               Create Customer
             </Link>
@@ -124,9 +124,9 @@ const ViewCustomers: React.FC = () => {
           className="max-w-md"
         />
       </div>
-      <div className="bg-white border border-gray-200 rounded overflow-auto">
-        <table className="min-w-full divide-y divide-gray-200">
-          <thead className="bg-[#001F54] text-white">
+      <div className="bg-surface border border-line rounded overflow-auto">
+        <table className="min-w-full divide-y divide-line">
+          <thead className="bg-primary text-on-primary">
             <tr>
               <th className="text-left px-6 py-4 text-sm font-semibold">Name</th>
               <th className="text-left px-6 py-4 text-sm font-semibold">Mobile</th>
@@ -135,18 +135,18 @@ const ViewCustomers: React.FC = () => {
               <th className="text-right px-6 py-4 text-sm font-semibold">Action</th>
             </tr>
           </thead>
-          <tbody className="bg-white divide-y divide-gray-200">
+          <tbody className="bg-surface divide-y divide-line">
             {customers.map(c => (
-              <tr key={c.id} className="hover:bg-gray-50 transition-colors duration-150">
-                <td className="px-6 py-5 text-base font-semibold text-gray-900">{c.name}</td>
-                <td className="px-6 py-5 text-base text-gray-900">{c.mobile}</td>
-                <td className="px-6 py-5 text-base text-gray-900">{c.NIC || '-'}</td>
-                <td className="px-6 py-5 text-base text-gray-900">{c.address || '-'}</td>
+              <tr key={c.id} className="hover:bg-surface-raised transition-colors duration-150">
+                <td className="px-6 py-5 text-base font-semibold text-foreground">{c.name}</td>
+                <td className="px-6 py-5 text-base text-foreground">{c.mobile}</td>
+                <td className="px-6 py-5 text-base text-foreground">{c.NIC || '-'}</td>
+                <td className="px-6 py-5 text-base text-foreground">{c.address || '-'}</td>
                 <td className="px-6 py-5 text-right space-x-3">
                   <PermissionGate component="manageCustomers" action="update">
                     <button
                       onClick={() => navigate(`/editCustomer/${c.id}`)}
-                      className="inline-flex items-center justify-center p-2.5 rounded-lg border border-gray-300 text-[#001F54] hover:bg-gray-100 transition-colors duration-200"
+                      className="inline-flex items-center justify-center p-2.5 rounded-lg border border-line-strong text-primary hover:bg-surface-muted transition-colors duration-200"
                       title="Edit"
                       aria-label="Edit"
                     >
@@ -159,7 +159,7 @@ const ViewCustomers: React.FC = () => {
                   <PermissionGate component="manageCustomers" action="delete">
                     <button
                       onClick={() => setToDelete(c.id)}
-                      className="inline-flex items-center justify-center p-2.5 rounded-lg border border-gray-300 text-red-600 hover:bg-gray-100 transition-colors duration-200"
+                      className="inline-flex items-center justify-center p-2.5 rounded-lg border border-line-strong text-danger hover:bg-surface-muted transition-colors duration-200"
                       title="Delete"
                       aria-label="Delete"
                     >
@@ -177,7 +177,7 @@ const ViewCustomers: React.FC = () => {
             ))}
             {customers.length === 0 && (
               <tr>
-                <td colSpan={5} className="px-6 py-12 text-center text-base text-gray-500">No customers found</td>
+                <td colSpan={5} className="px-6 py-12 text-center text-base text-muted">No customers found</td>
               </tr>
             )}
           </tbody>

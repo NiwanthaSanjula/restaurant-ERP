@@ -6,6 +6,7 @@ import OTP from '../../models/OTP';
 import PrefixSetting from '../../models/PrefixSetting';
 import User from '../../models/User';
 import { sendEmail } from '../../utils/email';
+import { administratorPermissions, clientPermissionMap, resolveRoleAccess } from '../../config/rbac';
 
 // Utilities
 const generateJwtToken = (id: string): string => {
@@ -92,6 +93,11 @@ export const postLogin = async (req: express.Request, res: express.Response): Pr
       res.status(401).json({ status: 'error', message: 'Invalid username or password' });
       return;
     }
+    const access = await resolveRoleAccess(user);
+    if (!access) {
+      res.status(403).json({ status: 'error', message: 'An active, valid assigned role is required.' });
+      return;
+    }
     // Determine whether prefix setup is required (used by frontend to redirect)
     const prefixCount = await PrefixSetting.countDocuments();
 
@@ -103,7 +109,7 @@ export const postLogin = async (req: express.Request, res: express.Response): Pr
       status: 'success',
       message: 'Login successful',
       data: {
-        user: { id: user._id, name: user.name, email: user.email, role: user.role },
+        user: { id: user._id, name: user.name, email: user.email, role: user.role, roleId: access.roleId, roleName: access.roleName, permissions: clientPermissionMap(access.permissions) },
         token,
         prefixSetupRequired: prefixCount === 0
       }
@@ -273,72 +279,7 @@ export const postInitialRun = async (req: express.Request, res: express.Response
     // eslint-disable-next-line @typescript-eslint/no-var-requires
     const Permission = require('../../models/Permission').default || require('../../models/Permission');
 
-    // Create super admin role with all permissions
-    const superAdminRole = await Role.create({
-      name: 'Super Admin',
-      description: 'Full system access with all permissions',
-      permissions: [
-        {
-          component: 'manageUsers',
-          actions: { create: true, read: true, update: true, delete: true }
-        },
-        {
-          component: 'manageRoles',
-          actions: { create: true, read: true, update: true, delete: true }
-        },
-        {
-          component: 'manageMenu',
-          actions: { create: true, read: true, update: true, delete: true }
-        },
-        {
-          component: 'manageOrders',
-          actions: { create: true, read: true, update: true, delete: true }
-        },
-        {
-          component: 'manageTables',
-          actions: { create: true, read: true, update: true, delete: true }
-        },
-        {
-          component: 'posOperations',
-          actions: { create: true, read: true, update: true, delete: true }
-        },
-        {
-          component: 'manageWarehouses',
-          actions: { create: true, read: true, update: true, delete: true }
-        },
-        {
-          component: 'manageProducts',
-          actions: { create: true, read: true, update: true, delete: true }
-        },
-        {
-          component: 'manageBaseUnits',
-          actions: { create: true, read: true, update: true, delete: true }
-        },
-        {
-          component: 'manageUnits',
-          actions: { create: true, read: true, update: true, delete: true }
-        },
-        {
-          component: 'manageCategories',
-          actions: { create: true, read: true, update: true, delete: true }
-        },
-        {
-          component: 'manageBrands',
-          actions: { create: true, read: true, update: true, delete: true }
-        },
-        {
-          component: 'manageVariations',
-          actions: { create: true, read: true, update: true, delete: true }
-        },
-        {
-          component: 'reports',
-          actions: { create: true, read: true, update: true, delete: true }
-        }
-      ],
-      isActive: true
-    });
-
-    // Create individual permissions for granular control
+    // Preserve legacy permission metadata; authorization uses the explicitly granted Role below.
     const permissions = [
       // User Management Permissions
       { name: 'create_user', component: 'manageUsers', action: 'create', description: 'Create new users' },
@@ -425,7 +366,6 @@ export const postInitialRun = async (req: express.Request, res: express.Response
       { name: 'delete_report', component: 'reports', action: 'delete', description: 'Delete reports' }
     ];
 
-    await Permission.insertMany(permissions);
 
     const adminName = process.env.INITIAL_ADMIN_NAME || process.env.ADMIN_USERNAME || 'Admin';
     const adminEmail = process.env.INITIAL_ADMIN_EMAIL || process.env.ADMIN_EMAIL;
@@ -452,6 +392,15 @@ export const postInitialRun = async (req: express.Request, res: express.Response
       res.status(409).json({ status: 'error', message: 'Email already exists' });
       return;
     }
+
+    const superAdminRole = await Role.create({
+      name: 'Super Admin',
+      description: 'Full system access with explicit permissions',
+      permissions: administratorPermissions(),
+      isActive: true
+    });
+
+    await Permission.insertMany(permissions);
 
     const adminPasswordHash = await bcrypt.hash(adminPassword, 12);
 

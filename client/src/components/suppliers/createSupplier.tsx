@@ -33,24 +33,24 @@ const CreateSupplier: React.FC = () => {
 
   return (
     <div className="p-6 min-h-[calc(100vh-200px)] flex items-center justify-center">
-      <div className="max-w-xl w-full bg-white border border-gray-200 rounded-lg p-6">
-        <h1 className="text-2xl font-bold text-gray-900 mb-4">Create Supplier</h1>
+      <div className="max-w-xl w-full bg-surface border border-line rounded-lg p-6">
+        <h1 className="text-2xl font-bold text-foreground mb-4">Create Supplier</h1>
         <form onSubmit={submit} className="space-y-4">
           <div>
-            <label className="block text-base font-medium text-gray-700 mb-2">Name <span className="text-red-500">*</span></label>
-            <input value={name} onChange={e => setName(e.target.value)} required className="w-full px-3 py-2 text-base border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#003366] focus:border-transparent" />
+            <label className="block text-base font-medium text-foreground mb-2">Name <span className="text-danger">*</span></label>
+            <input value={name} onChange={e => setName(e.target.value)} required className="w-full px-3 py-2 text-base border border-line-strong rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent" />
           </div>
           <div>
-            <label className="block text-base font-medium text-gray-700 mb-2">Company Name</label>
-            <input value={companyName} onChange={e => setCompanyName(e.target.value)} className="w-full px-3 py-2 text-base border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#003366] focus:border-transparent" />
+            <label className="block text-base font-medium text-foreground mb-2">Company Name</label>
+            <input value={companyName} onChange={e => setCompanyName(e.target.value)} className="w-full px-3 py-2 text-base border border-line-strong rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent" />
           </div>
           <div>
-            <label className="block text-base font-medium text-gray-700 mb-2">Mobile</label>
-            <input value={mobile} onChange={e => setMobile(e.target.value)} className="w-full px-3 py-2 text-base border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#003366] focus:border-transparent" />
+            <label className="block text-base font-medium text-foreground mb-2">Mobile</label>
+            <input value={mobile} onChange={e => setMobile(e.target.value)} className="w-full px-3 py-2 text-base border border-line-strong rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent" />
           </div>
           <div className="flex justify-end gap-3 pt-4">
-            <button type="button" onClick={() => navigate('/viewSuppliers')} className="px-4 py-2 text-base font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#003366] transition-colors duration-200">Cancel</button>
-            <button type="submit" className="px-4 py-2 text-base font-medium text-white bg-[#003366] rounded-lg hover:bg-[#004080] focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#003366] transition-colors duration-200" disabled={loading}>{loading ? 'Saving...' : 'Save'}</button>
+            <button type="button" onClick={() => navigate('/viewSuppliers')} className="px-4 py-2 text-base font-medium text-foreground bg-surface border border-line-strong rounded-lg hover:bg-surface-raised focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary transition-colors duration-200">Cancel</button>
+            <button type="submit" className="px-4 py-2 text-base font-medium text-on-primary bg-primary rounded-lg hover:bg-primary-hover focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary transition-colors duration-200" disabled={loading}>{loading ? 'Saving...' : 'Save'}</button>
           </div>
         </form>
       </div>

@@ -71,33 +71,33 @@ const CreateUser: React.FC = () => {
       <div className="w-full max-w-xl">
         {loading && <Loader text="Creating user" />}
         <div className="mb-6">
-          <div className="text-2xl font-semibold text-[#001F54]">Create User</div>
+          <div className="text-2xl font-semibold text-foreground">Create User</div>
         </div>
-        <form onSubmit={submit} className="bg-white border border-gray-200 rounded-lg p-6 space-y-4">
+        <form onSubmit={submit} className="bg-surface border border-line rounded-lg p-6 space-y-4">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div>
-              <label className="block text-base font-medium text-[#001F54] mb-2">First name</label>
-              <input required value={firstName} onChange={e => setFirstName(e.target.value)} className="w-full text-base border border-gray-200 rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-[#001F54] focus:border-transparent" />
+              <label className="block text-base font-medium text-foreground mb-2">First name</label>
+              <input required value={firstName} onChange={e => setFirstName(e.target.value)} className="w-full text-base border border-line rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent" />
             </div>
             <div>
-              <label className="block text-base font-medium text-[#001F54] mb-2">Last name</label>
-              <input required value={lastName} onChange={e => setLastName(e.target.value)} className="w-full text-base border border-gray-200 rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-[#001F54] focus:border-transparent" />
+              <label className="block text-base font-medium text-foreground mb-2">Last name</label>
+              <input required value={lastName} onChange={e => setLastName(e.target.value)} className="w-full text-base border border-line rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent" />
             </div>
           </div>
           <div>
-            <label className="block text-base font-medium text-[#001F54] mb-2">Mobile</label>
-            <input required value={mobile} onChange={e => setMobile(e.target.value)} className="w-full text-base border border-gray-200 rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-[#001F54] focus:border-transparent" />
+            <label className="block text-base font-medium text-foreground mb-2">Mobile</label>
+            <input required value={mobile} onChange={e => setMobile(e.target.value)} className="w-full text-base border border-line rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent" />
           </div>
           <div>
-            <label className="block text-base font-medium text-[#001F54] mb-2">Username (Email)</label>
-            <input type="email" required value={email} onChange={e => setEmail(e.target.value)} className="w-full text-base border border-gray-200 rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-[#001F54] focus:border-transparent" />
+            <label className="block text-base font-medium text-foreground mb-2">Username (Email)</label>
+            <input type="email" required value={email} onChange={e => setEmail(e.target.value)} className="w-full text-base border border-line rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent" />
           </div>
           <div>
-            <label className="block text-base font-medium text-[#001F54] mb-2">Role</label>
+            <label className="block text-base font-medium text-foreground mb-2">Role</label>
             <select
               value={roleId}
               onChange={e => setRoleId(e.target.value)}
-              className="w-full text-base border border-gray-200 rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-[#001F54] focus:border-transparent"
+              className="w-full text-base border border-line rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
             >
               <option value="">Select a role (optional)</option>
               {roles.map(role => (
@@ -106,7 +106,7 @@ const CreateUser: React.FC = () => {
             </select>
           </div>
           <div className="flex justify-end pt-4">
-            <button type="submit" className="px-4 py-2 text-base font-medium rounded bg-[#003366] text-white hover:bg-[#004080] focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#003366] transition-colors duration-200">Create</button>
+            <button type="submit" className="px-4 py-2 text-base font-medium rounded bg-primary text-on-primary hover:bg-primary-hover focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary transition-colors duration-200">Create</button>
           </div>
         </form>
       </div>

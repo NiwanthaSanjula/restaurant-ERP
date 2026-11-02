@@ -82,10 +82,10 @@ const CustomerReport: React.FC = () => {
       <div className="flex justify-between items-center mb-4">
         
         <div>
-        <h2 className="text-2xl font-semibold text-[#001F54]">
+        <h2 className="text-2xl font-semibold text-foreground">
           Customer Report
         </h2>
-        <p className="text-slate-500 text-xs md:text-sm">View current customers </p>
+        <p className="text-muted text-xs md:text-sm">View current customers </p>
         </div>
       </div>
 
@@ -113,7 +113,7 @@ const CustomerReport: React.FC = () => {
 
           <button
             onClick={() => navigate(-1)}
-            className="flex items-center text-slate-500 hover:text-[#004080] px-3 py-2 rounded-lg"
+            className="flex items-center text-muted hover:text-primary px-3 py-2 rounded-lg"
           >
             <ArrowLeft size={18} className="mr-2" />
             Back
@@ -124,10 +124,10 @@ const CustomerReport: React.FC = () => {
 
       <div
         id="report-table"
-        className="bg-white border border-gray-200 rounded overflow-x-auto"
+        className="bg-surface border border-line rounded overflow-x-auto"
       >
-        <table className="min-w-[640px] w-full divide-y divide-gray-200">
-          <thead className="bg-[#001F54] text-white">
+        <table className="min-w-[640px] w-full divide-y divide-line">
+          <thead className="bg-primary text-on-primary">
             <tr>
               <th className="text-left px-6 py-4 text-sm font-semibold">
                 Name
@@ -147,24 +147,24 @@ const CustomerReport: React.FC = () => {
             </tr>
           </thead>
 
-          <tbody className="bg-white divide-y divide-gray-200">
+          <tbody className="bg-surface divide-y divide-line">
             {customers.length > 0 ? (
               customers.map((c) => (
                 <tr
                   key={c.id}
-                  className="hover:bg-gray-50 transition-colors duration-150"
+                  className="hover:bg-surface-raised transition-colors duration-150"
                 >
-                  <td className="px-6 py-5 font-semibold text-gray-900">
+                  <td className="px-6 py-5 font-semibold text-foreground">
                     {c.name}
                   </td>
-                  <td className="px-6 py-5 text-gray-900">{c.mobile}</td>
-                  <td className="px-6 py-5 text-gray-900">
+                  <td className="px-6 py-5 text-foreground">{c.mobile}</td>
+                  <td className="px-6 py-5 text-foreground">
                     {c.NIC || "-"}
                   </td>
-                  <td className="px-6 py-5 text-gray-900">
+                  <td className="px-6 py-5 text-foreground">
                     {c.address || "-"}
                   </td>
-                  <td className="px-6 py-5 text-gray-900">
+                  <td className="px-6 py-5 text-foreground">
                     {formatDate(c.createdAt)}
                   </td>
                 </tr>
@@ -173,7 +173,7 @@ const CustomerReport: React.FC = () => {
               <tr>
                 <td
                   colSpan={5}
-                  className="px-6 py-12 text-center text-gray-500"
+                  className="px-6 py-12 text-center text-muted"
                 >
                   No customers found
                 </td>
@@ -183,11 +183,11 @@ const CustomerReport: React.FC = () => {
         </table>
 
         {/* Pagination Controls */}
-        <div className="px-6 py-4 flex flex-col md:flex-row justify-between items-center gap-4 border-t border-gray-200 bg-gray-50">
+        <div className="px-6 py-4 flex flex-col md:flex-row justify-between items-center gap-4 border-t border-line bg-surface-raised">
           <div className="flex items-center gap-4">
-            <label className="text-sm font-medium text-gray-600">Rows per page:</label>
+            <label className="text-sm font-medium text-muted">Rows per page:</label>
             <select
-              className="border border-gray-300 rounded-lg px-2 py-1 text-sm outline-none focus:ring-2 focus:ring-[#001F54]/20"
+              className="border border-line-strong rounded-lg px-2 py-1 text-sm outline-none focus:ring-2 focus:ring-primary/20"
               value={pageSize}
               onChange={(e) => {
                 setPageSize(Number(e.target.value));
@@ -200,32 +200,32 @@ const CustomerReport: React.FC = () => {
                 </option>
               ))}
             </select>
-            <div className="text-sm font-medium text-gray-400">
+            <div className="text-sm font-medium text-subtle">
               Showing{" "}
-              <span className="text-gray-600 font-bold">
+              <span className="text-muted font-bold">
                 {total === 0 ? 0 : (page - 1) * pageSize + 1}
               </span>{" "}
               to{" "}
-              <span className="text-gray-600 font-bold">
+              <span className="text-muted font-bold">
                 {Math.min(page * pageSize, total)}
               </span>{" "}
-              of <span className="text-gray-600 font-bold">{total}</span> entries
+              of <span className="text-muted font-bold">{total}</span> entries
             </div>
           </div>
 
           <div className="flex items-center gap-2">
             <button
-              className="px-4 py-2 text-sm font-bold text-gray-500 hover:text-[#001F54] transition-colors disabled:opacity-50 disabled:cursor-not-allowed border border-gray-300 rounded-lg bg-white"
+              className="px-4 py-2 text-sm font-bold text-muted hover:text-primary transition-colors disabled:opacity-50 disabled:cursor-not-allowed border border-line-strong rounded-lg bg-surface"
               disabled={page <= 1}
               onClick={() => setPage((p) => Math.max(1, p - 1))}
             >
               Previous
             </button>
-            <div className="px-4 py-2 text-sm font-bold text-white bg-[#001F54] rounded-lg">
+            <div className="px-4 py-2 text-sm font-bold text-on-primary bg-primary rounded-lg">
               {page}
             </div>
             <button
-              className="px-4 py-2 text-sm font-bold text-gray-500 hover:text-[#001F54] transition-colors disabled:opacity-50 disabled:cursor-not-allowed border border-gray-300 rounded-lg bg-white"
+              className="px-4 py-2 text-sm font-bold text-muted hover:text-primary transition-colors disabled:opacity-50 disabled:cursor-not-allowed border border-line-strong rounded-lg bg-surface"
               disabled={page >= totalPages}
               onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
             >

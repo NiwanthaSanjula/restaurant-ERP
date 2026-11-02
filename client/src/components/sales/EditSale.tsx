@@ -427,7 +427,7 @@ const EditSale: React.FC = () => {
   }
 
   return (
-    <div className="min-h-screen bg-[#F8FAFC] p-6">
+    <div className="min-h-screen bg-canvas p-6">
       {loading && <Loader text="Updating sale..." />}
       
       <div className="max-w-7xl mx-auto">
@@ -435,29 +435,29 @@ const EditSale: React.FC = () => {
           <button
             type="button"
             onClick={() => navigate('/viewSales')}
-            className="flex items-center justify-center w-10 h-10 text-[#1A3E73] hover:text-[#0F2A55] hover:bg-gray-100 rounded-lg transition"
+            className="flex items-center justify-center w-10 h-10 text-primary hover:text-primary hover:bg-surface-muted rounded-lg transition"
             title="Go back to Sales"
           >
             <ArrowLeft size={20} />
           </button>
-          <h1 className="text-3xl font-bold text-[#1A3E73]">Edit Sale</h1>
+          <h1 className="text-3xl font-bold text-foreground">Edit Sale</h1>
         </div>
 
-        <form onSubmit={handleSubmit} className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
+        <form onSubmit={handleSubmit} className="bg-surface rounded-lg border border-line p-6">
           {/* Sale Info Section */}
-          <div className="mb-8 border-b border-gray-200 pb-6">
-            <h2 className="text-xl font-semibold text-[#1A3E73] mb-4">Sale Information</h2>
+          <div className="mb-8 border-b border-line pb-6">
+            <h2 className="text-xl font-semibold text-foreground mb-4">Sale Information</h2>
             
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Warehouse <span className="text-red-500">*</span>
+                <label className="block text-sm font-medium text-foreground mb-2">
+                  Warehouse <span className="text-danger">*</span>
                 </label>
                 <select
                   value={selectedWarehouseId}
                   onChange={(e) => setSelectedWarehouseId(e.target.value)}
                   required
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#1A3E73] focus:border-[#1A3E73]"
+                  className="w-full px-3 py-2 border border-line-strong rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary"
                 >
                   <option value="">Select warehouse...</option>
                   {warehouses.map((warehouse) => (
@@ -469,8 +469,8 @@ const EditSale: React.FC = () => {
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Customer <span className="text-red-500">*</span>
+                <label className="block text-sm font-medium text-foreground mb-2">
+                  Customer <span className="text-danger">*</span>
                 </label>
                 <div className="relative">
                   <input
@@ -484,18 +484,18 @@ const EditSale: React.FC = () => {
                     }}
                     placeholder="Search customer by name or mobile..."
                     required
-                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#1A3E73] focus:border-[#1A3E73]"
+                    className="w-full px-3 py-2 border border-line-strong rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary"
                   />
                   {customers.length > 0 && (
-                    <div className="absolute z-10 w-full mt-1 bg-white border border-gray-300 rounded-lg shadow-lg max-h-60 overflow-auto">
+                    <div className="absolute z-10 w-full mt-1 bg-surface border border-line-strong rounded-lg max-h-60 overflow-auto">
                       {customers.map((customer) => (
                         <div
                           key={customer._id}
                           onClick={() => handleCustomerSelect(customer)}
-                          className="px-4 py-2 hover:bg-gray-100 cursor-pointer"
+                          className="px-4 py-2 hover:bg-surface-muted cursor-pointer"
                         >
                           <div className="font-medium">{customer.name}</div>
-                          <div className="text-sm text-gray-500">{customer.mobile}</div>
+                          <div className="text-sm text-muted">{customer.mobile}</div>
                         </div>
                       ))}
                     </div>
@@ -504,26 +504,26 @@ const EditSale: React.FC = () => {
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Date <span className="text-red-500">*</span>
+                <label className="block text-sm font-medium text-foreground mb-2">
+                  Date <span className="text-danger">*</span>
                 </label>
                 <input
                   type="date"
                   value={date}
                   onChange={(e) => setDate(e.target.value)}
                   required
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#1A3E73] focus:border-[#1A3E73]"
+                  className="w-full px-3 py-2 border border-line-strong rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary"
                 />
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
+                <label className="block text-sm font-medium text-foreground mb-2">
                   Status
                 </label>
                 <select
                   value={status}
                   onChange={(e) => setStatus(e.target.value as 'draft' | 'completed' | 'cancelled' | 'returned')}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#1A3E73] focus:border-[#1A3E73]"
+                  className="w-full px-3 py-2 border border-line-strong rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary"
                   disabled={status === 'returned'}
                 >
                   <option value="draft">Draft</option>
@@ -532,12 +532,12 @@ const EditSale: React.FC = () => {
                   {status === 'returned' && <option value="returned">Returned</option>}
                 </select>
                 {status === 'draft' && (
-                  <p className="mt-1 text-sm text-gray-500">
+                  <p className="mt-1 text-sm text-muted">
                     Draft sales won't update inventory. Complete the sale later to finalize.
                   </p>
                 )}
                 {status === 'returned' && (
-                  <p className="mt-1 text-sm text-red-600">
+                  <p className="mt-1 text-sm text-danger">
                     This sale cannot be edited as it is returned.
                   </p>
                 )}
@@ -546,9 +546,9 @@ const EditSale: React.FC = () => {
           </div>
 
           {/* Products Section */}
-          <div className="mb-8 border-b border-gray-200 pb-6">
+          <div className="mb-8 border-b border-line pb-6">
             <div className="mb-4">
-              <h2 className="text-xl font-semibold text-[#1A3E73]">Products</h2>
+              <h2 className="text-xl font-semibold text-foreground">Products</h2>
             </div>
 
             <div className="mb-4 relative">
@@ -558,25 +558,25 @@ const EditSale: React.FC = () => {
                 onChange={(e) => setProductSearch(e.target.value)}
                 placeholder="Search product by name or code..."
                 disabled={!selectedWarehouseId}
-                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#1A3E73] focus:border-[#1A3E73] disabled:bg-gray-100"
+                className="w-full px-4 py-3 border border-line-strong rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary disabled:bg-surface-muted"
               />
               {productSearchLoading && (
-                <div className="mt-2 text-sm text-gray-500">Searching products...</div>
+                <div className="mt-2 text-sm text-muted">Searching products...</div>
               )}
               {!productSearchLoading && productSearchOptions.length > 0 && (
-                <div className="absolute z-20 mt-2 w-full bg-white border border-gray-200 rounded-lg shadow-lg max-h-64 overflow-y-auto">
+                <div className="absolute z-20 mt-2 w-full bg-surface border border-line rounded-lg max-h-64 overflow-y-auto">
                   {productSearchOptions.map((option, idx) => (
                     <button
                       key={`${option.productId}-${option.variation || 'single'}-${idx}`}
                       type="button"
                       onClick={() => handleAddProductFromSearch(option)}
-                      className="w-full text-left px-4 py-3 hover:bg-gray-50 border-b last:border-b-0 border-gray-100"
+                      className="w-full text-left px-4 py-3 hover:bg-surface-raised border-b last:border-b-0 border-line"
                     >
-                      <div className="font-medium text-gray-900">
+                      <div className="font-medium text-foreground">
                         {option.productName}
                         {option.variation ? ` - ${option.variation}` : ''}
                       </div>
-                      <div className="text-xs text-gray-500">
+                      <div className="text-xs text-muted">
                         Stock: {option.stockQty} | Price: {option.price.toFixed(2)}
                       </div>
                     </button>
@@ -587,31 +587,31 @@ const EditSale: React.FC = () => {
 
             {products.length > 0 ? (
               <div className="overflow-x-auto">
-                <table className="min-w-full divide-y divide-gray-200">
-                  <thead className="bg-gray-50">
+                <table className="min-w-full divide-y divide-line">
+                  <thead className="bg-surface-raised">
                     <tr>
-                      <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Product</th>
-                      <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Stock Qty</th>
-                      <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Qty</th>
-                      <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Variation</th>
-                      <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Price</th>
-                      <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Tax</th>
-                      <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Discount</th>
-                      <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Subtotal</th>
-                      <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Action</th>
+                      <th className="px-4 py-3 text-left text-xs font-medium text-muted uppercase">Product</th>
+                      <th className="px-4 py-3 text-left text-xs font-medium text-muted uppercase">Stock Qty</th>
+                      <th className="px-4 py-3 text-left text-xs font-medium text-muted uppercase">Qty</th>
+                      <th className="px-4 py-3 text-left text-xs font-medium text-muted uppercase">Variation</th>
+                      <th className="px-4 py-3 text-left text-xs font-medium text-muted uppercase">Price</th>
+                      <th className="px-4 py-3 text-left text-xs font-medium text-muted uppercase">Tax</th>
+                      <th className="px-4 py-3 text-left text-xs font-medium text-muted uppercase">Discount</th>
+                      <th className="px-4 py-3 text-left text-xs font-medium text-muted uppercase">Subtotal</th>
+                      <th className="px-4 py-3 text-left text-xs font-medium text-muted uppercase">Action</th>
                     </tr>
                   </thead>
-                  <tbody className="bg-white divide-y divide-gray-200">
+                  <tbody className="bg-surface divide-y divide-line">
                     {products.map((product, index) => (
                       <tr key={index}>
-                        <td className="px-4 py-3 whitespace-nowrap text-sm text-gray-900">{product.productName}</td>
-                        <td className="px-4 py-3 whitespace-nowrap text-sm text-gray-500">{product.stockQtyAtSale}</td>
+                        <td className="px-4 py-3 whitespace-nowrap text-sm text-foreground">{product.productName}</td>
+                        <td className="px-4 py-3 whitespace-nowrap text-sm text-muted">{product.stockQtyAtSale}</td>
                         <td className="px-4 py-3 whitespace-nowrap">
                           <div className="flex items-center gap-2">
                             <button
                               type="button"
                               onClick={() => handleUpdateProductQty(index, Math.max(1, product.qty - 1))}
-                              className="px-2 py-1 border border-gray-300 rounded hover:bg-gray-50"
+                              className="px-2 py-1 border border-line-strong rounded hover:bg-surface-raised"
                             >
                               -
                             </button>
@@ -624,44 +624,44 @@ const EditSale: React.FC = () => {
                               }}
                               min={1}
                               max={product.stockQtyAtSale}
-                              className="w-20 px-2 py-1 border border-gray-300 rounded text-center"
+                              className="w-20 px-2 py-1 border border-line-strong rounded text-center"
                             />
                             <button
                               type="button"
                               onClick={() => handleUpdateProductQty(index, Math.min(product.stockQtyAtSale, product.qty + 1))}
-                              className="px-2 py-1 border border-gray-300 rounded hover:bg-gray-50"
+                              className="px-2 py-1 border border-line-strong rounded hover:bg-surface-raised"
                             >
                               +
                             </button>
                           </div>
                         </td>
-                        <td className="px-4 py-3 whitespace-nowrap text-sm text-gray-500">
+                        <td className="px-4 py-3 whitespace-nowrap text-sm text-muted">
                           {product.variation || '-'}
                         </td>
-                        <td className="px-4 py-3 whitespace-nowrap text-sm text-gray-900">{product.price.toFixed(2)}</td>
+                        <td className="px-4 py-3 whitespace-nowrap text-sm text-foreground">{product.price.toFixed(2)}</td>
                         <td className="px-4 py-3 whitespace-nowrap">
                           <input
                             type="number"
                             value={product.tax}
                             onChange={(e) => handleUpdateProductTax(index, Math.max(0, parseFloat(e.target.value) || 0))}
                             min={0}
-                            className="w-20 px-2 py-1 border border-gray-300 rounded"
+                            className="w-20 px-2 py-1 border border-line-strong rounded"
                           />
                         </td>
-                        <td className="px-4 py-3 whitespace-nowrap text-sm text-gray-700">
+                        <td className="px-4 py-3 whitespace-nowrap text-sm text-foreground">
                           <span className="tabular-nums font-medium">{product.discount.toFixed(2)}</span>
-                          <span className="text-gray-400 text-xs ml-1">
+                          <span className="text-subtle text-xs ml-1">
                             {product.discountType === 'percentage' ? '%' : 'fixed'}
                           </span>
                         </td>
-                        <td className="px-4 py-3 whitespace-nowrap text-sm font-medium text-gray-900">
+                        <td className="px-4 py-3 whitespace-nowrap text-sm font-medium text-foreground">
                           {product.subtotal.toFixed(2)}
                         </td>
                         <td className="px-4 py-3 whitespace-nowrap">
                           <button
                             type="button"
                             onClick={() => handleRemoveProduct(index)}
-                            className="text-red-600 hover:text-red-800"
+                            className="text-danger hover:text-danger"
                           >
                             <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
@@ -674,19 +674,19 @@ const EditSale: React.FC = () => {
                 </table>
               </div>
             ) : (
-              <div className="text-center py-8 text-gray-500">
+              <div className="text-center py-8 text-muted">
                 No products added. Search and select a product to add.
               </div>
             )}
           </div>
 
           {/* Sale-Level Discount, Tax, Shipping */}
-          <div className="mb-8 border-b border-gray-200 pb-6">
-            <h2 className="text-xl font-semibold text-[#1A3E73] mb-4">Sale-Level Adjustments</h2>
+          <div className="mb-8 border-b border-line pb-6">
+            <h2 className="text-xl font-semibold text-foreground mb-4">Sale-Level Adjustments</h2>
             
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
+                <label className="block text-sm font-medium text-foreground mb-2">
                   Sale Discount
                 </label>
                 <div className="flex gap-2">
@@ -695,12 +695,12 @@ const EditSale: React.FC = () => {
                     value={saleDiscountValue}
                     onChange={(e) => setSaleDiscountValue(Math.max(0, parseFloat(e.target.value) || 0))}
                     min={0}
-                    className="flex-1 px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#1A3E73] focus:border-[#1A3E73]"
+                    className="flex-1 px-3 py-2 border border-line-strong rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary"
                   />
                   <select
                     value={saleDiscountType}
                     onChange={(e) => setSaleDiscountType(e.target.value as 'fixed' | 'percentage')}
-                    className="px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#1A3E73] focus:border-[#1A3E73]"
+                    className="px-3 py-2 border border-line-strong rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary"
                   >
                     <option value="fixed">Fixed</option>
                     <option value="percentage">%</option>
@@ -709,7 +709,7 @@ const EditSale: React.FC = () => {
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
+                <label className="block text-sm font-medium text-foreground mb-2">
                   Sale Tax (%)
                 </label>
                 <input
@@ -717,12 +717,12 @@ const EditSale: React.FC = () => {
                   value={saleTaxValue}
                   onChange={(e) => setSaleTaxValue(Math.max(0, parseFloat(e.target.value) || 0))}
                   min={0}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#1A3E73] focus:border-[#1A3E73]"
+                  className="w-full px-3 py-2 border border-line-strong rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary"
                 />
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
+                <label className="block text-sm font-medium text-foreground mb-2">
                   Shipping Cost
                 </label>
                 <input
@@ -730,19 +730,19 @@ const EditSale: React.FC = () => {
                   value={shippingCost}
                   onChange={(e) => setShippingCost(Math.max(0, parseFloat(e.target.value) || 0))}
                   min={0}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#1A3E73] focus:border-[#1A3E73]"
+                  className="w-full px-3 py-2 border border-line-strong rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary"
                 />
               </div>
             </div>
           </div>
 
           {/* Payment Section */}
-          <div className="mb-8 border-b border-gray-200 pb-6">
-            <h2 className="text-xl font-semibold text-[#1A3E73] mb-4">Payment</h2>
+          <div className="mb-8 border-b border-line pb-6">
+            <h2 className="text-xl font-semibold text-foreground mb-4">Payment</h2>
             
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-4">
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
+                <label className="block text-sm font-medium text-foreground mb-2">
                   Cash Amount
                 </label>
                 <input
@@ -754,12 +754,12 @@ const EditSale: React.FC = () => {
                   }}
                   min={0}
                   max={total}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#1A3E73] focus:border-[#1A3E73]"
+                  className="w-full px-3 py-2 border border-line-strong rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary"
                 />
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
+                <label className="block text-sm font-medium text-foreground mb-2">
                   Card Amount
                 </label>
                 <input
@@ -771,12 +771,12 @@ const EditSale: React.FC = () => {
                   }}
                   min={0}
                   max={total}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#1A3E73] focus:border-[#1A3E73]"
+                  className="w-full px-3 py-2 border border-line-strong rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary"
                 />
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
+                <label className="block text-sm font-medium text-foreground mb-2">
                   Bank Transfer Amount
                 </label>
                 <input
@@ -788,20 +788,20 @@ const EditSale: React.FC = () => {
                   }}
                   min={0}
                   max={total}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#1A3E73] focus:border-[#1A3E73]"
+                  className="w-full px-3 py-2 border border-line-strong rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary"
                 />
               </div>
             </div>
 
             <div className="mb-4">
-              <label className="block text-sm font-medium text-gray-700 mb-2">
+              <label className="block text-sm font-medium text-foreground mb-2">
                 Payment Status
               </label>
-              <div className="px-3 py-2 bg-gray-50 border border-gray-300 rounded-lg">
+              <div className="px-3 py-2 bg-surface-raised border border-line-strong rounded-lg">
                 <span className={`font-medium ${
-                  paymentStatus === 'paid' ? 'text-green-600' :
-                  paymentStatus === 'partial' ? 'text-yellow-600' :
-                  'text-red-600'
+                  paymentStatus === 'paid' ? 'text-secondary' :
+                  paymentStatus === 'partial' ? 'text-warning' :
+                  'text-danger'
                 }`}>
                   {paymentStatus.charAt(0).toUpperCase() + paymentStatus.slice(1)}
                 </span>
@@ -810,25 +810,25 @@ const EditSale: React.FC = () => {
           </div>
 
           {/* Summary Section */}
-          <div className="sticky bottom-0 bg-white border-t border-gray-200 pt-6 mt-8">
-            <h2 className="text-xl font-semibold text-[#1A3E73] mb-4">Summary</h2>
+          <div className="sticky bottom-0 bg-surface border-t border-line pt-6 mt-8">
+            <h2 className="text-xl font-semibold text-foreground mb-4">Summary</h2>
             
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
-              <div className="bg-gray-50 p-4 rounded-lg border border-gray-200">
-                <div className="text-sm text-[#64748B] mb-1">Total</div>
-                <div className="text-2xl font-bold text-gray-900">{total.toFixed(2)}</div>
+              <div className="bg-surface-raised p-4 rounded-lg border border-line">
+                <div className="text-sm text-muted mb-1">Total</div>
+                <div className="text-2xl font-bold text-foreground">{total.toFixed(2)}</div>
               </div>
               
-              <div className="bg-gray-50 p-4 rounded-lg border border-gray-200">
-                <div className="text-sm text-[#64748B] mb-1">Balance</div>
-                <div className={`text-2xl font-bold ${balance > 0 ? 'text-red-600' : 'text-green-600'}`}>
+              <div className="bg-surface-raised p-4 rounded-lg border border-line">
+                <div className="text-sm text-muted mb-1">Balance</div>
+                <div className={`text-2xl font-bold ${balance > 0 ? 'text-danger' : 'text-secondary'}`}>
                   {balance.toFixed(2)}
                 </div>
               </div>
               
-              <div className="bg-gray-50 p-4 rounded-lg border border-gray-200">
-                <div className="text-sm text-[#64748B] mb-1">Profit</div>
-                <div className={`text-2xl font-bold ${profit >= 0 ? 'text-green-600' : 'text-red-600'}`}>
+              <div className="bg-surface-raised p-4 rounded-lg border border-line">
+                <div className="text-sm text-muted mb-1">Profit</div>
+                <div className={`text-2xl font-bold ${profit >= 0 ? 'text-secondary' : 'text-danger'}`}>
                   {profit.toFixed(2)}
                 </div>
               </div>
@@ -838,13 +838,13 @@ const EditSale: React.FC = () => {
               <button
                 type="button"
                 onClick={() => navigate('/viewSales')}
-                className="px-6 py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50 font-medium transition"
+                className="px-6 py-2 border border-line-strong rounded-lg text-foreground hover:bg-surface-raised font-medium transition"
               >
                 Cancel
               </button>
               <button
                 type="submit"
-                className="px-6 py-2 bg-[#1A3E73] text-white rounded-lg hover:bg-[#0F2A55] font-medium transition"
+                className="px-6 py-2 bg-primary text-on-primary rounded-lg hover:bg-primary-hover font-medium transition"
               >
                 Update Sale
               </button>

@@ -395,13 +395,13 @@ const ViewSales: React.FC = () => {
   const getPaymentStatusColor = (status: string) => {
     switch (status) {
       case 'paid':
-        return 'bg-green-100 text-green-800';
+        return 'bg-secondary-soft text-secondary';
       case 'partial':
-        return 'bg-yellow-100 text-yellow-800';
+        return 'bg-warning-soft text-warning';
       case 'unpaid':
-        return 'bg-red-100 text-red-800';
+        return 'bg-danger-soft text-danger';
       default:
-        return 'bg-gray-100 text-gray-800';
+        return 'bg-surface-muted text-foreground';
     }
   };
 
@@ -1244,11 +1244,11 @@ const ViewSales: React.FC = () => {
 
   const getStatusColor = (status: string) => {
     switch (status) {
-      case 'completed': return 'bg-green-100 text-green-800';
-      case 'draft': return 'bg-slate-100 text-slate-700';
-      case 'cancelled': return 'bg-red-100 text-red-800';
-      case 'returned': return 'bg-amber-100 text-amber-800';
-      default: return 'bg-slate-100 text-slate-600';
+      case 'completed': return 'bg-secondary-soft text-secondary';
+      case 'draft': return 'bg-surface-muted text-foreground';
+      case 'cancelled': return 'bg-danger-soft text-danger';
+      case 'returned': return 'bg-warning-soft text-warning';
+      default: return 'bg-surface-muted text-muted';
     }
   };
 
@@ -1308,14 +1308,14 @@ const ViewSales: React.FC = () => {
   };
 
   const SortIcon = () => (
-    <ArrowUpDown className="w-4 h-4 inline-block ml-1 text-slate-500" aria-hidden />
+    <ArrowUpDown className="w-4 h-4 inline-block ml-1 text-muted" aria-hidden />
   );
 
   return (
-    <div className="p-6 bg-[#F8FAFC] min-h-screen">
+    <div className="p-6 bg-canvas min-h-screen">
       <div className="mb-6">
-        <h1 className="text-4xl font-black text-[#1A3E73] mb-2">SALES</h1>
-        <p className="text-[#64748B] font-bold">View all sale transactions</p>
+        <h1 className="text-4xl font-black text-foreground mb-2">SALES</h1>
+        <p className="text-muted font-bold">View all sale transactions</p>
       </div>
       
       {/* Top bar: Search left, actions right-aligned */}
@@ -1328,7 +1328,7 @@ const ViewSales: React.FC = () => {
             <button
               type="button"
               onClick={handleDeleteMultiples}
-              className="px-4 py-2 rounded-lg bg-red-600 text-white hover:bg-red-700 font-medium text-sm"
+              className="px-4 py-2 rounded-lg bg-danger text-on-danger hover:bg-danger-hover font-medium text-sm"
             >
               Delete Multiples
             </button>
@@ -1338,7 +1338,7 @@ const ViewSales: React.FC = () => {
               ref={filterTriggerRef}
               type="button"
               onClick={() => setShowFilterModal(!showFilterModal)}
-              className={`w-10 h-10 rounded-full flex items-center justify-center transition text-white ${showFilterModal ? 'bg-[#0F2A55] ring-2 ring-[#1A3E73] ring-offset-2' : 'bg-[#1A3E73] hover:bg-[#0F2A55]'}`}
+              className={`w-10 h-10 rounded-full flex items-center justify-center transition text-on-primary ${showFilterModal ? 'bg-primary ring-2 ring-primary ring-offset-2' : 'bg-primary hover:bg-primary-hover'}`}
               title="Filter"
             >
               <Filter size={18} />
@@ -1346,7 +1346,7 @@ const ViewSales: React.FC = () => {
             {showFilterModal && filterMenuPosition && createPortal(
               <div
                 ref={filterMenuRef}
-                className="bg-white rounded-lg shadow-xl border border-slate-200 p-4 z-[9999]"
+                className="bg-surface rounded-lg border border-line p-4 z-[9999]"
                 style={{
                   position: 'fixed',
                   left: filterMenuPosition.left,
@@ -1357,14 +1357,14 @@ const ViewSales: React.FC = () => {
               >
                 <div className="space-y-3">
                   <div>
-                    <label className="block text-xs font-medium text-slate-700 mb-1">Status:</label>
+                    <label className="block text-xs font-medium text-foreground mb-1">Status:</label>
                     <select
                       value={filters.status}
                       onChange={(e) => {
                         handleFilterChange('status', e.target.value);
                         fetchSales({ page: 1 });
                       }}
-                      className="w-full px-3 py-2 border border-slate-200 rounded-lg focus:outline-none focus:border-[#1A3E73] bg-white text-sm"
+                      className="w-full px-3 py-2 border border-line rounded-lg focus:outline-none focus:border-primary bg-surface text-sm"
                     >
                       <option value="">All</option>
                       <option value="draft">Draft</option>
@@ -1374,14 +1374,14 @@ const ViewSales: React.FC = () => {
                     </select>
                   </div>
                   <div>
-                    <label className="block text-xs font-medium text-slate-700 mb-1">Payment Status:</label>
+                    <label className="block text-xs font-medium text-foreground mb-1">Payment Status:</label>
                     <select
                       value={filters.paymentStatus}
                       onChange={(e) => {
                         handleFilterChange('paymentStatus', e.target.value);
                         fetchSales({ page: 1 });
                       }}
-                      className="w-full px-3 py-2 border border-slate-200 rounded-lg focus:outline-none focus:border-[#1A3E73] bg-white text-sm"
+                      className="w-full px-3 py-2 border border-line rounded-lg focus:outline-none focus:border-primary bg-surface text-sm"
                     >
                       <option value="">All</option>
                       <option value="paid">Paid</option>
@@ -1390,14 +1390,14 @@ const ViewSales: React.FC = () => {
                     </select>
                   </div>
                   <div>
-                    <label className="block text-xs font-medium text-slate-700 mb-1">Payment Type <span className="text-red-500">*</span>:</label>
+                    <label className="block text-xs font-medium text-foreground mb-1">Payment Type <span className="text-danger">*</span>:</label>
                     <select
                       value={filters.paymentType}
                       onChange={(e) => {
                         handleFilterChange('paymentType', e.target.value);
                         fetchSales({ page: 1 });
                       }}
-                      className="w-full px-3 py-2 border border-slate-200 rounded-lg focus:outline-none focus:border-[#1A3E73] bg-white text-sm"
+                      className="w-full px-3 py-2 border border-line rounded-lg focus:outline-none focus:border-primary bg-surface text-sm"
                     >
                       <option value="">All</option>
                       <option value="cash">Cash</option>
@@ -1406,7 +1406,7 @@ const ViewSales: React.FC = () => {
                     </select>
                   </div>
                 </div>
-                <div className="mt-4 pt-3 border-t border-slate-200">
+                <div className="mt-4 pt-3 border-t border-line">
                   <button
                     type="button"
                     onClick={() => {
@@ -1415,7 +1415,7 @@ const ViewSales: React.FC = () => {
                       fetchSales({ page: 1 });
                       setShowFilterModal(false);
                     }}
-                    className="w-full px-4 py-2 border border-slate-200 rounded-lg hover:bg-slate-50 text-slate-700 text-sm font-medium bg-slate-50"
+                    className="w-full px-4 py-2 border border-line rounded-lg hover:bg-surface-raised text-foreground text-sm font-medium bg-surface-raised"
                   >
                     Reset
                   </button>
@@ -1429,15 +1429,15 @@ const ViewSales: React.FC = () => {
               ref={dateTriggerRef}
               type="button"
               onClick={() => setShowDateDropdown(!showDateDropdown)}
-              className="px-3 py-2 border border-slate-200 rounded-lg bg-white flex items-center gap-2 hover:bg-slate-50 text-sm text-slate-600"
+              className="px-3 py-2 border border-line rounded-lg bg-surface flex items-center gap-2 hover:bg-surface-raised text-sm text-muted"
             >
               <Calendar size={16} />
-              <span className={filterDate ? 'text-[#1A3E73] font-medium' : ''}>{getDisplayDateText()}</span>
+              <span className={filterDate ? 'text-primary font-medium' : ''}>{getDisplayDateText()}</span>
             </button>
             {showDateDropdown && dateMenuPosition && createPortal(
               <div
                 ref={dateMenuRef}
-                className="bg-white border border-slate-200 rounded-lg shadow-lg z-[9999]"
+                className="bg-surface border border-line rounded-lg z-[9999]"
                 style={{
                   position: 'fixed',
                   left: dateMenuPosition.left,
@@ -1453,14 +1453,14 @@ const ViewSales: React.FC = () => {
                         type="date"
                         value={filterDate}
                         onChange={e => setFilterDate(e.target.value)}
-                        className="flex-1 px-3 py-2 border border-slate-200 rounded-lg text-sm bg-white focus:outline-none focus:border-[#1A3E73]"
+                        className="flex-1 px-3 py-2 border border-line rounded-lg text-sm bg-surface focus:outline-none focus:border-primary"
                         placeholder="Start Date"
                       />
                       <input
                         type="date"
                         value={filterDateEnd}
                         onChange={e => setFilterDateEnd(e.target.value)}
-                        className="flex-1 px-3 py-2 border border-slate-200 rounded-lg text-sm bg-white focus:outline-none focus:border-[#1A3E73]"
+                        className="flex-1 px-3 py-2 border border-line rounded-lg text-sm bg-surface focus:outline-none focus:border-primary"
                         placeholder="End Date"
                       />
                     </div>
@@ -1468,14 +1468,14 @@ const ViewSales: React.FC = () => {
                       <button
                         type="button"
                         onClick={handleApplyCustomRange}
-                        className="flex-1 px-4 py-2 bg-[#1A3E73] text-white rounded-lg hover:bg-[#0F2A55] text-sm font-medium"
+                        className="flex-1 px-4 py-2 bg-primary text-on-primary rounded-lg hover:bg-primary-hover text-sm font-medium"
                       >
                         Apply
                       </button>
                       <button
                         type="button"
                         onClick={handleResetCustomRange}
-                        className="flex-1 px-4 py-2 bg-slate-500 text-white rounded-lg hover:bg-slate-600 text-sm font-medium"
+                        className="flex-1 px-4 py-2 bg-surface-muted text-foreground rounded-lg hover:bg-surface-muted text-sm font-medium"
                       >
                         Reset
                       </button>
@@ -1483,25 +1483,25 @@ const ViewSales: React.FC = () => {
                   </div>
                 ) : (
                   <div className="py-2">
-                    <button type="button" onClick={() => handleDateRangeSelect('Today')} className="w-full px-4 py-2 text-left text-sm text-[#1A3E73] hover:bg-slate-50">Today</button>
-                    <button type="button" onClick={() => handleDateRangeSelect('This Week')} className="w-full px-4 py-2 text-left text-sm text-[#1A3E73] hover:bg-slate-50">This Week</button>
-                    <button type="button" onClick={() => handleDateRangeSelect('Last Week')} className="w-full px-4 py-2 text-left text-sm text-[#1A3E73] hover:bg-slate-50">Last Week</button>
-                    <button type="button" onClick={() => handleDateRangeSelect('This Month')} className="w-full px-4 py-2 text-left text-sm text-[#1A3E73] hover:bg-slate-50">This Month</button>
-                    <button type="button" onClick={() => handleDateRangeSelect('Last Month')} className="w-full px-4 py-2 text-left text-sm text-[#1A3E73] hover:bg-slate-50">Last Month</button>
-                    <div className="border-t border-slate-200 my-1" />
+                    <button type="button" onClick={() => handleDateRangeSelect('Today')} className="w-full px-4 py-2 text-left text-sm text-primary hover:bg-surface-raised">Today</button>
+                    <button type="button" onClick={() => handleDateRangeSelect('This Week')} className="w-full px-4 py-2 text-left text-sm text-primary hover:bg-surface-raised">This Week</button>
+                    <button type="button" onClick={() => handleDateRangeSelect('Last Week')} className="w-full px-4 py-2 text-left text-sm text-primary hover:bg-surface-raised">Last Week</button>
+                    <button type="button" onClick={() => handleDateRangeSelect('This Month')} className="w-full px-4 py-2 text-left text-sm text-primary hover:bg-surface-raised">This Month</button>
+                    <button type="button" onClick={() => handleDateRangeSelect('Last Month')} className="w-full px-4 py-2 text-left text-sm text-primary hover:bg-surface-raised">Last Month</button>
+                    <div className="border-t border-line my-1" />
                     <button
                       type="button"
                       onClick={() => handleDateRangeSelect('Custom Range')}
                       className={`w-full px-4 py-2 text-left text-sm rounded-lg mx-2 ${
                         selectedDateRange === 'Custom Range'
-                          ? 'bg-[#1A3E73] text-white'
-                          : 'text-[#1A3E73] hover:bg-slate-50'
+                          ? 'bg-primary text-on-primary'
+                          : 'text-primary hover:bg-surface-raised'
                       }`}
                     >
                       Custom Range
                     </button>
-                    <div className="border-t border-slate-200 my-1" />
-                    <button type="button" onClick={() => handleDateRangeSelect('Reset')} className="w-full px-4 py-2 text-center text-sm text-[#64748B] hover:bg-slate-50 font-medium">Reset</button>
+                    <div className="border-t border-line my-1" />
+                    <button type="button" onClick={() => handleDateRangeSelect('Reset')} className="w-full px-4 py-2 text-center text-sm text-muted hover:bg-surface-raised font-medium">Reset</button>
                   </div>
                 )}
               </div>,
@@ -1510,7 +1510,7 @@ const ViewSales: React.FC = () => {
           </div>
           <Link
             to="/createSale"
-            className="px-4 py-2 rounded-lg bg-[#1A3E73] text-white hover:bg-[#0F2A55] font-medium text-sm flex items-center gap-2"
+            className="px-4 py-2 rounded-lg bg-primary text-on-primary hover:bg-primary-hover font-medium text-sm flex items-center gap-2"
           >
             <Plus size={18} /> Create Sale
           </Link>
@@ -1518,17 +1518,17 @@ const ViewSales: React.FC = () => {
       </div>
 
       {/* Sales Table - match reference POS layout */}
-      <div className={`bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden relative ${loading ? 'opacity-75 pointer-events-none' : ''}`}>
+      <div className={`bg-surface rounded-xl border border-line overflow-hidden relative ${loading ? 'opacity-75 pointer-events-none' : ''}`}>
         {loading && (
-          <div className="absolute inset-0 bg-white/50 flex items-center justify-center z-10 rounded-xl">
-            <div className="text-slate-600 font-medium">Loading...</div>
+          <div className="absolute inset-0 bg-surface flex items-center justify-center z-10 rounded-xl">
+            <div className="text-muted font-medium">Loading...</div>
           </div>
         )}
         <table className="w-full text-left text-sm">
-          <thead className="bg-slate-100 text-slate-600 text-xs font-semibold uppercase tracking-wider">
+          <thead className="bg-surface-muted text-muted text-xs font-semibold uppercase tracking-wider">
             <tr>
               <th className="p-3 w-10">
-                <input type="checkbox" checked={sales.length > 0 && selectedIds.length === sales.length} onChange={selectAll} className="rounded border-slate-300 text-[#1A3E73] focus:ring-[#1A3E73]" />
+                <input type="checkbox" checked={sales.length > 0 && selectedIds.length === sales.length} onChange={selectAll} className="rounded border-line-strong text-foreground focus:ring-primary" />
               </th>
               <th className="p-3">REFERENCE</th>
               <th className="p-3">USER</th>
@@ -1536,7 +1536,7 @@ const ViewSales: React.FC = () => {
               <th className="p-3">WAREHOUSE</th>
               <th className="p-3">STATUS</th>
               <th className="p-3 text-right">
-                <button type="button" onClick={() => handleSort('total')} className="inline-flex items-center text-slate-600 hover:text-[#1A3E73] font-semibold uppercase tracking-wider">
+                <button type="button" onClick={() => handleSort('total')} className="inline-flex items-center text-muted hover:text-primary font-semibold uppercase tracking-wider">
                   GRAND TOTAL
                   <SortIcon />
                 </button>
@@ -1546,7 +1546,7 @@ const ViewSales: React.FC = () => {
               <th className="p-3">PAYMENT STATUS</th>
               <th className="p-3">PAYMENT TYPE</th>
               <th className="p-3">
-                <button type="button" onClick={() => handleSort('createdAt')} className="inline-flex items-center text-slate-600 hover:text-[#1A3E73] font-semibold uppercase tracking-wider">
+                <button type="button" onClick={() => handleSort('createdAt')} className="inline-flex items-center text-muted hover:text-primary font-semibold uppercase tracking-wider">
                   CREATED ON
                   <SortIcon />
                 </button>
@@ -1554,50 +1554,50 @@ const ViewSales: React.FC = () => {
               <th className="p-3 text-center w-14">ACTION</th>
             </tr>
           </thead>
-          <tbody className="divide-y divide-slate-100">
+          <tbody className="divide-y divide-line">
             {loading ? (
               <tr>
-                <td colSpan={13} className="p-6 text-center text-slate-500">Loading...</td>
+                <td colSpan={13} className="p-6 text-center text-muted">Loading...</td>
               </tr>
             ) : sales.length === 0 ? (
               <tr>
-                <td colSpan={13} className="p-6 text-center text-slate-500 italic">No sales found</td>
+                <td colSpan={13} className="p-6 text-center text-muted italic">No sales found</td>
               </tr>
             ) : (
               sales.map((sale, idx) => {
                 const paymentTotal = sale.cashAmount + sale.cardAmount + sale.bankTransferAmount;
                 return (
-                  <tr key={sale._id} className={idx % 2 === 0 ? 'bg-white' : 'bg-slate-50/50 hover:bg-slate-100/50'}>
+                  <tr key={sale._id} className={idx % 2 === 0 ? 'bg-surface' : 'bg-surface-raised/50 hover:bg-surface-muted'}>
                     <td className="p-3">
-                      <input type="checkbox" checked={selectedIds.includes(sale._id)} onChange={() => toggleSelect(sale._id)} className="rounded border-slate-300 text-[#1A3E73] focus:ring-[#1A3E73]" />
+                      <input type="checkbox" checked={selectedIds.includes(sale._id)} onChange={() => toggleSelect(sale._id)} className="rounded border-line-strong text-foreground focus:ring-primary" />
                     </td>
                     <td className="p-3">
-                      <button type="button" onClick={() => navigate(`/saleInvoice/${sale._id}`)} className="text-[#1A3E73] font-medium hover:bg-red-50 hover:text-red-700 px-2 py-1 rounded transition">
+                      <button type="button" onClick={() => navigate(`/saleInvoice/${sale._id}`)} className="text-primary font-medium hover:bg-danger-soft hover:text-danger px-2 py-1 rounded transition">
                         {sale.invoiceId || sale._id}
                       </button>
                     </td>
-                    <td className="p-3 text-slate-700">{sale.createdBy?.name ?? '—'}</td>
-                    <td className="p-3 text-slate-700">{sale.customerId?.name ?? '—'}</td>
-                    <td className="p-3 text-slate-700">{sale.warehouseId?.name ?? '—'}</td>
+                    <td className="p-3 text-foreground">{sale.createdBy?.name ?? '—'}</td>
+                    <td className="p-3 text-foreground">{sale.customerId?.name ?? '—'}</td>
+                    <td className="p-3 text-foreground">{sale.warehouseId?.name ?? '—'}</td>
                     <td className="p-3">
                       <span className={`inline-flex px-2 py-0.5 text-xs font-medium rounded-full ${getStatusColor(sale.status)}`}>
                         {sale.status.charAt(0).toUpperCase() + sale.status.slice(1)}
                       </span>
                     </td>
-                    <td className="p-3 text-right font-medium text-slate-800">{formatCurrency(sale.total)}</td>
-                    <td className="p-3 text-right font-medium text-slate-800">{formatCurrency(paymentTotal)}</td>
-                    <td className="p-3 text-right font-medium text-slate-800">{formatCurrency(sale.balance)}</td>
+                    <td className="p-3 text-right font-medium text-foreground">{formatCurrency(sale.total)}</td>
+                    <td className="p-3 text-right font-medium text-foreground">{formatCurrency(paymentTotal)}</td>
+                    <td className="p-3 text-right font-medium text-foreground">{formatCurrency(sale.balance)}</td>
                     <td className="p-3">
                       <span className={`inline-flex px-2 py-0.5 text-xs font-medium rounded-full ${getPaymentStatusColor(sale.paymentStatus)}`}>
                         {sale.paymentStatus.charAt(0).toUpperCase() + sale.paymentStatus.slice(1)}
                       </span>
                     </td>
                     <td className="p-3">
-                      <span className="inline-flex px-2 py-0.5 text-xs font-medium rounded-full bg-purple-100 text-purple-800">
+                      <span className="inline-flex px-2 py-0.5 text-xs font-medium rounded-full bg-violet-soft text-violet-status">
                         {getPaymentType(sale)}
                       </span>
                     </td>
-                    <td className="p-3 text-slate-600">{formatCreatedOn(sale.createdAt)}</td>
+                    <td className="p-3 text-muted">{formatCreatedOn(sale.createdAt)}</td>
                     <td className="p-3 text-center">
                       <button
                         ref={(el) => {
@@ -1609,7 +1609,7 @@ const ViewSales: React.FC = () => {
                         }}
                         type="button"
                         onClick={(e) => { e.stopPropagation(); setOpenActionId(prev => prev === sale._id ? null : sale._id); }}
-                        className="p-1.5 rounded text-slate-500 hover:bg-slate-200 transition"
+                        className="p-1.5 rounded text-muted hover:bg-surface-muted transition"
                         title="Actions"
                       >
                         <MoreVertical size={18} />
@@ -1621,12 +1621,12 @@ const ViewSales: React.FC = () => {
             )}
           </tbody>
           {!loading && sales.length > 0 && (
-            <tfoot className="bg-slate-100 border-t-2 border-slate-200 text-sm font-semibold">
+            <tfoot className="bg-surface-muted border-t-2 border-line text-sm font-semibold">
               <tr>
-                <td colSpan={6} className="p-3 text-slate-600">Total</td>
-                <td className="p-3 text-right text-slate-800">{formatCurrency(pageTotal.total)}</td>
-                <td className="p-3 text-right text-slate-800">{formatCurrency(pageTotal.paid)}</td>
-                <td className="p-3 text-right text-slate-800">{formatCurrency(pageTotal.due)}</td>
+                <td colSpan={6} className="p-3 text-muted">Total</td>
+                <td className="p-3 text-right text-foreground">{formatCurrency(pageTotal.total)}</td>
+                <td className="p-3 text-right text-foreground">{formatCurrency(pageTotal.paid)}</td>
+                <td className="p-3 text-right text-foreground">{formatCurrency(pageTotal.due)}</td>
                 <td colSpan={4} />
               </tr>
             </tfoot>
@@ -1646,12 +1646,12 @@ const ViewSales: React.FC = () => {
             ...(actionMenuPosition.bottom !== undefined ? { bottom: actionMenuPosition.bottom } : {}),
           };
           return createPortal(
-            <div ref={menuRef} className="bg-white border border-slate-200 rounded-lg shadow-xl py-1" style={style}>
+            <div ref={menuRef} className="bg-surface border border-line rounded-lg py-1" style={style}>
               {/* 1. View Sale */}
               <button
                 type="button"
                 onClick={(e) => { e.stopPropagation(); navigate(`/saleInvoice/${sale._id}`); setOpenActionId(null); }}
-                className="w-full flex items-center gap-2 px-4 py-2 text-left text-sm text-[#1A3E73] hover:bg-slate-50 transition"
+                className="w-full flex items-center gap-2 px-4 py-2 text-left text-sm text-primary hover:bg-surface-raised transition"
               >
                 <Eye size={16} /> View Sale
               </button>
@@ -1664,7 +1664,7 @@ const ViewSales: React.FC = () => {
                   handleDownloadPDF(sale._id); 
                   setOpenActionId(null);
                 }} 
-                className="w-full flex items-center gap-2 px-4 py-2 text-left text-sm text-[#1A3E73] hover:bg-slate-50 cursor-pointer transition"
+                className="w-full flex items-center gap-2 px-4 py-2 text-left text-sm text-primary hover:bg-surface-raised cursor-pointer transition"
               >
                 <FileText size={16} /> Download PDF
               </button>
@@ -1676,7 +1676,7 @@ const ViewSales: React.FC = () => {
                   e.stopPropagation(); 
                   handleDownloadReceipt(sale._id); 
                 }} 
-                className="w-full flex items-center gap-2 px-4 py-2 text-left text-sm text-[#1A3E73] hover:bg-slate-50 cursor-pointer transition"
+                className="w-full flex items-center gap-2 px-4 py-2 text-left text-sm text-primary hover:bg-surface-raised cursor-pointer transition"
               >
                 <Download size={16} /> Download Receipt
               </button>
@@ -1685,7 +1685,7 @@ const ViewSales: React.FC = () => {
               <button 
                 type="button" 
                 onClick={(e) => { e.stopPropagation(); setShowPaymentsSaleId(sale._id); setOpenActionId(null); }} 
-                className="w-full flex items-center gap-2 px-4 py-2 text-left text-sm text-[#1A3E73] hover:bg-slate-50 transition"
+                className="w-full flex items-center gap-2 px-4 py-2 text-left text-sm text-primary hover:bg-surface-raised transition"
               >
                 <DollarSign size={16} /> Show Payments
               </button>
@@ -1698,7 +1698,7 @@ const ViewSales: React.FC = () => {
                   navigate(`/createSaleReturn?saleId=${sale._id}`);
                   setOpenActionId(null);
                 }} 
-                className="w-full flex items-center gap-2 px-4 py-2 text-left text-sm text-[#1A3E73] hover:bg-slate-50 cursor-pointer transition"
+                className="w-full flex items-center gap-2 px-4 py-2 text-left text-sm text-primary hover:bg-surface-raised cursor-pointer transition"
               >
                 <ShoppingCart size={16} /> Create Sale Return
               </button>
@@ -1712,7 +1712,7 @@ const ViewSales: React.FC = () => {
                     handleCancelSale(sale._id); 
                     setOpenActionId(null);
                   }} 
-                  className="w-full flex items-center gap-2 px-4 py-2 text-left text-sm text-red-600 hover:bg-slate-50 cursor-pointer transition"
+                  className="w-full flex items-center gap-2 px-4 py-2 text-left text-sm text-danger hover:bg-surface-raised cursor-pointer transition"
                 >
                   <X size={16} /> Cancel Sale
                 </button>
@@ -1733,15 +1733,15 @@ const ViewSales: React.FC = () => {
                 }} 
                 className={`w-full flex items-center gap-2 px-4 py-2 text-left text-sm transition ${
                   sale.status === 'cancelled' || sale.status === 'returned'
-                    ? 'text-slate-400 hover:bg-slate-50 cursor-pointer'
-                    : 'text-[#1A3E73] hover:bg-slate-50 cursor-pointer'
+                    ? 'text-subtle hover:bg-surface-raised cursor-pointer'
+                    : 'text-primary hover:bg-surface-raised cursor-pointer'
                 }`}
               >
                 <Edit size={16} /> Edit Sale
               </button>
               
               {/* Divider */}
-              <div className="border-t border-slate-200 my-1" />
+              <div className="border-t border-line my-1" />
               
               {/* 7. Delete Sale */}
               <button 
@@ -1758,8 +1758,8 @@ const ViewSales: React.FC = () => {
                 }} 
                 className={`w-full flex items-center gap-2 px-4 py-2 text-left text-sm transition ${
                   sale.status === 'completed'
-                    ? 'text-slate-400 hover:bg-slate-50 cursor-not-allowed'
-                    : 'text-red-600 hover:bg-slate-50'
+                    ? 'text-subtle hover:bg-surface-raised cursor-not-allowed'
+                    : 'text-danger hover:bg-surface-raised'
                 }`}
               >
                 <Trash2 size={16} /> Delete Sale
@@ -1770,13 +1770,13 @@ const ViewSales: React.FC = () => {
         })()}
 
         {/* Pagination - match reference: records per page, range, << < > >> */}
-        <div className="bg-slate-100 px-4 py-3 flex items-center justify-between border-t border-slate-200 flex-wrap gap-2">
-          <div className="flex items-center gap-3 text-sm text-slate-600">
+        <div className="bg-surface-muted px-4 py-3 flex items-center justify-between border-t border-line flex-wrap gap-2">
+          <div className="flex items-center gap-3 text-sm text-muted">
             <span>Records per page</span>
             <select
               value={pagination.limit}
               onChange={(e) => setPagination({ ...pagination, limit: Number(e.target.value), page: 1 })}
-              className="border border-slate-300 rounded px-2 py-1 bg-white text-slate-700"
+              className="border border-line-strong rounded px-2 py-1 bg-surface text-foreground"
             >
               <option value={10}>10</option>
               <option value={25}>25</option>
@@ -1785,10 +1785,10 @@ const ViewSales: React.FC = () => {
             <span>{pagination.total === 0 ? '0 of 0' : `${startRecord}-${endRecord} of ${pagination.total}`}</span>
           </div>
           <div className="flex items-center gap-1">
-            <button type="button" onClick={() => setPagination({ ...pagination, page: 1 })} disabled={pagination.page <= 1} className="p-2 rounded border border-slate-300 bg-white disabled:opacity-50 disabled:cursor-not-allowed hover:bg-slate-50 text-slate-600" title="First page">«</button>
-            <button type="button" onClick={() => setPagination({ ...pagination, page: pagination.page - 1 })} disabled={pagination.page <= 1} className="p-2 rounded border border-slate-300 bg-white disabled:opacity-50 disabled:cursor-not-allowed hover:bg-slate-50 text-slate-600" title="Previous">‹</button>
-            <button type="button" onClick={() => setPagination({ ...pagination, page: pagination.page + 1 })} disabled={pagination.page >= pagination.pages} className="p-2 rounded border border-slate-300 bg-white disabled:opacity-50 disabled:cursor-not-allowed hover:bg-slate-50 text-slate-600" title="Next">›</button>
-            <button type="button" onClick={() => setPagination({ ...pagination, page: pagination.pages })} disabled={pagination.page >= pagination.pages} className="p-2 rounded border border-slate-300 bg-white disabled:opacity-50 disabled:cursor-not-allowed hover:bg-slate-50 text-slate-600" title="Last page">»</button>
+            <button type="button" onClick={() => setPagination({ ...pagination, page: 1 })} disabled={pagination.page <= 1} className="p-2 rounded border border-line-strong bg-surface disabled:opacity-50 disabled:cursor-not-allowed hover:bg-surface-raised text-muted" title="First page">«</button>
+            <button type="button" onClick={() => setPagination({ ...pagination, page: pagination.page - 1 })} disabled={pagination.page <= 1} className="p-2 rounded border border-line-strong bg-surface disabled:opacity-50 disabled:cursor-not-allowed hover:bg-surface-raised text-muted" title="Previous">‹</button>
+            <button type="button" onClick={() => setPagination({ ...pagination, page: pagination.page + 1 })} disabled={pagination.page >= pagination.pages} className="p-2 rounded border border-line-strong bg-surface disabled:opacity-50 disabled:cursor-not-allowed hover:bg-surface-raised text-muted" title="Next">›</button>
+            <button type="button" onClick={() => setPagination({ ...pagination, page: pagination.pages })} disabled={pagination.page >= pagination.pages} className="p-2 rounded border border-line-strong bg-surface disabled:opacity-50 disabled:cursor-not-allowed hover:bg-surface-raised text-muted" title="Last page">»</button>
           </div>
         </div>
       </div>
@@ -1797,18 +1797,18 @@ const ViewSales: React.FC = () => {
       {/* Show Payments modal */}
       {showPaymentsSaleId && (
         <div className="fixed inset-0 z-50 overflow-y-auto" aria-modal="true" role="dialog">
-          <div className="fixed inset-0 bg-black/50 backdrop-blur-sm" onClick={() => setShowPaymentsSaleId(null)} aria-hidden="true" />
+          <div className="fixed inset-0 bg-overlay backdrop-blur-sm" onClick={() => setShowPaymentsSaleId(null)} aria-hidden="true" />
           <div className="flex min-h-full items-center justify-center p-4">
-            <div className="relative bg-white rounded-xl shadow-xl border border-slate-200 w-full max-w-2xl" onClick={e => e.stopPropagation()}>
-              <div className="flex justify-between items-center p-4 border-b border-slate-200">
-                <h3 className="text-lg font-bold text-[#1A3E73]">Show Payments</h3>
-                <button type="button" onClick={() => setShowPaymentsSaleId(null)} className="p-1 rounded-lg hover:bg-slate-100 text-slate-500">
+            <div className="relative bg-surface rounded-xl border border-line w-full max-w-2xl" onClick={e => e.stopPropagation()}>
+              <div className="flex justify-between items-center p-4 border-b border-line">
+                <h3 className="text-lg font-bold text-foreground">Show Payments</h3>
+                <button type="button" onClick={() => setShowPaymentsSaleId(null)} className="p-1 rounded-lg hover:bg-surface-muted text-muted">
                   <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" /></svg>
                 </button>
               </div>
               <div className="p-4">
                 {!saleForPayments ? (
-                  <div className="py-8 text-center text-slate-500">Loading...</div>
+                  <div className="py-8 text-center text-muted">Loading...</div>
                 ) : (() => {
                   // Get payments array - use same logic as sales table
                   // Sales table calculates: paymentTotal = sale.cashAmount + sale.cardAmount + sale.bankTransferAmount
@@ -1863,12 +1863,12 @@ const ViewSales: React.FC = () => {
                   
                   return (
                     <>
-                      <div className="mb-4 text-sm text-slate-600">
+                      <div className="mb-4 text-sm text-muted">
                         Sale total: {formatCurrency(saleForPayments.total)} · Paid: {formatCurrency(totalPaid)} · Due: {formatCurrency(dueAmount)}
                       </div>
-                      <div className="border border-slate-200 rounded-lg overflow-hidden">
+                      <div className="border border-line rounded-lg overflow-hidden">
                         <table className="w-full text-left text-sm">
-                          <thead className="bg-[#1A3E73] text-white text-xs font-semibold uppercase tracking-wider">
+                          <thead className="bg-primary text-on-primary text-xs font-semibold uppercase tracking-wider">
                             <tr>
                               <th className="p-3">DATE</th>
                               <th className="p-3">REFERENCE</th>
@@ -1877,7 +1877,7 @@ const ViewSales: React.FC = () => {
                               <th className="p-3 text-center">ACTION</th>
                             </tr>
                           </thead>
-                          <tbody className="divide-y divide-slate-200 bg-white">
+                          <tbody className="divide-y divide-line bg-surface">
                             {payments.length > 0 ? (
                               payments.map((p, displayIdx) => {
                                 // Handle date parsing - could be Date object, ISO string, or date string
@@ -1896,30 +1896,30 @@ const ViewSales: React.FC = () => {
                                 const formattedDate = `${dateObj.getFullYear()}-${String(dateObj.getMonth() + 1).padStart(2, '0')}-${String(dateObj.getDate()).padStart(2, '0')}`;
                                 
                                 return (
-                                  <tr key={`${displayIdx}-${p.amount}-${p.paymentType}-${p.date}`} className="hover:bg-slate-50">
-                                    <td className="p-3 text-slate-700">{formattedDate}</td>
-                                    <td className="p-3 text-slate-700">
+                                  <tr key={`${displayIdx}-${p.amount}-${p.paymentType}-${p.date}`} className="hover:bg-surface-raised">
+                                    <td className="p-3 text-foreground">{formattedDate}</td>
+                                    <td className="p-3 text-foreground">
                                       {p.reference || saleForPayments.invoiceId || saleForPayments._id}
                                     </td>
-                                    <td className="p-3 font-medium text-slate-800">{formatCurrency(Number(p.amount) || 0)}</td>
-                                    <td className="p-3 text-slate-700">{formatPaymentType(p.paymentType || 'cash')}</td>
+                                    <td className="p-3 font-medium text-foreground">{formatCurrency(Number(p.amount) || 0)}</td>
+                                    <td className="p-3 text-foreground">{formatPaymentType(p.paymentType || 'cash')}</td>
                                     <td className="p-3 text-center">
                                       <span className="inline-flex items-center gap-2 justify-center">
                                         <button 
                                           type="button" 
                                           onClick={() => openEditPayment(saleForPayments, displayIdx)} 
-                                          className="p-1.5 rounded border border-slate-300 hover:bg-slate-50 transition" 
+                                          className="p-1.5 rounded border border-line-strong hover:bg-surface-raised transition"
                                           title="Edit payment"
                                         >
-                                          <Edit size={16} className="text-green-600" />
+                                          <Edit size={16} className="text-secondary" />
                                         </button>
                                         <button 
                                           type="button" 
                                           onClick={() => handleDeletePayment(saleForPayments._id, displayIdx)} 
-                                          className="p-1.5 rounded border border-slate-300 hover:bg-slate-50 transition" 
+                                          className="p-1.5 rounded border border-line-strong hover:bg-surface-raised transition"
                                           title="Delete payment"
                                         >
-                                          <Trash2 size={16} className="text-red-600" />
+                                          <Trash2 size={16} className="text-danger" />
                                         </button>
                                       </span>
                                     </td>
@@ -1928,7 +1928,7 @@ const ViewSales: React.FC = () => {
                               })
                             ) : (
                               <tr>
-                                <td colSpan={5} className="p-4 text-center text-slate-500">
+                                <td colSpan={5} className="p-4 text-center text-muted">
                                   <div className="space-y-2">
                                     <div className="font-medium">No payment entries found for this sale.</div>
                                     <div className="text-sm">
@@ -1938,7 +1938,7 @@ const ViewSales: React.FC = () => {
                                       Total paid: {formatCurrency(totalPaid)} (Cash: {formatCurrency(cashPaid)}, Card: {formatCurrency(cardPaid)}, Bank: {formatCurrency(bankPaid)})
                                     </div>
                                     {dueAmount > 0 && (
-                                      <div className="text-sm text-red-600 font-medium">
+                                      <div className="text-sm text-danger font-medium">
                                         Amount due: {formatCurrency(dueAmount)}
                                       </div>
                                     )}
@@ -1961,52 +1961,52 @@ const ViewSales: React.FC = () => {
       {/* Edit Payment modal */}
       {editPaymentState && (
         <div className="fixed inset-0 z-[60] overflow-y-auto" aria-modal="true" role="dialog">
-          <div className="fixed inset-0 bg-black/50 backdrop-blur-sm" onClick={() => setEditPaymentState(null)} aria-hidden="true" />
+          <div className="fixed inset-0 bg-overlay backdrop-blur-sm" onClick={() => setEditPaymentState(null)} aria-hidden="true" />
           <div className="flex min-h-full items-center justify-center p-4">
-            <div className="relative bg-white rounded-xl shadow-xl border border-slate-200 w-full max-w-md" onClick={e => e.stopPropagation()}>
-              <div className="flex justify-between items-center p-4 border-b border-slate-200">
-                <h3 className="text-lg font-bold text-[#1A3E73]">Edit Payment</h3>
-                <button type="button" onClick={() => setEditPaymentState(null)} className="p-1 rounded-lg hover:bg-slate-100 text-slate-500">
+            <div className="relative bg-surface rounded-xl border border-line w-full max-w-md" onClick={e => e.stopPropagation()}>
+              <div className="flex justify-between items-center p-4 border-b border-line">
+                <h3 className="text-lg font-bold text-foreground">Edit Payment</h3>
+                <button type="button" onClick={() => setEditPaymentState(null)} className="p-1 rounded-lg hover:bg-surface-muted text-muted">
                   <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" /></svg>
                 </button>
               </div>
               <div className="p-4 grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div className="sm:col-span-2">
-                  <label className="block text-sm font-medium text-slate-700 mb-1">Date :</label>
+                  <label className="block text-sm font-medium text-foreground mb-1">Date :</label>
                   <div className="relative">
-                    <input type="date" value={editPaymentState.form.date} onChange={e => setEditPaymentState(s => s ? { ...s, form: { ...s.form, date: e.target.value } } : null)} className="w-full pl-3 pr-9 py-2 border border-slate-200 rounded-lg focus:outline-none focus:border-[#1A3E73]" />
-                    <Calendar className="absolute right-2.5 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400 pointer-events-none" />
+                    <input type="date" value={editPaymentState.form.date} onChange={e => setEditPaymentState(s => s ? { ...s, form: { ...s.form, date: e.target.value } } : null)} className="w-full pl-3 pr-9 py-2 border border-line rounded-lg focus:outline-none focus:border-primary" />
+                    <Calendar className="absolute right-2.5 top-1/2 -translate-y-1/2 w-4 h-4 text-subtle pointer-events-none" />
                   </div>
                 </div>
                 <div className="sm:col-span-2">
-                  <label className="block text-sm font-medium text-slate-700 mb-1">Reference :</label>
+                  <label className="block text-sm font-medium text-foreground mb-1">Reference :</label>
                   <input
                     type="text"
                     value={editPaymentState.form.reference}
                     readOnly
-                    className="w-full px-3 py-2 border border-slate-200 rounded-lg bg-slate-50 text-slate-700 cursor-not-allowed"
+                    className="w-full px-3 py-2 border border-line rounded-lg bg-surface-raised text-foreground cursor-not-allowed"
                   />
                 </div>
                 <div className="sm:col-span-2">
-                  <label className="block text-sm font-medium text-slate-700 mb-1">Payment Type : <span className="text-red-500">*</span></label>
-                  <select value={editPaymentState.form.paymentType} onChange={e => setEditPaymentState(s => s ? { ...s, form: { ...s.form, paymentType: e.target.value as 'cash' | 'card' | 'bankTransfer' } } : null)} className="w-full px-3 py-2 border border-slate-200 rounded-lg focus:outline-none focus:border-[#1A3E73]">
+                  <label className="block text-sm font-medium text-foreground mb-1">Payment Type : <span className="text-danger">*</span></label>
+                  <select value={editPaymentState.form.paymentType} onChange={e => setEditPaymentState(s => s ? { ...s, form: { ...s.form, paymentType: e.target.value as 'cash' | 'card' | 'bankTransfer' } } : null)} className="w-full px-3 py-2 border border-line rounded-lg focus:outline-none focus:border-primary">
                     <option value="cash">Cash</option>
                     <option value="card">Card</option>
                     <option value="bankTransfer">Bank Transfer</option>
                   </select>
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-slate-700 mb-1">Amount To Pay :</label>
-                  <input type="text" readOnly value={editPaymentState.amountToPay.toFixed(2)} className="w-full px-3 py-2 border border-slate-200 rounded-lg bg-slate-50 text-slate-600" />
+                  <label className="block text-sm font-medium text-foreground mb-1">Amount To Pay :</label>
+                  <input type="text" readOnly value={editPaymentState.amountToPay.toFixed(2)} className="w-full px-3 py-2 border border-line rounded-lg bg-surface-raised text-muted" />
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-slate-700 mb-1">Paying Amount : <span className="text-red-500">*</span></label>
-                  <input type="number" min={0.01} step={0.01} value={editPaymentState.form.amount || ''} onChange={e => setEditPaymentState(s => s ? { ...s, form: { ...s.form, amount: parseFloat(e.target.value) || 0 } } : null)} className="w-full px-3 py-2 border border-slate-200 rounded-lg focus:outline-none focus:border-[#1A3E73]" />
+                  <label className="block text-sm font-medium text-foreground mb-1">Paying Amount : <span className="text-danger">*</span></label>
+                  <input type="number" min={0.01} step={0.01} value={editPaymentState.form.amount || ''} onChange={e => setEditPaymentState(s => s ? { ...s, form: { ...s.form, amount: parseFloat(e.target.value) || 0 } } : null)} className="w-full px-3 py-2 border border-line rounded-lg focus:outline-none focus:border-primary" />
                 </div>
               </div>
-              <div className="flex justify-end gap-2 p-4 border-t border-slate-200">
-                <button type="button" onClick={handleSaveEditPayment} disabled={paymentSubmitting || !editPaymentState.form.amount} className="px-4 py-2 rounded-lg bg-[#1A3E73] text-white hover:bg-[#0F2A55] font-medium disabled:opacity-50 disabled:cursor-not-allowed">Save</button>
-                <button type="button" onClick={() => setEditPaymentState(null)} className="px-4 py-2 rounded-lg border border-slate-200 bg-white text-slate-700 hover:bg-slate-50 font-medium">Cancel</button>
+              <div className="flex justify-end gap-2 p-4 border-t border-line">
+                <button type="button" onClick={handleSaveEditPayment} disabled={paymentSubmitting || !editPaymentState.form.amount} className="px-4 py-2 rounded-lg bg-primary text-on-primary hover:bg-primary-hover font-medium disabled:opacity-50 disabled:cursor-not-allowed">Save</button>
+                <button type="button" onClick={() => setEditPaymentState(null)} className="px-4 py-2 rounded-lg border border-line bg-surface text-foreground hover:bg-surface-raised font-medium">Cancel</button>
               </div>
             </div>
           </div>
@@ -2016,47 +2016,47 @@ const ViewSales: React.FC = () => {
       {/* Create Payment modal */}
       {createPaymentSale && (
         <div className="fixed inset-0 z-50 overflow-y-auto" aria-modal="true" role="dialog">
-          <div className="fixed inset-0 bg-black/50 backdrop-blur-sm" onClick={() => setCreatePaymentSale(null)} aria-hidden="true" />
+          <div className="fixed inset-0 bg-overlay backdrop-blur-sm" onClick={() => setCreatePaymentSale(null)} aria-hidden="true" />
           <div className="flex min-h-full items-center justify-center p-4">
-            <div className="relative bg-white rounded-xl shadow-xl border border-slate-200 w-full max-w-md" onClick={e => e.stopPropagation()}>
-              <div className="flex justify-between items-center p-4 border-b border-slate-200">
-                <h3 className="text-lg font-bold text-[#1A3E73]">Create Payment</h3>
-                <button type="button" onClick={() => setCreatePaymentSale(null)} className="p-1 rounded-lg hover:bg-slate-100 text-slate-500">
+            <div className="relative bg-surface rounded-xl border border-line w-full max-w-md" onClick={e => e.stopPropagation()}>
+              <div className="flex justify-between items-center p-4 border-b border-line">
+                <h3 className="text-lg font-bold text-foreground">Create Payment</h3>
+                <button type="button" onClick={() => setCreatePaymentSale(null)} className="p-1 rounded-lg hover:bg-surface-muted text-muted">
                   <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" /></svg>
                 </button>
               </div>
               <div className="p-4 grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div className="sm:col-span-2">
-                  <label className="block text-sm font-medium text-slate-700 mb-1">Date : <span className="text-red-500">*</span></label>
+                  <label className="block text-sm font-medium text-foreground mb-1">Date : <span className="text-danger">*</span></label>
                   <div className="relative">
-                    <input type="date" value={paymentForm.date} onChange={e => setPaymentForm(f => ({ ...f, date: e.target.value }))} className="w-full pl-3 pr-9 py-2 border border-slate-200 rounded-lg focus:outline-none focus:border-[#1A3E73]" />
-                    <Calendar className="absolute right-2.5 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400 pointer-events-none" />
+                    <input type="date" value={paymentForm.date} onChange={e => setPaymentForm(f => ({ ...f, date: e.target.value }))} className="w-full pl-3 pr-9 py-2 border border-line rounded-lg focus:outline-none focus:border-primary" />
+                    <Calendar className="absolute right-2.5 top-1/2 -translate-y-1/2 w-4 h-4 text-subtle pointer-events-none" />
                   </div>
                 </div>
                 <div className="sm:col-span-2">
-                  <label className="block text-sm font-medium text-slate-700 mb-1">Reference :</label>
-                  <input type="text" value={paymentForm.reference} onChange={e => setPaymentForm(f => ({ ...f, reference: e.target.value }))} placeholder="N/A" className="w-full px-3 py-2 border border-slate-200 rounded-lg focus:outline-none focus:border-[#1A3E73]" />
+                  <label className="block text-sm font-medium text-foreground mb-1">Reference :</label>
+                  <input type="text" value={paymentForm.reference} onChange={e => setPaymentForm(f => ({ ...f, reference: e.target.value }))} placeholder="N/A" className="w-full px-3 py-2 border border-line rounded-lg focus:outline-none focus:border-primary" />
                 </div>
                 <div className="sm:col-span-2">
-                  <label className="block text-sm font-medium text-slate-700 mb-1">Payment Type : <span className="text-red-500">*</span></label>
-                  <select value={paymentForm.paymentType} onChange={e => setPaymentForm(f => ({ ...f, paymentType: e.target.value as 'cash' | 'card' | 'bankTransfer' }))} className="w-full px-3 py-2 border border-slate-200 rounded-lg focus:outline-none focus:border-[#1A3E73]">
+                  <label className="block text-sm font-medium text-foreground mb-1">Payment Type : <span className="text-danger">*</span></label>
+                  <select value={paymentForm.paymentType} onChange={e => setPaymentForm(f => ({ ...f, paymentType: e.target.value as 'cash' | 'card' | 'bankTransfer' }))} className="w-full px-3 py-2 border border-line rounded-lg focus:outline-none focus:border-primary">
                     <option value="cash">Cash</option>
                     <option value="card">Card</option>
                     <option value="bankTransfer">Bank Transfer</option>
                   </select>
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-slate-700 mb-1">Amount To Pay :</label>
-                  <input type="text" readOnly value={createPaymentSale.balance.toFixed(2)} className="w-full px-3 py-2 border border-slate-200 rounded-lg bg-slate-50 text-slate-600" />
+                  <label className="block text-sm font-medium text-foreground mb-1">Amount To Pay :</label>
+                  <input type="text" readOnly value={createPaymentSale.balance.toFixed(2)} className="w-full px-3 py-2 border border-line rounded-lg bg-surface-raised text-muted" />
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-slate-700 mb-1">Paying Amount : <span className="text-red-500">*</span></label>
-                  <input type="number" min={0.01} max={createPaymentSale.balance} step={0.01} value={paymentForm.amount || ''} onChange={e => setPaymentForm(f => ({ ...f, amount: parseFloat(e.target.value) || 0 }))} className="w-full px-3 py-2 border border-slate-200 rounded-lg focus:outline-none focus:border-[#1A3E73]" />
+                  <label className="block text-sm font-medium text-foreground mb-1">Paying Amount : <span className="text-danger">*</span></label>
+                  <input type="number" min={0.01} max={createPaymentSale.balance} step={0.01} value={paymentForm.amount || ''} onChange={e => setPaymentForm(f => ({ ...f, amount: parseFloat(e.target.value) || 0 }))} className="w-full px-3 py-2 border border-line rounded-lg focus:outline-none focus:border-primary" />
                 </div>
               </div>
-              <div className="flex justify-end gap-2 p-4 border-t border-slate-200">
-                <button type="button" onClick={handleSavePayment} disabled={paymentSubmitting || !paymentForm.amount || paymentForm.amount > createPaymentSale.balance} className="px-4 py-2 rounded-lg bg-[#1A3E73] text-white hover:bg-[#0F2A55] font-medium disabled:opacity-50 disabled:cursor-not-allowed">Save</button>
-                <button type="button" onClick={() => setCreatePaymentSale(null)} className="px-4 py-2 rounded-lg border border-slate-200 bg-white text-slate-700 hover:bg-slate-50 font-medium">Cancel</button>
+              <div className="flex justify-end gap-2 p-4 border-t border-line">
+                <button type="button" onClick={handleSavePayment} disabled={paymentSubmitting || !paymentForm.amount || paymentForm.amount > createPaymentSale.balance} className="px-4 py-2 rounded-lg bg-primary text-on-primary hover:bg-primary-hover font-medium disabled:opacity-50 disabled:cursor-not-allowed">Save</button>
+                <button type="button" onClick={() => setCreatePaymentSale(null)} className="px-4 py-2 rounded-lg border border-line bg-surface text-foreground hover:bg-surface-raised font-medium">Cancel</button>
               </div>
             </div>
           </div>

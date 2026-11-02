@@ -902,19 +902,19 @@ const EditAdjustment: React.FC = () => {
   }
 
   return (
-    <div className="p-8 bg-[#F8FAFC] min-h-screen">
+    <div className="p-8 bg-canvas min-h-screen">
       <div className="max-w-7xl mx-auto">
         {/* Header */}
         <div className="mb-8 flex items-center gap-4">
           <button
             onClick={() => navigate('/viewAdjustments')}
-            className="text-[#1A3E73] hover:text-[#0F2A55] transition"
+            className="text-primary hover:text-primary transition"
           >
             <ArrowLeft size={24} />
           </button>
           <div>
-            <h1 className="text-4xl font-black text-[#1A3E73] mb-2">Edit Stock Adjustment</h1>
-            <p className="text-[#64748B] font-bold">Update adjustment details and quantities</p>
+            <h1 className="text-4xl font-black text-foreground mb-2">Edit Stock Adjustment</h1>
+            <p className="text-muted font-bold">Update adjustment details and quantities</p>
           </div>
         </div>
 
@@ -922,14 +922,14 @@ const EditAdjustment: React.FC = () => {
         <div className="grid grid-cols-3 gap-6">
           {/* Form Section */}
           <div className="col-span-2">
-            <div className="bg-white rounded-2xl shadow-sm border border-slate-200 p-6 space-y-6">
+            <div className="bg-surface rounded-2xl border border-line p-6 space-y-6">
               {/* Warehouse Selection */}
               <div>
-                <label className="block text-sm font-black text-[#1A3E73] mb-3">Warehouse *</label>
+                <label className="block text-sm font-black text-foreground mb-3">Warehouse *</label>
                 <select
                   value={selectedWarehouseId}
                   onChange={handleWarehouseChange}
-                  className="w-full px-4 py-3 border border-slate-200 rounded-lg focus:outline-none focus:border-[#1A3E73] bg-white"
+                  className="w-full px-4 py-3 border border-line rounded-lg focus:outline-none focus:border-primary bg-surface"
                 >
                   <option value="">Select Warehouse</option>
                   {warehouses.map(w => (
@@ -941,11 +941,11 @@ const EditAdjustment: React.FC = () => {
               {/* Adjustment Type */}
               <div className="grid grid-cols-2 gap-4">
                 <div>
-                  <label className="block text-sm font-black text-[#1A3E73] mb-3">Adjustment Type *</label>
+                  <label className="block text-sm font-black text-foreground mb-3">Adjustment Type *</label>
                   <select
                     value={adjustmentType}
                     onChange={handleAdjustmentTypeChange}
-                    className="w-full px-4 py-3 border border-slate-200 rounded-lg focus:outline-none focus:border-[#1A3E73] bg-white"
+                    className="w-full px-4 py-3 border border-line rounded-lg focus:outline-none focus:border-primary bg-surface"
                   >
                     <option value="Increase">Increase Stock</option>
                     <option value="Decrease">Decrease Stock</option>
@@ -954,23 +954,23 @@ const EditAdjustment: React.FC = () => {
 
                 {/* Date */}
                 <div>
-                  <label className="block text-sm font-black text-[#1A3E73] mb-3">Adjustment Date</label>
+                  <label className="block text-sm font-black text-foreground mb-3">Adjustment Date</label>
                   <input
                     type="date"
                     value={adjustmentDate}
                     onChange={(e) => setAdjustmentDate(e.target.value)}
-                    className="w-full px-4 py-3 border border-slate-200 rounded-lg focus:outline-none focus:border-[#1A3E73]"
+                    className="w-full px-4 py-3 border border-line rounded-lg focus:outline-none focus:border-primary"
                   />
                 </div>
               </div>
 
               {/* Reason - native select so selected value is correctly bound and persists */}
               <div>
-                <label className="block text-sm font-black text-[#1A3E73] mb-3">Reason for Adjustment *</label>
+                <label className="block text-sm font-black text-foreground mb-3">Reason for Adjustment *</label>
                 <select
                   value={reason}
                   onChange={(e) => setReason(e.target.value)}
-                  className="w-full px-4 py-3 border border-slate-200 rounded-lg focus:outline-none focus:border-[#1A3E73] bg-white"
+                  className="w-full px-4 py-3 border border-line rounded-lg focus:outline-none focus:border-primary bg-surface"
                   aria-label="Reason for Adjustment"
                 >
                   <option value="">Select a reason...</option>
@@ -982,11 +982,11 @@ const EditAdjustment: React.FC = () => {
 
               {/* Status */}
               <div>
-                <label className="block text-sm font-black text-[#1A3E73] mb-3">Status</label>
+                <label className="block text-sm font-black text-foreground mb-3">Status</label>
                 <select
                   value={status}
                   onChange={(e) => setStatus(e.target.value as 'Pending' | 'Approved' | 'Completed' | 'Cancelled')}
-                  className="w-full px-4 py-3 border border-slate-200 rounded-lg focus:outline-none focus:border-[#1A3E73] bg-white"
+                  className="w-full px-4 py-3 border border-line rounded-lg focus:outline-none focus:border-primary bg-surface"
                 >
                   <option value="Pending">Pending</option>
                   <option value="Approved">Approved</option>
@@ -997,26 +997,26 @@ const EditAdjustment: React.FC = () => {
 
               {/* Reference Number - read-only on edit; cannot be changed */}
               <div>
-                <label className="block text-sm font-black text-[#1A3E73] mb-3">Reference Number</label>
+                <label className="block text-sm font-black text-foreground mb-3">Reference Number</label>
                 <input
                   type="text"
                   value={referenceNumber}
                   readOnly
-                  className="w-full px-4 py-3 border border-slate-200 rounded-lg bg-slate-100 text-[#1A3E73] cursor-not-allowed"
+                  className="w-full px-4 py-3 border border-line rounded-lg bg-surface-muted text-foreground cursor-not-allowed"
                   title="Reference number cannot be changed when editing"
                 />
-                <p className="mt-1 text-xs text-[#64748B]">Reference number cannot be changed when editing.</p>
+                <p className="mt-1 text-xs text-muted">Reference number cannot be changed when editing.</p>
               </div>
 
               {/* Notes */}
               <div>
-                <label className="block text-sm font-black text-[#1A3E73] mb-3">Notes</label>
+                <label className="block text-sm font-black text-foreground mb-3">Notes</label>
                 <textarea
                   value={notes}
                   onChange={(e) => setNotes(e.target.value)}
                   placeholder="Additional notes about this adjustment..."
                   rows={4}
-                  className="w-full px-4 py-3 border border-slate-200 rounded-lg focus:outline-none focus:border-[#1A3E73] resize-none"
+                  className="w-full px-4 py-3 border border-line rounded-lg focus:outline-none focus:border-primary resize-none"
                 />
               </div>
             </div>
@@ -1024,37 +1024,37 @@ const EditAdjustment: React.FC = () => {
 
           {/* Summary Card */}
           <div>
-            <div className="bg-white rounded-2xl shadow-sm border border-slate-200 p-6 sticky top-8">
-              <h3 className="text-lg font-black text-[#1A3E73] mb-6">Summary</h3>
+            <div className="bg-surface rounded-2xl border border-line p-6 sticky top-8">
+              <h3 className="text-lg font-black text-foreground mb-6">Summary</h3>
 
               <div className="space-y-4 mb-6">
                 <div>
-                  <p className="text-xs font-black text-[#64748B] uppercase mb-1">Warehouse</p>
-                  <p className="font-bold text-[#1A3E73]">{selectedWarehouseName || 'Not selected'}</p>
+                  <p className="text-xs font-black text-muted uppercase mb-1">Warehouse</p>
+                  <p className="font-bold text-foreground">{selectedWarehouseName || 'Not selected'}</p>
                 </div>
 
                 <div>
-                  <p className="text-xs font-black text-[#64748B] uppercase mb-1">Type</p>
-                  <p className={`font-bold ${adjustmentType === 'Increase' ? 'text-green-600' : 'text-red-600'}`}>
+                  <p className="text-xs font-black text-muted uppercase mb-1">Type</p>
+                  <p className={`font-bold ${adjustmentType === 'Increase' ? 'text-secondary' : 'text-danger'}`}>
                     {adjustmentType === 'Increase' ? '↑ Increase' : '↓ Decrease'}
                   </p>
                 </div>
 
                 <div>
-                  <p className="text-xs font-black text-[#64748B] uppercase mb-1">Total Items</p>
-                  <p className="font-bold text-[#1A3E73]">{items.length}</p>
+                  <p className="text-xs font-black text-muted uppercase mb-1">Total Items</p>
+                  <p className="font-bold text-foreground">{items.length}</p>
                 </div>
 
-                <div className="pt-4 border-t border-slate-200">
-                  <p className="text-xs font-black text-[#64748B] uppercase mb-2">Total Value</p>
-                  <p className="text-2xl font-black text-[#1A3E73]">{currencyCode} {grandTotal.toFixed(2)}</p>
+                <div className="pt-4 border-t border-line">
+                  <p className="text-xs font-black text-muted uppercase mb-2">Total Value</p>
+                  <p className="text-2xl font-black text-foreground">{currencyCode} {grandTotal.toFixed(2)}</p>
                 </div>
               </div>
 
               <button
                 onClick={handleSubmit}
                 disabled={isLoading || items.length === 0 || !selectedWarehouseId}
-                className="w-full bg-[#1A3E73] text-white font-black py-3 rounded-lg hover:bg-[#0F2A55] disabled:bg-slate-300 disabled:cursor-not-allowed transition flex items-center justify-center gap-2"
+                className="w-full bg-primary text-on-primary font-black py-3 rounded-lg hover:bg-primary-hover disabled:bg-surface-muted disabled:cursor-not-allowed transition flex items-center justify-center gap-2"
               >
                 {isLoading ? <Loader2 size={20} className="animate-spin" /> : <Save size={20} />}
                 {isLoading ? 'Updating...' : 'Update Adjustment'}
@@ -1064,13 +1064,13 @@ const EditAdjustment: React.FC = () => {
         </div>
 
         {/* Items Table */}
-        <div className="mt-8 bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden">
-          <div className="p-6 border-b border-slate-200">
+        <div className="mt-8 bg-surface rounded-2xl border border-line overflow-hidden">
+          <div className="p-6 border-b border-line">
             <div className="flex justify-between items-center">
-              <h3 className="text-lg font-black text-[#1A3E73]">Adjustment Items</h3>
+              <h3 className="text-lg font-black text-foreground">Adjustment Items</h3>
               <button
                 onClick={addItemRow}
-                className="flex items-center gap-2 bg-[#1A3E73] text-white px-4 py-2 rounded-lg hover:bg-[#0F2A55] font-bold"
+                className="flex items-center gap-2 bg-primary text-on-primary px-4 py-2 rounded-lg hover:bg-primary-hover font-bold"
               >
                 <Plus size={20} /> Add Item
               </button>
@@ -1078,25 +1078,25 @@ const EditAdjustment: React.FC = () => {
           </div>
 
           {items.length === 0 ? (
-            <div className="p-6 text-center text-[#64748B]">
+            <div className="p-6 text-center text-muted">
               <p>No items added. Click "Add Item" to start adding products to adjust.</p>
             </div>
           ) : (
             <div className="overflow-x-auto">
               <table className="w-full">
-                <thead className="bg-[#F8FAFC] border-b border-slate-200">
+                <thead className="bg-surface-raised border-b border-line">
                   <tr>
-                    <th className="px-6 py-3 text-left text-xs font-black text-[#64748B] uppercase">Product</th>
-                    <th className="px-6 py-3 text-left text-xs font-black text-[#64748B] uppercase">Current Stock</th>
-                    <th className="px-6 py-3 text-left text-xs font-black text-[#64748B] uppercase">Adjustment Qty</th>
-                    <th className="px-6 py-3 text-left text-xs font-black text-[#64748B] uppercase">Cost</th>
-                    <th className="px-6 py-3 text-left text-xs font-black text-[#64748B] uppercase">Subtotal</th>
-                    <th className="px-6 py-3 text-center text-xs font-black text-[#64748B] uppercase">Action</th>
+                    <th className="px-6 py-3 text-left text-xs font-black text-muted uppercase">Product</th>
+                    <th className="px-6 py-3 text-left text-xs font-black text-muted uppercase">Current Stock</th>
+                    <th className="px-6 py-3 text-left text-xs font-black text-muted uppercase">Adjustment Qty</th>
+                    <th className="px-6 py-3 text-left text-xs font-black text-muted uppercase">Cost</th>
+                    <th className="px-6 py-3 text-left text-xs font-black text-muted uppercase">Subtotal</th>
+                    <th className="px-6 py-3 text-center text-xs font-black text-muted uppercase">Action</th>
                   </tr>
                 </thead>
                 <tbody>
                   {items.map((item, idx) => (
-                    <tr key={item.id} className="border-b border-slate-200 hover:bg-[#F8FAFC]">
+                    <tr key={item.id} className="border-b border-line hover:bg-surface-raised">
                       <td className="px-6 py-4">
                         <div className="space-y-2">
                           <SearchableDropdown
@@ -1110,7 +1110,7 @@ const EditAdjustment: React.FC = () => {
                             <select
                               value={item.batchNumber || ''}
                               onChange={(e) => handleBatchSelect(idx, e.target.value)}
-                              className="w-full px-3 py-2 border border-slate-200 rounded-lg focus:outline-none focus:border-[#1A3E73] text-sm"
+                              className="w-full px-3 py-2 border border-line rounded-lg focus:outline-none focus:border-primary text-sm"
                             >
                               <option value="">Select batch...</option>
                               {item.availableBatches.map((b) => {
@@ -1128,7 +1128,7 @@ const EditAdjustment: React.FC = () => {
                             <select
                               value={item.variationName || ''}
                               onChange={(e) => handleVariationSelect(idx, e.target.value)}
-                              className="w-full px-3 py-2 border border-slate-200 rounded-lg focus:outline-none focus:border-[#1A3E73] text-sm"
+                              className="w-full px-3 py-2 border border-line rounded-lg focus:outline-none focus:border-primary text-sm"
                               disabled={item.hasBatches && !item.batchNumber}
                             >
                               <option value="">Select variation...</option>
@@ -1142,7 +1142,7 @@ const EditAdjustment: React.FC = () => {
                         </div>
                       </td>
                       <td className="px-6 py-4">
-                        <p className="font-bold text-[#1A3E73]">{item.currentStock}{displayUnit(item) ? ` ${displayUnit(item)}` : ''}</p>
+                        <p className="font-bold text-foreground">{item.currentStock}{displayUnit(item) ? ` ${displayUnit(item)}` : ''}</p>
                       </td>
                       <td className="px-6 py-4">
                         <input
@@ -1150,21 +1150,21 @@ const EditAdjustment: React.FC = () => {
                           value={item.adjustmentQty}
                           onChange={(e) => handleAdjustmentQtyChange(idx, e.target.value)}
                           placeholder="0"
-                          className="w-24 px-3 py-2 border border-slate-200 rounded-lg focus:outline-none focus:border-[#1A3E73]"
+                          className="w-24 px-3 py-2 border border-line rounded-lg focus:outline-none focus:border-primary"
                           step="0.01"
                           min="0"
                         />
                       </td>
                       <td className="px-6 py-4">
-                        <p className="font-bold text-[#1A3E73]">{currencyCode} {item.cost.toFixed(2)}</p>
+                        <p className="font-bold text-foreground">{currencyCode} {item.cost.toFixed(2)}</p>
                       </td>
                       <td className="px-6 py-4">
-                        <p className="font-bold text-[#1A3E73]">{currencyCode} {item.subTotal.toFixed(2)}</p>
+                        <p className="font-bold text-foreground">{currencyCode} {item.subTotal.toFixed(2)}</p>
                       </td>
                       <td className="px-6 py-4 text-center">
                         <button
                           onClick={() => removeItem(idx)}
-                          className="text-red-600 hover:text-red-800 font-bold"
+                          className="text-danger hover:text-danger font-bold"
                         >
                           <Trash2 size={20} />
                         </button>

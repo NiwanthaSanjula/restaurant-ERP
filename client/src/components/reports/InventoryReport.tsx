@@ -84,16 +84,16 @@ const StockReport: React.FC = () => {
   }, [filters]);
 
   return (
-    <div className="max-w-7xl mx-auto p-4 md:p-8 bg-slate-50 min-h-screen">
+    <div className="max-w-7xl mx-auto p-4 md:p-8 bg-canvas min-h-screen">
       {/* Header */}
       <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-4 mb-8">
         <div className="flex items-center gap-4">
-          <div className="p-3 bg-[#004080] rounded-xl text-white shadow-lg">
+          <div className="p-3 bg-primary rounded-xl text-on-primary">
             <Boxes size={26} />
           </div>
           <div>
-            <h1 className="text-xl md:text-2xl font-bold text-slate-800">Inventory Report</h1>
-            <p className="text-slate-500 text-xs md:text-sm">View current product stock levels</p>
+            <h1 className="text-xl md:text-2xl font-bold text-foreground">Inventory Report</h1>
+            <p className="text-muted text-xs md:text-sm">View current product stock levels</p>
           </div>
         </div>
 
@@ -116,7 +116,7 @@ const StockReport: React.FC = () => {
 
           <button
             onClick={() => navigate(-1)}
-            className="flex items-center text-slate-500 hover:text-[#004080] px-3 py-2 rounded-lg"
+            className="flex items-center text-muted hover:text-primary px-3 py-2 rounded-lg"
           >
             <ArrowLeft size={18} className="mr-2" />
             Back
@@ -125,36 +125,36 @@ const StockReport: React.FC = () => {
       </div>
 
       {/* Filters */}
-      <div className="bg-white p-5 md:p-6 rounded-2xl shadow-sm border border-slate-200 mb-6">
+      <div className="bg-surface p-5 md:p-6 rounded-2xl border border-line mb-6">
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
           <div>
-            <label className="text-sm font-semibold text-slate-600">From Date</label>
+            <label className="text-sm font-semibold text-muted">From Date</label>
             <input
               type="date"
-              className="w-full mt-1 pl-4 pr-4 py-2.5 border border-slate-200 rounded-xl"
+              className="w-full mt-1 pl-4 pr-4 py-2.5 border border-line rounded-xl"
               value={filters.fromDate}
               onChange={(e) => setFilters({ ...filters, fromDate: e.target.value })}
             />
           </div>
 
           <div>
-            <label className="text-sm font-semibold text-slate-600">To Date</label>
+            <label className="text-sm font-semibold text-muted">To Date</label>
             <input
               type="date"
-              className="w-full mt-1 pl-4 pr-4 py-2.5 border border-slate-200 rounded-xl"
+              className="w-full mt-1 pl-4 pr-4 py-2.5 border border-line rounded-xl"
               value={filters.toDate}
               onChange={(e) => setFilters({ ...filters, toDate: e.target.value })}
             />
           </div>
 
           <div>
-            <label className="text-sm font-semibold text-slate-600">Store</label>
+            <label className="text-sm font-semibold text-muted">Store</label>
             <div className="relative mt-1">
-              <Store className="absolute left-3 top-3 text-slate-400" size={16} />
+              <Store className="absolute left-3 top-3 text-subtle" size={16} />
               <select
                 value={filters.store}
                 onChange={(e) => setFilters({ ...filters, store: e.target.value })}
-                className="w-full pl-10 pr-4 py-2.5 border border-slate-200 rounded-xl"
+                className="w-full pl-10 pr-4 py-2.5 border border-line rounded-xl"
               >
                 <option>All Stores</option>
                 {inventoryData
@@ -170,9 +170,9 @@ const StockReport: React.FC = () => {
       </div>
 
       {/* Table */}
-      <div className="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-x-auto">
+      <div className="bg-surface rounded-2xl border border-line overflow-x-auto">
         <table className="w-full text-sm">
-          <thead className="bg-slate-100">
+          <thead className="bg-surface-muted">
             <tr>
               <th className="px-4 py-3 text-left">Date</th>
               <th className="px-4 py-3 text-left">Product</th>
@@ -200,7 +200,7 @@ const StockReport: React.FC = () => {
                 <tr
                   key={i}
                   className={
-                    `border-t hover:bg-slate-50 ${item.isLowStock ? "bg-amber-50" : ""}`
+                    `border-t hover:bg-surface-raised ${item.isLowStock ? "bg-warning-soft" : ""}`
                   }
                 >
                   <td className="px-4 py-3">{item.date}</td>
@@ -208,7 +208,7 @@ const StockReport: React.FC = () => {
                   <td className="px-4 py-3 font-semibold">{item.stock}</td>
                   <td className="px-4 py-3">{item.stockAlert !== null ? item.stockAlert : "--"}</td>
                   <td className="px-4 py-3">{item.warehouse}</td>
-                  <td className="px-4 py-3 font-semibold text-amber-700">
+                  <td className="px-4 py-3 font-semibold text-warning">
                     {item.isLowStock ? "Low Stock" : "In Stock"}
                   </td>
                 </tr>

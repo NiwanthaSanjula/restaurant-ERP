@@ -84,14 +84,14 @@ const ViewPermissions: React.FC = () => {
 
   const getActionBadge = (action: string) => {
     const colors: { [key: string]: string } = {
-      'create': 'bg-green-100 text-green-800',
-      'read': 'bg-blue-100 text-blue-800',
-      'update': 'bg-yellow-100 text-yellow-800',
-      'delete': 'bg-red-100 text-red-800'
+      'create': 'bg-secondary-soft text-secondary',
+      'read': 'bg-primary-soft text-primary',
+      'update': 'bg-warning-soft text-warning',
+      'delete': 'bg-danger-soft text-danger'
     };
     
     return (
-      <span className={`px-2 py-1 rounded text-sm font-semibold ${colors[action] || 'bg-gray-100 text-gray-800'}`}>
+      <span className={`px-2 py-1 rounded text-sm font-semibold ${colors[action] || 'bg-surface-muted text-foreground'}`}>
         {action.charAt(0).toUpperCase() + action.slice(1)}
       </span>
     );
@@ -101,12 +101,12 @@ const ViewPermissions: React.FC = () => {
     <div>
       {loading && <Loader text="Loading" />}
       <div className="flex items-center justify-between mb-4">
-        <div className="text-2xl font-semibold text-[#001F54]">Permissions</div>
+        <div className="text-2xl font-semibold text-foreground">Permissions</div>
         <div className="flex items-center space-x-4">
           <select
             value={selectedComponent}
             onChange={(e) => setSelectedComponent(e.target.value)}
-            className="border border-gray-200 rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-[#001F54] focus:border-transparent"
+            className="border border-line rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
           >
             {components.map(comp => (
               <option key={comp.key} value={comp.key}>{comp.label}</option>
@@ -114,16 +114,16 @@ const ViewPermissions: React.FC = () => {
           </select>
           <button
             onClick={() => navigate('/createPermission')}
-            className="px-4 py-2 rounded bg-[#003366] text-white hover:bg-[#004080]"
+            className="px-4 py-2 rounded bg-primary text-on-primary hover:bg-primary-hover"
           >
             Create Permission
           </button>
         </div>
       </div>
       
-      <div className="bg-white border border-gray-200 rounded overflow-auto">
-        <table className="min-w-full divide-y divide-gray-200">
-          <thead className="bg-[#001F54] text-white">
+      <div className="bg-surface border border-line rounded overflow-auto">
+        <table className="min-w-full divide-y divide-line">
+          <thead className="bg-primary text-on-primary">
             <tr>
               <th className="text-left px-6 py-4 text-sm font-semibold">Permission Name</th>
               <th className="text-left px-6 py-4 text-sm font-semibold">Component</th>
@@ -134,35 +134,35 @@ const ViewPermissions: React.FC = () => {
               <th className="text-right px-6 py-4 text-sm font-semibold">Action</th>
             </tr>
           </thead>
-          <tbody className="bg-white divide-y divide-gray-200">
+          <tbody className="bg-surface divide-y divide-line">
             {permissions.map(permission => (
-              <tr key={permission.id} className="hover:bg-gray-50 transition-colors duration-150">
-                <td className="px-6 py-5 text-base font-semibold text-gray-900">{permission.name}</td>
+              <tr key={permission.id} className="hover:bg-surface-raised transition-colors duration-150">
+                <td className="px-6 py-5 text-base font-semibold text-foreground">{permission.name}</td>
                 <td className="px-6 py-5">
-                  <span className="px-2 py-1 rounded text-sm font-semibold bg-purple-100 text-purple-800">
+                  <span className="px-2 py-1 rounded text-sm font-semibold bg-violet-soft text-violet-status">
                     {getComponentLabel(permission.component)}
                   </span>
                 </td>
                 <td className="px-6 py-5">
                   {getActionBadge(permission.action)}
                 </td>
-                <td className="px-6 py-5 text-base text-gray-600">{permission.description}</td>
+                <td className="px-6 py-5 text-base text-muted">{permission.description}</td>
                 <td className="px-6 py-5">
                   <span className={`px-2 py-1 rounded text-sm font-semibold ${
                     permission.isActive 
-                      ? 'bg-green-100 text-green-800' 
-                      : 'bg-red-100 text-red-800'
+                      ? 'bg-secondary-soft text-secondary'
+                      : 'bg-danger-soft text-danger'
                   }`}>
                     {permission.isActive ? 'Active' : 'Inactive'}
                   </span>
                 </td>
-                <td className="px-6 py-5 text-base text-gray-500">
+                <td className="px-6 py-5 text-base text-muted">
                   {formatDate(permission.createdAt)}
                 </td>
                 <td className="px-6 py-5 text-right space-x-3">
                   <button
                     onClick={() => navigate(`/editPermission/${permission.id}`)}
-                    className="inline-flex items-center justify-center p-2.5 rounded-lg border border-gray-300 text-[#001F54] hover:bg-gray-100 transition-colors duration-200"
+                    className="inline-flex items-center justify-center p-2.5 rounded-lg border border-line-strong text-primary hover:bg-surface-muted transition-colors duration-200"
                     title="Edit"
                     aria-label="Edit"
                   >
@@ -173,7 +173,7 @@ const ViewPermissions: React.FC = () => {
                   </button>
                   <button
                     onClick={() => setToDelete(permission.id)}
-                    className="inline-flex items-center justify-center p-2.5 rounded-lg border border-gray-300 text-red-600 hover:bg-gray-100 transition-colors duration-200"
+                    className="inline-flex items-center justify-center p-2.5 rounded-lg border border-line-strong text-danger hover:bg-surface-muted transition-colors duration-200"
                     title="Delete"
                     aria-label="Delete"
                   >
@@ -190,7 +190,7 @@ const ViewPermissions: React.FC = () => {
             ))}
             {permissions.length === 0 && (
               <tr>
-                <td colSpan={7} className="px-6 py-12 text-center text-base text-gray-500">No permissions found</td>
+                <td colSpan={7} className="px-6 py-12 text-center text-base text-muted">No permissions found</td>
               </tr>
             )}
           </tbody>

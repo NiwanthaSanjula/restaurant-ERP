@@ -88,24 +88,24 @@ const ActivityLogs: React.FC = () => {
   };
 
   return (
-    <div className="p-6 bg-slate-50 min-h-screen">
+    <div className="p-6 bg-canvas min-h-screen">
       {/* Header */}
       <div className="mb-6">
-        <h2 className="text-2xl font-bold text-slate-800">Activity Logs</h2>
-        <p className="text-sm text-slate-500">
+        <h2 className="text-2xl font-bold text-foreground">Activity Logs</h2>
+        <p className="text-sm text-muted">
           Track all edits and deletions across your system
         </p>
       </div>
 
       {/* Error */}
       {error && (
-        <div className="mb-4 rounded-lg border border-red-200 bg-red-50 px-4 py-2 text-sm text-red-700">
+        <div className="mb-4 rounded-lg border border-danger-line bg-danger-soft px-4 py-2 text-sm text-danger">
           {error}
         </div>
       )}
 
       {/* Filters */}
-      <div className="bg-white shadow-sm rounded-lg p-4 mb-6">
+      <div className="bg-surface rounded-lg p-4 mb-6">
         <div className="grid grid-cols-1 md:grid-cols-6 gap-3 items-center">
           <input type="date" value={from} onChange={e => setFrom(e.target.value)} className="border rounded p-2" />
           <input type="date" value={to} onChange={e => setTo(e.target.value)} className="border rounded p-2" />
@@ -114,7 +114,7 @@ const ActivityLogs: React.FC = () => {
 
           <button
             onClick={onSearch}
-            className="bg-blue-700 hover:bg-blue-800 text-white px-3 py-2 rounded"
+            className="bg-primary hover:bg-primary-hover text-on-primary px-3 py-2 rounded"
           >
             Search
           </button>
@@ -133,10 +133,10 @@ const ActivityLogs: React.FC = () => {
       </div>
 
       {/* Table */}
-    <div className="bg-white shadow-md rounded-2xl overflow-hidden border border-slate-100">
+    <div className="bg-surface rounded-2xl overflow-hidden border border-line">
       <div className="overflow-x-auto">
         <table className="min-w-full text-sm">
-          <thead className="bg-slate-50 text-slate-700 uppercase text-xs tracking-wider">
+          <thead className="bg-surface-raised text-foreground uppercase text-xs tracking-wider">
             <tr>
               <th className="px-4 py-3 text-left">Time</th>
               <th className="px-4 py-3 text-left">User</th>
@@ -147,16 +147,16 @@ const ActivityLogs: React.FC = () => {
             </tr>
           </thead>
 
-          <tbody className="divide-y divide-slate-100">
+          <tbody className="divide-y divide-line">
             {loading ? (
               <tr>
-                <td colSpan={6} className="text-center py-8 text-slate-500">
+                <td colSpan={6} className="text-center py-8 text-muted">
                   Loading activity logs...
                 </td>
               </tr>
             ) : results.length === 0 ? (
               <tr>
-                <td colSpan={6} className="text-center py-8 text-slate-500">
+                <td colSpan={6} className="text-center py-8 text-muted">
                   No activity logs found.
                 </td>
               </tr>
@@ -164,17 +164,17 @@ const ActivityLogs: React.FC = () => {
               results.map((r) => (
                 <tr
                   key={r._id}
-                  className="hover:bg-slate-50 transition"
+                  className="hover:bg-surface-raised transition"
                 >
-                  <td className="px-4 py-3 text-slate-600">
+                  <td className="px-4 py-3 text-muted">
                     {r.createdAt ? new Date(r.createdAt).toLocaleString() : ''}
                   </td>
 
-                  <td className="px-4 py-3 font-medium text-slate-800">
+                  <td className="px-4 py-3 font-medium text-foreground">
                     {r.username || r.userId}
                   </td>
 
-                  <td className="px-4 py-3 text-slate-600">
+                  <td className="px-4 py-3 text-muted">
                     {r.role}
                   </td>
 
@@ -182,19 +182,19 @@ const ActivityLogs: React.FC = () => {
                     <span
                       className={`px-2 py-1 rounded-full text-xs font-semibold ${
                         r.action === 'DELETE'
-                          ? 'bg-red-100 text-red-700'
-                          : 'bg-yellow-100 text-yellow-700'
+                          ? 'bg-danger-soft text-danger'
+                          : 'bg-warning-soft text-warning'
                       }`}
                     >
                       {r.action}
                     </span>
                   </td>
 
-                  <td className="px-4 py-3 text-slate-700">
+                  <td className="px-4 py-3 text-foreground">
                     {r.entityType}
                   </td>
 
-                  <td className="px-4 py-3 text-slate-500 text-xs">
+                  <td className="px-4 py-3 text-muted text-xs">
                     {r.displayEntityId || r.entityId}
                   </td>
                 </tr>
@@ -206,7 +206,7 @@ const ActivityLogs: React.FC = () => {
     </div>
 
       {/* Footer */}
-      <div className="mt-4 flex items-center justify-between text-sm text-slate-600">
+      <div className="mt-4 flex items-center justify-between text-sm text-muted">
         <div>
           Total records: <span className="font-semibold">{total}</span>
         </div>

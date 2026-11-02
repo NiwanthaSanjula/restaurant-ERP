@@ -3,6 +3,7 @@ import fs from 'fs';
 import multer from 'multer';
 import path from 'path';
 import { authenticate } from '../middleware/auth';
+import { requirePermission } from '../middleware/permissions';
 import { getSettings, updateSettings } from '../controllers/settingController';
 import { updateReceiptSettings, getReceiptSettings, uploadReceiptLogo, deleteReceiptLogo } from '../controllers/receiptController';
 import { getMailSettings, updateMailSettings } from '../controllers/mailSettingController';
@@ -27,19 +28,19 @@ const storage = multer.diskStorage({
 
 const upload = multer({ storage });
 
-router.get('/mail', getMailSettings);
-router.post('/mail', updateMailSettings);
+router.get('/mail', authenticate, requirePermission('manageSettings', 'view_mail_settings'), getMailSettings);
+router.post('/mail', authenticate, requirePermission('manageSettings', 'edit_notification_settings'), updateMailSettings);
 
-router.get('/receipt', getReceiptSettings);
-router.post('/receipt', updateReceiptSettings);
-router.get('/receipt-config', authenticate, getReceiptSettings);
-router.put('/receipt-config', authenticate, updateReceiptSettings);
-router.post('/receipt-logo', authenticate, upload.single('logo'), uploadReceiptLogo);
-router.delete('/receipt-logo', authenticate, deleteReceiptLogo);
+router.get('/receipt', authenticate, requirePermission('manageSettings', 'view_settings'), getReceiptSettings);
+router.post('/receipt', authenticate, requirePermission('manageSettings', 'edit_restaurant_settings'), updateReceiptSettings);
+router.get('/receipt-config', authenticate, requirePermission('manageSettings', 'view_settings'), getReceiptSettings);
+router.put('/receipt-config', authenticate, requirePermission('manageSettings', 'edit_restaurant_settings'), updateReceiptSettings);
+router.post('/receipt-logo', authenticate, requirePermission('manageSettings', 'edit_restaurant_settings'), upload.single('logo'), uploadReceiptLogo);
+router.delete('/receipt-logo', authenticate, requirePermission('manageSettings', 'edit_restaurant_settings'), deleteReceiptLogo);
 
 router.use('/', prefixRouter); 
 
-router.get('/system', getSettings);
-router.put('/system', updateSettings);
+router.get('/system', authenticate, getSettings);
+router.put('/system', authenticate, requirePermission('manageSettings', 'edit_restaurant_settings'), updateSettings);
 
 export default router;

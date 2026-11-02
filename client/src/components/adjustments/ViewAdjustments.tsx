@@ -326,13 +326,13 @@ const ViewAdjustments: React.FC = () => {
 
   if (viewingAdjustment) {
     return (
-      <div className="fixed inset-0 bg-black/50 flex items-start justify-center z-50 p-4 overflow-y-auto pt-8">
-        <div className="bg-white rounded-[32px] shadow-2xl max-w-4xl w-full p-8">
+      <div className="fixed inset-0 bg-overlay flex items-start justify-center z-50 p-4 overflow-y-auto pt-8">
+        <div className="bg-surface rounded-2xl shadow-elevated max-w-4xl w-full p-8">
           <div className="flex justify-between items-center mb-8">
-            <h2 className="text-2xl font-black text-[#1A3E73]">Adjustment Details</h2>
+            <h2 className="text-2xl font-black text-foreground">Adjustment Details</h2>
             <button
               onClick={() => setViewingAdjustment(null)}
-              className="text-[#64748B] hover:text-[#1A3E73]"
+              className="text-muted hover:text-primary"
             >
               <X size={24} />
             </button>
@@ -340,59 +340,59 @@ const ViewAdjustments: React.FC = () => {
 
           <div className="space-y-6">
             {/* Basic Info */}
-            <div className="grid grid-cols-2 gap-6 bg-[#F8FAFC] p-6 rounded-xl border border-slate-200">
+            <div className="grid grid-cols-2 gap-6 bg-surface-raised p-6 rounded-xl border border-line">
               <div>
-                <p className="text-xs font-black text-[#64748B] uppercase mb-2">Adjustment ID</p>
-                <p className="text-lg font-bold text-[#1A3E73]">{viewingAdjustment.referenceNumber?.trim() || viewingAdjustment.adjustmentId}</p>
+                <p className="text-xs font-black text-muted uppercase mb-2">Adjustment ID</p>
+                <p className="text-lg font-bold text-foreground">{viewingAdjustment.referenceNumber?.trim() || viewingAdjustment.adjustmentId}</p>
               </div>
               <div>
-                <p className="text-xs font-black text-[#64748B] uppercase mb-2">Date</p>
-                <p className="text-lg font-bold text-[#1A3E73]">{formatDate(viewingAdjustment.adjustmentDate)}</p>
+                <p className="text-xs font-black text-muted uppercase mb-2">Date</p>
+                <p className="text-lg font-bold text-foreground">{formatDate(viewingAdjustment.adjustmentDate)}</p>
               </div>
               <div>
-                <p className="text-xs font-black text-[#64748B] uppercase mb-2">Type</p>
-                <p className={`text-lg font-bold ${viewingAdjustment.adjustmentType === 'Increase' ? 'text-green-600' : 'text-red-600'}`}>
+                <p className="text-xs font-black text-muted uppercase mb-2">Type</p>
+                <p className={`text-lg font-bold ${viewingAdjustment.adjustmentType === 'Increase' ? 'text-secondary' : 'text-danger'}`}>
                   {viewingAdjustment.adjustmentType === 'Increase' ? '↑ Increase' : '↓ Decrease'}
                 </p>
               </div>
               <div>
-                <p className="text-xs font-black text-[#64748B] uppercase mb-2">Warehouse</p>
-                <p className="text-lg font-bold text-[#1A3E73]">{viewingAdjustment.warehouseName}</p>
+                <p className="text-xs font-black text-muted uppercase mb-2">Warehouse</p>
+                <p className="text-lg font-bold text-foreground">{viewingAdjustment.warehouseName}</p>
               </div>
               <div>
-                <p className="text-xs font-black text-[#64748B] uppercase mb-2">Reason</p>
-                <p className="text-lg font-bold text-[#1A3E73]">{viewingAdjustment.reason}</p>
+                <p className="text-xs font-black text-muted uppercase mb-2">Reason</p>
+                <p className="text-lg font-bold text-foreground">{viewingAdjustment.reason}</p>
               </div>
               <div>
-                <p className="text-xs font-black text-[#64748B] uppercase mb-2">Status</p>
-                <p className="text-lg font-bold text-green-600">{viewingAdjustment.status}</p>
+                <p className="text-xs font-black text-muted uppercase mb-2">Status</p>
+                <p className="text-lg font-bold text-secondary">{viewingAdjustment.status}</p>
               </div>
             </div>
 
             {/* Items Table */}
             <div>
-              <p className="text-xs font-black text-[#64748B] uppercase mb-4">Items Adjusted</p>
-              <div className="overflow-x-auto border border-slate-200 rounded-lg">
+              <p className="text-xs font-black text-muted uppercase mb-4">Items Adjusted</p>
+              <div className="overflow-x-auto border border-line rounded-lg">
                 <table className="w-full">
-                  <thead className="bg-[#F8FAFC] border-b border-slate-200">
+                  <thead className="bg-surface-raised border-b border-line">
                     <tr>
-                      <th className="px-4 py-3 text-left text-xs font-black text-[#64748B]">Product</th>
-                      <th className="px-4 py-3 text-left text-xs font-black text-[#64748B]">Current Stock</th>
-                      <th className="px-4 py-3 text-left text-xs font-black text-[#64748B]">Quantity</th>
-                      <th className="px-4 py-3 text-left text-xs font-black text-[#64748B]">New Stock</th>
-                      <th className="px-4 py-3 text-left text-xs font-black text-[#64748B]">Cost</th>
-                      <th className="px-4 py-3 text-left text-xs font-black text-[#64748B]">Subtotal</th>
+                      <th className="px-4 py-3 text-left text-xs font-black text-muted">Product</th>
+                      <th className="px-4 py-3 text-left text-xs font-black text-muted">Current Stock</th>
+                      <th className="px-4 py-3 text-left text-xs font-black text-muted">Quantity</th>
+                      <th className="px-4 py-3 text-left text-xs font-black text-muted">New Stock</th>
+                      <th className="px-4 py-3 text-left text-xs font-black text-muted">Cost</th>
+                      <th className="px-4 py-3 text-left text-xs font-black text-muted">Subtotal</th>
                     </tr>
                   </thead>
                   <tbody>
                     {viewingAdjustment.items.map((item: AdjustmentItem, idx: number) => (
-                      <tr key={idx} className="border-b border-slate-200 hover:bg-[#F8FAFC]">
-                        <td className="px-4 py-3 font-bold text-[#1A3E73]">{item.productName}</td>
-                        <td className="px-4 py-3 text-[#64748B]">{item.currentStock}</td>
-                        <td className="px-4 py-3 font-bold text-[#1A3E73]">{item.adjustmentQuantity ?? item.quantity}</td>
-                        <td className="px-4 py-3 font-bold text-[#1A3E73]">{item.newStock}</td>
-                        <td className="px-4 py-3 text-[#64748B]">{currencyCode} {(item.productCost ?? item.cost ?? 0).toFixed(2)}</td>
-                        <td className="px-4 py-3 font-bold text-[#1A3E73]">{currencyCode} {(item.subTotal ?? 0).toFixed(2)}</td>
+                      <tr key={idx} className="border-b border-line hover:bg-surface-raised">
+                        <td className="px-4 py-3 font-bold text-foreground">{item.productName}</td>
+                        <td className="px-4 py-3 text-muted">{item.currentStock}</td>
+                        <td className="px-4 py-3 font-bold text-foreground">{item.adjustmentQuantity ?? item.quantity}</td>
+                        <td className="px-4 py-3 font-bold text-foreground">{item.newStock}</td>
+                        <td className="px-4 py-3 text-muted">{currencyCode} {(item.productCost ?? item.cost ?? 0).toFixed(2)}</td>
+                        <td className="px-4 py-3 font-bold text-foreground">{currencyCode} {(item.subTotal ?? 0).toFixed(2)}</td>
                       </tr>
                     ))}
                   </tbody>
@@ -402,10 +402,10 @@ const ViewAdjustments: React.FC = () => {
 
             {/* Total */}
             <div className="flex justify-end">
-              <div className="w-64 bg-[#F8FAFC] p-4 rounded-lg border border-slate-200">
+              <div className="w-64 bg-surface-raised p-4 rounded-lg border border-line">
                 <div className="flex justify-between items-center">
-                  <p className="font-black text-[#64748B]">Total Value</p>
-                  <p className="text-2xl font-black text-[#1A3E73]">{currencyCode} {(viewingAdjustment.grandTotal ?? 0).toFixed(2)}</p>
+                  <p className="font-black text-muted">Total Value</p>
+                  <p className="text-2xl font-black text-foreground">{currencyCode} {(viewingAdjustment.grandTotal ?? 0).toFixed(2)}</p>
                 </div>
               </div>
             </div>
@@ -413,16 +413,16 @@ const ViewAdjustments: React.FC = () => {
             {/* Notes */}
             {viewingAdjustment.notes && (
               <div>
-                <p className="text-xs font-black text-[#64748B] uppercase mb-2">Notes</p>
-                <p className="text-[#64748B] p-4 bg-[#F8FAFC] rounded-lg border border-slate-200">{viewingAdjustment.notes}</p>
+                <p className="text-xs font-black text-muted uppercase mb-2">Notes</p>
+                <p className="text-muted p-4 bg-surface-raised rounded-lg border border-line">{viewingAdjustment.notes}</p>
               </div>
             )}
 
             {/* Reference Number */}
             {viewingAdjustment.referenceNumber && (
               <div>
-                <p className="text-xs font-black text-[#64748B] uppercase mb-2">Reference Number</p>
-                <p className="text-[#1A3E73] font-bold">{viewingAdjustment.referenceNumber}</p>
+                <p className="text-xs font-black text-muted uppercase mb-2">Reference Number</p>
+                <p className="text-foreground font-bold">{viewingAdjustment.referenceNumber}</p>
               </div>
             )}
           </div>
@@ -430,13 +430,13 @@ const ViewAdjustments: React.FC = () => {
           <div className="mt-8 flex gap-4">
             <button
               onClick={() => setViewingAdjustment(null)}
-              className="flex-1 bg-slate-200 text-[#1A3E73] font-black py-3 rounded-lg hover:bg-slate-300 transition"
+              className="flex-1 bg-surface-muted text-primary font-black py-3 rounded-lg hover:bg-surface-muted transition"
             >
               Close
             </button>
             <button
               onClick={() => navigate(`/editAdjustment/${viewingAdjustment._id}`)}
-              className="flex-1 bg-[#1A3E73] text-white font-black py-3 rounded-lg hover:bg-[#0F2A55] transition flex items-center justify-center gap-2"
+              className="flex-1 bg-primary text-on-primary font-black py-3 rounded-lg hover:bg-primary-hover transition flex items-center justify-center gap-2"
             >
               <Edit2 size={20} /> Edit Adjustment
             </button>
@@ -447,17 +447,17 @@ const ViewAdjustments: React.FC = () => {
   }
 
   return (
-    <div className="p-8 bg-[#F8FAFC] min-h-screen">
+    <div className="p-8 bg-canvas min-h-screen">
       <div className="max-w-7xl mx-auto">
         {/* Header */}
         <div className="flex justify-between items-center mb-8">
           <div>
-            <h1 className="text-4xl font-black text-[#1A3E73] mb-2">Stock Adjustments</h1>
-            <p className="text-[#64748B] font-bold">View and manage all Stock Adjustments</p>
+            <h1 className="text-4xl font-black text-foreground mb-2">Stock Adjustments</h1>
+            <p className="text-muted font-bold">View and manage all Stock Adjustments</p>
           </div>
           <Link
             to="/createAdjustment"
-            className="bg-[#1A3E73] text-white px-6 py-3 rounded-lg hover:bg-[#0F2A55] font-black flex items-center gap-2 transition"
+            className="bg-primary text-on-primary px-6 py-3 rounded-lg hover:bg-primary-hover font-black flex items-center gap-2 transition"
           >
             <Plus size={20} /> Create Adjustment
           </Link>
@@ -466,15 +466,15 @@ const ViewAdjustments: React.FC = () => {
         {/* Filters: date, warehouse, type, status */}
         <div className="grid grid-cols-1 md:grid-cols-7 gap-4 mb-8">
           <div className="md:col-span-2">
-            <label className="block text-sm font-black text-[#1A3E73] mb-2">Search</label>
+            <label className="block text-sm font-black text-foreground mb-2">Search</label>
             <SearchBar onSearch={handleSearch} placeholder="Search product" value={searchQuery} />
           </div>
           <div>
-            <label className="block text-sm font-black text-[#1A3E73] mb-2">Type</label>
+            <label className="block text-sm font-black text-foreground mb-2">Type</label>
             <select
               value={filterType}
               onChange={(e) => setFilterType(e.target.value as 'All' | 'Increase' | 'Decrease')}
-              className="w-full px-4 py-2 border border-slate-200 rounded-lg focus:outline-none focus:border-[#1A3E73] bg-white"
+              className="w-full px-4 py-2 border border-line rounded-lg focus:outline-none focus:border-primary bg-surface"
             >
               <option value="All">All Types</option>
               <option value="Increase">Increase</option>
@@ -482,11 +482,11 @@ const ViewAdjustments: React.FC = () => {
             </select>
           </div>
           <div>
-            <label className="block text-sm font-black text-[#1A3E73] mb-2">Warehouse</label>
+            <label className="block text-sm font-black text-foreground mb-2">Warehouse</label>
             <select
               value={filterWarehouse}
               onChange={(e) => setFilterWarehouse(e.target.value)}
-              className="w-full px-4 py-2 border border-slate-200 rounded-lg focus:outline-none focus:border-[#1A3E73] bg-white"
+              className="w-full px-4 py-2 border border-line rounded-lg focus:outline-none focus:border-primary bg-surface"
             >
               <option value="">All Warehouses</option>
               {warehouses.map((w: any) => (
@@ -495,11 +495,11 @@ const ViewAdjustments: React.FC = () => {
             </select>
           </div>
           <div>
-            <label className="block text-sm font-black text-[#1A3E73] mb-2">Status</label>
+            <label className="block text-sm font-black text-foreground mb-2">Status</label>
             <select
               value={filterStatus}
               onChange={(e) => setFilterStatus(e.target.value)}
-              className="w-full px-4 py-2 border border-slate-200 rounded-lg focus:outline-none focus:border-[#1A3E73] bg-white"
+              className="w-full px-4 py-2 border border-line rounded-lg focus:outline-none focus:border-primary bg-surface"
             >
               <option value="">All Statuses</option>
               <option value="Pending">Pending</option>
@@ -509,21 +509,21 @@ const ViewAdjustments: React.FC = () => {
             </select>
           </div>
           <div>
-            <label className="block text-sm font-black text-[#1A3E73] mb-2">Start Date</label>
+            <label className="block text-sm font-black text-foreground mb-2">Start Date</label>
             <input
               type="date"
               value={filterStartDate}
               onChange={(e) => setFilterStartDate(e.target.value)}
-              className="w-full px-4 py-2 border border-slate-200 rounded-lg focus:outline-none focus:border-[#1A3E73] bg-white"
+              className="w-full px-4 py-2 border border-line rounded-lg focus:outline-none focus:border-primary bg-surface"
             />
           </div>
           <div>
-            <label className="block text-sm font-black text-[#1A3E73] mb-2">End Date</label>
+            <label className="block text-sm font-black text-foreground mb-2">End Date</label>
             <input
               type="date"
               value={filterEndDate}
               onChange={(e) => setFilterEndDate(e.target.value)}
-              className="w-full px-4 py-2 border border-slate-200 rounded-lg focus:outline-none focus:border-[#1A3E73] bg-white"
+              className="w-full px-4 py-2 border border-line rounded-lg focus:outline-none focus:border-primary bg-surface"
             />
           </div>
           <div className="flex items-end justify-start md:justify-end">
@@ -536,7 +536,7 @@ const ViewAdjustments: React.FC = () => {
                 setFilterEndDate('');
                 setSearchQuery('');
               }}
-              className="bg-slate-200 text-[#1A3E73] px-4 py-2 rounded-lg hover:bg-slate-300 font-bold transition whitespace-nowrap"
+              className="bg-surface-muted text-primary px-4 py-2 rounded-lg hover:bg-surface-muted font-bold transition whitespace-nowrap"
             >
               Reset Filters
             </button>
@@ -544,15 +544,15 @@ const ViewAdjustments: React.FC = () => {
         </div>
 
         {/* Table */}
-        <div className="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden">
+        <div className="bg-surface rounded-2xl border border-line overflow-hidden">
           {loading ? (
             <Loader />
           ) : adjustments.length === 0 ? (
             <div className="p-12 text-center">
-              <p className="text-[#64748B] font-bold mb-4">No adjustments found</p>
+              <p className="text-muted font-bold mb-4">No adjustments found</p>
               <Link
                 to="/createAdjustment"
-                className="bg-[#1A3E73] text-white px-6 py-2 rounded-lg hover:bg-[#0F2A55] font-bold inline-block"
+                className="bg-primary text-on-primary px-6 py-2 rounded-lg hover:bg-primary-hover font-bold inline-block"
               >
                 Create Your First Adjustment
               </Link>
@@ -560,39 +560,39 @@ const ViewAdjustments: React.FC = () => {
           ) : (
             <div className="overflow-x-auto">
               <table className="w-full">
-                <thead className="bg-[#F8FAFC] border-b border-slate-200">
+                <thead className="bg-surface-raised border-b border-line">
                   <tr>
-                    <th className="px-6 py-4 text-left text-xs font-black text-[#64748B] uppercase">ID</th>
-                    <th className="px-6 py-4 text-left text-xs font-black text-[#64748B] uppercase">Date</th>
-                    <th className="px-6 py-4 text-left text-xs font-black text-[#64748B] uppercase">Warehouse</th>
-                    <th className="px-6 py-4 text-left text-xs font-black text-[#64748B] uppercase">Type</th>
-                    <th className="px-6 py-4 text-left text-xs font-black text-[#64748B] uppercase">Reason</th>
-                    <th className="px-6 py-4 text-left text-xs font-black text-[#64748B] uppercase">Items</th>
-                    <th className="px-6 py-4 text-left text-xs font-black text-[#64748B] uppercase">Value</th>
-                    <th className="px-6 py-4 text-left text-xs font-black text-[#64748B] uppercase">Status</th>
-                    <th className="px-6 py-4 text-center text-xs font-black text-[#64748B] uppercase">Action</th>
+                    <th className="px-6 py-4 text-left text-xs font-black text-muted uppercase">ID</th>
+                    <th className="px-6 py-4 text-left text-xs font-black text-muted uppercase">Date</th>
+                    <th className="px-6 py-4 text-left text-xs font-black text-muted uppercase">Warehouse</th>
+                    <th className="px-6 py-4 text-left text-xs font-black text-muted uppercase">Type</th>
+                    <th className="px-6 py-4 text-left text-xs font-black text-muted uppercase">Reason</th>
+                    <th className="px-6 py-4 text-left text-xs font-black text-muted uppercase">Items</th>
+                    <th className="px-6 py-4 text-left text-xs font-black text-muted uppercase">Value</th>
+                    <th className="px-6 py-4 text-left text-xs font-black text-muted uppercase">Status</th>
+                    <th className="px-6 py-4 text-center text-xs font-black text-muted uppercase">Action</th>
                   </tr>
                 </thead>
                 <tbody>
                   {adjustments.map(adjustment => (
-                    <tr key={adjustment.id} className="border-b border-slate-200 hover:bg-[#F8FAFC] transition">
-                      <td className="px-6 py-4 font-bold text-[#1A3E73]">{adjustment.referenceNumber?.trim() || adjustment.adjustmentId}</td>
-                      <td className="px-6 py-4 text-[#64748B]">{formatDate(adjustment.adjustmentDate)}</td>
-                      <td className="px-6 py-4 text-[#64748B]">{adjustment.warehouseName}</td>
+                    <tr key={adjustment.id} className="border-b border-line hover:bg-surface-raised transition">
+                      <td className="px-6 py-4 font-bold text-foreground">{adjustment.referenceNumber?.trim() || adjustment.adjustmentId}</td>
+                      <td className="px-6 py-4 text-muted">{formatDate(adjustment.adjustmentDate)}</td>
+                      <td className="px-6 py-4 text-muted">{adjustment.warehouseName}</td>
                       <td className="px-6 py-4">
                         <span className={`px-3 py-1 rounded-full text-xs font-bold ${
                           adjustment.adjustmentType === 'Increase'
-                            ? 'bg-green-100 text-green-700'
-                            : 'bg-red-100 text-red-700'
+                            ? 'bg-secondary-soft text-secondary'
+                            : 'bg-danger-soft text-danger'
                         }`}>
                           {adjustment.adjustmentType === 'Increase' ? '↑ Increase' : '↓ Decrease'}
                         </span>
                       </td>
-                      <td className="px-6 py-4 text-[#64748B]">{adjustment.reason}</td>
-                      <td className="px-6 py-4 text-[#64748B]">{adjustment.itemCount}</td>
-                      <td className="px-6 py-4 font-bold text-[#1A3E73]">{currencyCode} {(adjustment.grandTotal ?? 0).toFixed(2)}</td>
+                      <td className="px-6 py-4 text-muted">{adjustment.reason}</td>
+                      <td className="px-6 py-4 text-muted">{adjustment.itemCount}</td>
+                      <td className="px-6 py-4 font-bold text-foreground">{currencyCode} {(adjustment.grandTotal ?? 0).toFixed(2)}</td>
                       <td className="px-6 py-4">
-                        <span className="px-3 py-1 rounded-full text-xs font-bold bg-green-100 text-green-700">
+                        <span className="px-3 py-1 rounded-full text-xs font-bold bg-secondary-soft text-secondary">
                           {adjustment.status}
                         </span>
                       </td>
@@ -600,21 +600,21 @@ const ViewAdjustments: React.FC = () => {
                         <div className="flex justify-center gap-3">
                           <button
                             onClick={() => loadDetails(adjustment.id)}
-                            className="text-[#1A3E73] hover:text-[#0F2A55] font-bold"
+                            className="text-primary hover:text-primary font-bold"
                             title="View Details"
                           >
                             <Eye size={20} />
                           </button>
                           <button
                             onClick={() => navigate(`/editAdjustment/${adjustment.id}`)}
-                            className="text-blue-600 hover:text-blue-800 font-bold"
+                            className="text-primary hover:text-primary font-bold"
                             title="Edit"
                           >
                             <Edit2 size={20} />
                           </button>
                           <button
                             onClick={() => setToDelete(adjustment.id)}
-                            className="text-red-600 hover:text-red-800 font-bold"
+                            className="text-danger hover:text-danger font-bold"
                             title="Delete"
                           >
                             <Trash2 size={20} />

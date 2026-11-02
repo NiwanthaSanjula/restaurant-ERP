@@ -87,34 +87,34 @@ const EditExpense: React.FC = () => {
       
       <div className="flex justify-between items-center mb-8">
         <div>
-          <h1 className="text-3xl font-bold text-[#001F54]">Edit Expense</h1>
+          <h1 className="text-3xl font-bold text-foreground">Edit Expense</h1>
         </div>
         <button 
           onClick={() => navigate('/expenses')}
-          className="bg-gray-200 text-gray-700 px-6 py-2 rounded-lg font-semibold hover:bg-gray-300 transition-colors"
+          className="bg-surface-muted text-foreground px-6 py-2 rounded-lg font-semibold hover:bg-surface-muted transition-colors"
         >
           Back
         </button>
       </div>
 
-      <div className="bg-white p-8 rounded-3xl shadow-sm border border-gray-100">
+      <div className="bg-surface p-8 rounded-3xl border border-line">
         <form onSubmit={handleSubmit} className="space-y-6">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <div>
-              <label className="text-xs font-bold text-gray-400 uppercase block mb-2">Date *</label>
+              <label className="text-xs font-bold text-subtle uppercase block mb-2">Date *</label>
               <input 
                 type="date" 
-                className="w-full bg-gray-50 border-none rounded-xl px-4 py-4 text-gray-800 focus:ring-2 focus:ring-blue-500"
+                className="w-full bg-surface-raised border-none rounded-xl px-4 py-4 text-foreground focus:ring-2 focus:ring-primary"
                 value={date}
                 onChange={(e) => setDate(e.target.value)}
               />
             </div>
             <div>
-              <label className="text-xs font-bold text-gray-400 uppercase block mb-2">Title *</label>
+              <label className="text-xs font-bold text-subtle uppercase block mb-2">Title *</label>
               <input 
                 type="text" 
                 placeholder="For transport cost"
-                className="w-full bg-gray-50 border-none rounded-xl px-4 py-4 text-gray-800 focus:ring-2 focus:ring-blue-500"
+                className="w-full bg-surface-raised border-none rounded-xl px-4 py-4 text-foreground focus:ring-2 focus:ring-primary"
                 value={title}
                 onChange={(e) => setTitle(e.target.value)}
               />
@@ -123,9 +123,9 @@ const EditExpense: React.FC = () => {
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <div>
-              <label className="text-xs font-bold text-gray-400 uppercase block mb-2">Warehouse *</label>
+              <label className="text-xs font-bold text-subtle uppercase block mb-2">Warehouse *</label>
               <select 
-                className="w-full bg-gray-50 border-none rounded-xl px-4 py-4 text-gray-800 focus:ring-2 focus:ring-blue-500"
+                className="w-full bg-surface-raised border-none rounded-xl px-4 py-4 text-foreground focus:ring-2 focus:ring-primary"
                 value={warehouse}
                 onChange={(e) => setWarehouse(e.target.value)}
               >
@@ -134,9 +134,9 @@ const EditExpense: React.FC = () => {
               </select>
             </div>
             <div>
-              <label className="text-xs font-bold text-gray-400 uppercase block mb-2">Expenses Category *</label>
+              <label className="text-xs font-bold text-subtle uppercase block mb-2">Expenses Category *</label>
               <select 
-                className="w-full bg-gray-50 border-none rounded-xl px-4 py-4 text-gray-800 focus:ring-2 focus:ring-blue-500"
+                className="w-full bg-surface-raised border-none rounded-xl px-4 py-4 text-foreground focus:ring-2 focus:ring-primary"
                 value={category}
                 onChange={(e) => setCategory(e.target.value)}
               >
@@ -148,13 +148,13 @@ const EditExpense: React.FC = () => {
 
           <div className="grid grid-cols-1 md:grid-cols-1 gap-6">
             <div>
-              <label className="text-xs font-bold text-gray-400 uppercase block mb-2">Amount ({currencySymbol}) *</label>
+              <label className="text-xs font-bold text-subtle uppercase block mb-2">Amount ({currencySymbol}) *</label>
               <input
                 type="number"
                 min="0"
                 step="0.01"
                 placeholder={`Enter amount in ${currencySymbol}`}
-                className="w-full bg-gray-50 border-none rounded-xl px-4 py-4 text-gray-800 focus:ring-2 focus:ring-blue-500"
+                className="w-full bg-surface-raised border-none rounded-xl px-4 py-4 text-foreground focus:ring-2 focus:ring-primary"
                 value={amount}
                 onChange={(e) => setAmount(e.target.value)}
                 onKeyDown={blockInvalidNumericKeys}
@@ -163,11 +163,11 @@ const EditExpense: React.FC = () => {
           </div>
 
           <div>
-            <label className="text-xs font-bold text-gray-400 uppercase block mb-2">Details</label>
+            <label className="text-xs font-bold text-subtle uppercase block mb-2">Details</label>
             <textarea 
               rows={4}
               placeholder="Enter details"
-              className="w-full bg-gray-50 border-none rounded-xl px-4 py-4 text-gray-800 focus:ring-2 focus:ring-blue-500"
+              className="w-full bg-surface-raised border-none rounded-xl px-4 py-4 text-foreground focus:ring-2 focus:ring-primary"
               value={details}
               onChange={(e) => setDetails(e.target.value)}
             />
@@ -176,14 +176,14 @@ const EditExpense: React.FC = () => {
           <div className="flex space-x-4 pt-4">
             <button 
               type="submit"
-              className="bg-[#001F54] text-white px-10 py-3 rounded-xl font-bold hover:bg-[#003366] transition-colors"
+              className="bg-primary text-on-primary px-10 py-3 rounded-xl font-bold hover:bg-primary-hover transition-colors"
             >
               Update
             </button>
             <button 
               type="button"
               onClick={() => navigate('/expenses')}
-              className="bg-gray-500 text-white px-10 py-3 rounded-xl font-bold hover:bg-gray-600 transition-colors"
+              className="bg-surface-muted text-foreground px-10 py-3 rounded-xl font-bold hover:bg-surface-muted transition-colors"
             >
               Cancel
             </button>

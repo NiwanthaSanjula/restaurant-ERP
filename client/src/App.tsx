@@ -6,7 +6,9 @@ import SpecialOffers from './components/SpecialOffers';
 
 // Contexts
 import { CurrencyProvider } from './contexts/CurrencyContext';
-import { PermissionProvider } from './contexts/PermissionContext';
+import { PermissionProvider, usePermissions } from './contexts/PermissionContext';
+import { permissionForPath } from './utils/permissionRoutes';
+import ThemeToggle from './components/common/ThemeToggle';
 
 // Auth Components
 import ForgotPassword from './components/auth/ForgotPassword';
@@ -155,6 +157,7 @@ const isTokenValid = (token: string | null) => {
 const PrivateRoute: React.FC<{ children: React.ReactElement }> = ({ children }) => {
   const token = typeof window !== 'undefined' ? localStorage.getItem('token') : null;
   const location = useLocation();
+  const { hasPermission, loading } = usePermissions();
   const requirePrefixSetup = typeof window !== 'undefined' ? localStorage.getItem('requirePrefixSetup') === 'true' : false;
 
   if (!isTokenValid(token)) {
@@ -167,7 +170,20 @@ const PrivateRoute: React.FC<{ children: React.ReactElement }> = ({ children }) 
     return <Navigate to="/PrefixSettings" replace />;
   }
 
+  const required = permissionForPath(location.pathname);
+  if (required && loading) return <div className="p-6">Loading permissions...</div>;
+  if (required && !hasPermission(required.component, required.action)) {
+    return <div role="alert" className="p-6">Access denied.
+      <button className="ml-3 underline" onClick={() => { localStorage.removeItem('token'); localStorage.removeItem('user'); window.location.href = '/'; }}>Sign out</button>
+    </div>;
+  }
   return children;
+};
+
+const StandaloneThemeControl = () => {
+  const { pathname } = useLocation();
+  if (!['/', '/forgot-password', '/reset-password', '/system-type-initialization'].includes(pathname)) return null;
+  return <div className="ss-theme-dock"><ThemeToggle /></div>;
 };
 
 const App: React.FC = () => {
@@ -175,6 +191,7 @@ const App: React.FC = () => {
     <CurrencyProvider>
       <PermissionProvider>
         <BrowserRouter>
+          <StandaloneThemeControl />
           <Routes>
             {/* Public Routes */}
             <Route path="/" element={<Login />} />
@@ -334,7 +351,7 @@ const App: React.FC = () => {
             pauseOnFocusLoss
             draggable
             pauseOnHover
-            theme="light"
+            theme="auto"
           />
         </BrowserRouter>
       </PermissionProvider>
@@ -400,8 +417,8 @@ const POSEntry: React.FC = () => {
 
   if (checking) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-[#0f172a]">
-        <p className="text-white font-semibold text-sm">Loading POS…</p>
+      <div className="min-h-screen flex items-center justify-center bg-canvas">
+        <p className="text-foreground font-semibold text-sm">Loading POS…</p>
       </div>
     );
   }

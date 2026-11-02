@@ -66,8 +66,8 @@ const ViewSuppliers: React.FC = () => {
   return (
     <div className="p-6">
       <div className="flex items-center justify-between mb-4">
-        <h1 className="text-2xl font-bold text-gray-900">Suppliers</h1>
-        <button onClick={() => navigate('/createSupplier')} className="px-4 py-2 text-sm font-medium text-white bg-[#003366] rounded-lg hover:bg-[#004080]">Add Supplier</button>
+        <h1 className="text-2xl font-bold text-foreground">Suppliers</h1>
+        <button onClick={() => navigate('/createSupplier')} className="px-4 py-2 text-sm font-medium text-on-primary bg-primary rounded-lg hover:bg-primary-hover">Add Supplier</button>
       </div>
       <div className="mb-4">
         <SearchBar 
@@ -76,28 +76,28 @@ const ViewSuppliers: React.FC = () => {
           className="w-full max-w-md"
         />
       </div>
-      <div className="bg-white border border-gray-200 rounded-lg overflow-hidden">
-        <table className="min-w-full divide-y divide-gray-200">
-          <thead className="bg-gray-50">
+      <div className="bg-surface border border-line rounded-lg overflow-hidden">
+        <table className="min-w-full divide-y divide-line">
+          <thead className="bg-surface-raised">
             <tr>
-              <th className="px-6 py-4 text-left text-sm font-semibold text-[#001F54] tracking-wider">Name</th>
-              <th className="px-6 py-4 text-left text-sm font-semibold text-[#001F54] tracking-wider">Company</th>
-              <th className="px-6 py-4 text-left text-sm font-semibold text-[#001F54] tracking-wider">Mobile</th>
-              <th className="px-6 py-4 text-right text-sm font-semibold text-[#001F54] tracking-wider">Actions</th>
+              <th className="px-6 py-4 text-left text-sm font-semibold text-foreground tracking-wider">Name</th>
+              <th className="px-6 py-4 text-left text-sm font-semibold text-foreground tracking-wider">Company</th>
+              <th className="px-6 py-4 text-left text-sm font-semibold text-foreground tracking-wider">Mobile</th>
+              <th className="px-6 py-4 text-right text-sm font-semibold text-foreground tracking-wider">Actions</th>
             </tr>
           </thead>
-          <tbody className="bg-white divide-y divide-gray-200">
+          <tbody className="bg-surface divide-y divide-line">
             {suppliers.map((s) => (
-              <tr key={s._id} className="hover:bg-gray-50 transition-colors duration-150">
-                <td className="px-6 py-5 text-base font-semibold text-gray-900">{s.name}</td>
-                <td className="px-6 py-5 text-base text-gray-900">{s.companyName || '-'}</td>
-                <td className="px-6 py-5 text-base text-gray-900">{s.mobile || '-'}</td>
+              <tr key={s._id} className="hover:bg-surface-raised transition-colors duration-150">
+                <td className="px-6 py-5 text-base font-semibold text-foreground">{s.name}</td>
+                <td className="px-6 py-5 text-base text-foreground">{s.companyName || '-'}</td>
+                <td className="px-6 py-5 text-base text-foreground">{s.mobile || '-'}</td>
                 <td className="px-6 py-5 text-right">
                   <div className="inline-flex items-center gap-3">
-                    <button onClick={() => navigate(`/editSupplier/${s._id}`)} className="inline-flex items-center p-2.5 text-blue-600 hover:text-blue-700 hover:bg-blue-50 rounded-lg transition-colors duration-200" title="Edit">
+                    <button onClick={() => navigate(`/editSupplier/${s._id}`)} className="inline-flex items-center p-2.5 text-primary hover:text-primary hover:bg-primary-soft rounded-lg transition-colors duration-200" title="Edit">
                       <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/></svg>
                     </button>
-                    <button onClick={() => remove(s._id)} className="inline-flex items-center p-2.5 text-red-600 hover:text-red-700 hover:bg-red-50 rounded-lg transition-colors duration-200" title="Delete">
+                    <button onClick={() => remove(s._id)} className="inline-flex items-center p-2.5 text-danger hover:text-danger hover:bg-danger-soft rounded-lg transition-colors duration-200" title="Delete">
                       <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg>
                     </button>
                   </div>
@@ -105,7 +105,7 @@ const ViewSuppliers: React.FC = () => {
               </tr>
             ))}
             {!suppliers.length && (
-              <tr><td className="px-6 py-12 text-center text-base text-gray-500" colSpan={4}>{loading ? 'Loading...' : 'No suppliers found'}</td></tr>
+              <tr><td className="px-6 py-12 text-center text-base text-muted" colSpan={4}>{loading ? 'Loading...' : 'No suppliers found'}</td></tr>
             )}
           </tbody>
         </table>

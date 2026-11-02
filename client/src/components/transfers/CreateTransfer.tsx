@@ -282,38 +282,38 @@ const CreateTransfer: React.FC = () => {
       {loading && <Loader text="Processing..." />}
       
       <div className="flex justify-between items-center mb-8">
-        <h1 className="text-3xl font-bold text-[#001F54]">New Stock Transfer</h1>
-        <button onClick={() => navigate('/transfers')} className="bg-gray-200 text-gray-700 px-6 py-2 rounded-lg font-semibold hover:bg-gray-300 transition-colors">Back</button>
+        <h1 className="text-3xl font-bold text-foreground">New Stock Transfer</h1>
+        <button onClick={() => navigate('/transfers')} className="bg-surface-muted text-foreground px-6 py-2 rounded-lg font-semibold hover:bg-surface-muted transition-colors">Back</button>
       </div>
 
-      <div className="bg-white p-8 rounded-3xl shadow-sm border border-gray-100">
+      <div className="bg-surface p-8 rounded-3xl border border-line">
         <form onSubmit={handleSubmit} className="space-y-6">
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
             <div>
-              <label className="text-xs font-bold text-gray-400 block mb-2">Date *</label>
-              <input type="date" className="w-full bg-gray-50 border-none rounded-xl px-4 py-4 text-gray-800" value={date} onChange={(e) => setDate(e.target.value)} />
+              <label className="text-xs font-bold text-subtle block mb-2">Date *</label>
+              <input type="date" className="w-full bg-surface-raised border-none rounded-xl px-4 py-4 text-foreground" value={date} onChange={(e) => setDate(e.target.value)} />
             </div>
             <div>
-              <label className="text-xs font-bold text-gray-400 block mb-2">From Warehouse *</label>
-              <select className="w-full bg-gray-50 border-none rounded-xl px-4 py-4 text-gray-800" value={fromWarehouse} onChange={(e) => setFromWarehouse(e.target.value)}>
+              <label className="text-xs font-bold text-subtle block mb-2">From Warehouse *</label>
+              <select className="w-full bg-surface-raised border-none rounded-xl px-4 py-4 text-foreground" value={fromWarehouse} onChange={(e) => setFromWarehouse(e.target.value)}>
                 <option value="">Select source</option>
                 {warehouses.map(w => <option key={w._id} value={w._id}>{w.name}</option>)}
               </select>
             </div>
             <div>
-              <label className="text-xs font-bold text-gray-400 block mb-2">To Warehouse *</label>
-              <select className="w-full bg-gray-50 border-none rounded-xl px-4 py-4 text-gray-800" value={toWarehouse} onChange={(e) => setToWarehouse(e.target.value)}>
+              <label className="text-xs font-bold text-subtle block mb-2">To Warehouse *</label>
+              <select className="w-full bg-surface-raised border-none rounded-xl px-4 py-4 text-foreground" value={toWarehouse} onChange={(e) => setToWarehouse(e.target.value)}>
                 <option value="">Select destination</option>
                 {warehouses.map(w => <option key={w._id} value={w._id}>{w.name}</option>)}
               </select>
             </div>
           </div>
 
-          <div className="border-t border-gray-50 pt-6">
-            <label className="text-xs font-bold text-gray-400 block mb-2">Add Product</label>
+          <div className="border-t border-line pt-6">
+            <label className="text-xs font-bold text-subtle block mb-2">Add Product</label>
             {!fromWarehouse && (
-              <div className="mb-2 p-3 bg-yellow-50 border border-yellow-200 rounded-lg">
-                <p className="text-xs text-yellow-800 font-semibold">
+              <div className="mb-2 p-3 bg-warning-soft border border-warning-line rounded-lg">
+                <p className="text-xs text-warning font-semibold">
                   ⚠️ Please select "From Warehouse" first, then search and click on a product from the dropdown to add it.
                 </p>
               </div>
@@ -330,28 +330,28 @@ const CreateTransfer: React.FC = () => {
 
             <div className="overflow-x-auto">
               <table className="w-full text-left">
-                <thead className="bg-gray-50 border-b border-gray-100">
+                <thead className="bg-surface-raised border-b border-line">
                   <tr>
-                    <th className="px-6 py-4 text-[10px] font-bold text-gray-400">Product Name</th>
-                    <th className="px-6 py-4 text-[10px] font-bold text-gray-400 text-center">Cost</th>
-                    <th className="px-6 py-4 text-[10px] font-bold text-gray-400 text-center">Stock Qty</th>
-                    <th className="px-6 py-4 text-[10px] font-bold text-gray-400 text-center">Transfer Qty</th>
-                    <th className="px-6 py-4 text-[10px] font-bold text-gray-400 text-center">Variation</th>
-                    <th className="px-6 py-4 text-[10px] font-bold text-gray-400 text-center">Subtotal</th>
-                    <th className="px-6 py-4 text-[10px] font-bold text-gray-400 text-right">Action</th>
+                    <th className="px-6 py-4 text-[10px] font-bold text-subtle">Product Name</th>
+                    <th className="px-6 py-4 text-[10px] font-bold text-subtle text-center">Cost</th>
+                    <th className="px-6 py-4 text-[10px] font-bold text-subtle text-center">Stock Qty</th>
+                    <th className="px-6 py-4 text-[10px] font-bold text-subtle text-center">Transfer Qty</th>
+                    <th className="px-6 py-4 text-[10px] font-bold text-subtle text-center">Variation</th>
+                    <th className="px-6 py-4 text-[10px] font-bold text-subtle text-center">Subtotal</th>
+                    <th className="px-6 py-4 text-[10px] font-bold text-subtle text-right">Action</th>
                   </tr>
                 </thead>
-                <tbody className="divide-y divide-gray-50">
+                <tbody className="divide-y divide-line">
                   {items.map((item, index) => (
-                    <tr key={`${item.productId}-${index}`} className={item.qty > item.availableStock ? 'bg-red-50' : ''}>
-                      <td className="px-6 py-4 text-sm font-medium text-gray-800">{item.productName}</td>
-                      <td className="px-6 py-4 text-sm text-center text-gray-600">{currencyCode} {item.cost.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</td>
+                    <tr key={`${item.productId}-${index}`} className={item.qty > item.availableStock ? 'bg-danger-soft' : ''}>
+                      <td className="px-6 py-4 text-sm font-medium text-foreground">{item.productName}</td>
+                      <td className="px-6 py-4 text-sm text-center text-muted">{currencyCode} {item.cost.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</td>
                       <td className="px-6 py-4 text-sm text-center">
-                        <span className={`px-2 py-1 rounded text-xs font-bold ${item.availableStock > 0 ? 'bg-green-50 text-green-600' : 'bg-red-50 text-red-600'}`} title={item.availableStock === 0 ? 'No stock available in source warehouse' : `${item.availableStock} units available`}>
+                        <span className={`px-2 py-1 rounded text-xs font-bold ${item.availableStock > 0 ? 'bg-secondary-soft text-secondary' : 'bg-danger-soft text-danger'}`} title={item.availableStock === 0 ? 'No stock available in source warehouse' : `${item.availableStock} units available`}>
                           {item.availableStock}
                         </span>
                         {item.availableStock === 0 && (
-                          <p className="text-[10px] text-red-500 mt-1">No stock</p>
+                          <p className="text-[10px] text-danger mt-1">No stock</p>
                         )}
                       </td>
                       <td className="px-6 py-4 text-center">
@@ -359,18 +359,18 @@ const CreateTransfer: React.FC = () => {
                           type="number" 
                           min="1" 
                           max={item.availableStock}
-                          className={`w-24 bg-gray-50 border rounded-lg px-3 py-2 text-sm text-center ${item.qty > item.availableStock ? 'border-red-500' : ''}`}
+                          className={`w-24 bg-surface-raised border rounded-lg px-3 py-2 text-sm text-center ${item.qty > item.availableStock ? 'border-danger-line' : ''}`}
                           value={item.qty} 
                           onChange={(e) => updateItemQty(index, Number(e.target.value))}
                         />
                         {item.qty > item.availableStock && (
-                          <p className="text-xs text-red-500 mt-1 text-center">Exceeds available stock</p>
+                          <p className="text-xs text-danger mt-1 text-center">Exceeds available stock</p>
                         )}
                       </td>
                       <td className="px-6 py-4 text-center">
                         {item.productData?.ptype === 'Variation' ? (
                           <select 
-                            className="w-32 bg-gray-50 border rounded-lg px-2 py-1 text-xs"
+                            className="w-32 bg-surface-raised border rounded-lg px-2 py-1 text-xs"
                             value={item.variation || ''}
                             onChange={(e) => updateItemVariation(index, e.target.value || null)}
                           >
@@ -385,12 +385,12 @@ const CreateTransfer: React.FC = () => {
                             })()}
                           </select>
                         ) : (
-                          <span className="text-xs text-gray-400">N/A</span>
+                          <span className="text-xs text-subtle">N/A</span>
                         )}
                       </td>
-                      <td className="px-6 py-4 text-sm text-center font-bold text-gray-800">{currencyCode} {item.subtotal.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</td>
+                      <td className="px-6 py-4 text-sm text-center font-bold text-foreground">{currencyCode} {item.subtotal.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</td>
                       <td className="px-6 py-4 text-right">
-                        <button type="button" onClick={() => removeItem(index)} className="text-red-500 hover:text-red-700 transition-colors">
+                        <button type="button" onClick={() => removeItem(index)} className="text-danger hover:text-danger transition-colors">
                           <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" /></svg>
                         </button>
                       </td>
@@ -398,7 +398,7 @@ const CreateTransfer: React.FC = () => {
                   ))}
                   {items.length === 0 && (
                     <tr>
-                      <td colSpan={7} className="px-6 py-10 text-center text-gray-400 italic">No products added yet</td>
+                      <td colSpan={7} className="px-6 py-10 text-center text-subtle italic">No products added yet</td>
                     </tr>
                   )}
                 </tbody>
@@ -406,16 +406,16 @@ const CreateTransfer: React.FC = () => {
             </div>
           </div>
 
-          <div className="border-t border-gray-50 pt-6">
-            <label className="text-xs font-bold text-gray-400 block mb-2">Notes</label>
-            <textarea className="w-full bg-gray-50 border-none rounded-xl px-4 py-4 text-gray-800 min-h-[100px]" placeholder="Add any notes here..." value={notes} onChange={(e) => setNotes(e.target.value)}></textarea>
+          <div className="border-t border-line pt-6">
+            <label className="text-xs font-bold text-subtle block mb-2">Notes</label>
+            <textarea className="w-full bg-canvas border-none rounded-xl px-4 py-4 text-foreground min-h-[100px]" placeholder="Add any notes here..." value={notes} onChange={(e) => setNotes(e.target.value)}></textarea>
           </div>
 
           <div className="flex justify-end pt-4">
             <button 
               type="submit" 
               disabled={loading || items.length === 0}
-              className="bg-[#001F54] text-white px-10 py-4 rounded-xl font-bold hover:bg-[#002b7a] transition-all shadow-lg shadow-blue-100 disabled:opacity-50 disabled:cursor-not-allowed"
+              className="bg-primary text-on-primary px-10 py-4 rounded-xl font-bold hover:bg-primary-hover transition-all disabled:opacity-50 disabled:cursor-not-allowed"
             >
               Create Stock Transfer
             </button>

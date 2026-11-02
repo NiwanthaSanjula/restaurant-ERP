@@ -261,7 +261,7 @@ const ViewKitchenInventory: React.FC = () => {
       .join(' ');
 
   const controlClass =
-    'rounded-xl border border-slate-200 bg-white px-4 py-3 text-sm text-slate-800 shadow-sm placeholder:text-slate-400 focus:border-[#003366] focus:outline-none focus:ring-2 focus:ring-[#003366]/20';
+    'rounded-xl border border-line bg-surface px-4 py-3 text-sm text-foreground placeholder:text-subtle focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20';
 
   // BUG-020 FIX: non-finite next value (NaN/Infinity) handle කරනවා
   const stockBalancePreview = useMemo(() => {
@@ -283,25 +283,25 @@ const ViewKitchenInventory: React.FC = () => {
     "appearance-none bg-[url('data:image/svg+xml,%3Csvg xmlns=%27http://www.w3.org/2000/svg%27 fill=%27none%27 viewBox=%270 0 24 24%27 stroke=%27%236b7280%27%3E%3Cpath stroke-linecap=%27round%27 stroke-linejoin=%27round%27 stroke-width=%272%27 d=%27M19 9l-7 7-7-7%27/%3E%3C/svg%3E')] bg-[length:1.25rem] bg-[right_0.65rem_center] bg-no-repeat pr-10";
 
   return (
-    <div className="min-h-screen bg-[#eef1f4]">
+    <div className="min-h-screen bg-canvas">
       {loading && <Loader text="Loading" />}
 
       <div className="mx-auto max-w-7xl px-4 py-6 sm:px-6 lg:px-8 lg:py-8">
-        <div className="overflow-hidden rounded-lg border border-gray-200 bg-white shadow-sm">
+        <div className="overflow-hidden rounded-lg border border-line bg-surface">
           {/* Page header */}
-          <div className="flex flex-col gap-4 border-b border-gray-200 px-5 py-6 sm:flex-row sm:items-start sm:justify-between sm:px-6 sm:py-6">
+          <div className="flex flex-col gap-4 border-b border-line px-5 py-6 sm:flex-row sm:items-start sm:justify-between sm:px-6 sm:py-6">
             <div className="max-w-2xl">
-              <p className="text-[11px] font-semibold uppercase tracking-[0.2em] text-gray-500">
+              <p className="text-[11px] font-semibold uppercase tracking-[0.2em] text-muted">
                 Kitchen
               </p>
-              <h1 className="mt-1 text-2xl font-bold tracking-tight text-gray-900 sm:text-3xl">Inventory</h1>
-              <p className="mt-2 text-sm leading-relaxed text-gray-600">
+              <h1 className="mt-1 text-2xl font-bold tracking-tight text-foreground sm:text-3xl">Inventory</h1>
+              <p className="mt-2 text-sm leading-relaxed text-muted">
                 Track ingredients, record stock in and out, and view movement history in one place.
               </p>
             </div>
             <Link
               to="/kitchen/inventory/create"
-              className="inline-flex shrink-0 items-center justify-center gap-2 rounded-lg bg-[#003366] px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-[#004080]"
+              className="inline-flex shrink-0 items-center justify-center gap-2 rounded-lg bg-primary px-4 py-2.5 text-sm font-semibold text-on-primary transition hover:bg-primary-hover"
             >
               <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden>
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
@@ -311,22 +311,22 @@ const ViewKitchenInventory: React.FC = () => {
           </div>
 
           {/* Toolbar */}
-          <div className="border-b border-gray-200 bg-white px-5 py-5 sm:px-6">
+          <div className="border-b border-line bg-surface px-5 py-5 sm:px-6">
             <div className="flex flex-col gap-5 md:flex-row md:items-end md:gap-8">
               <div className="min-w-0 flex-1">
-                <label className="mb-2 block text-[11px] font-semibold uppercase tracking-wide text-gray-500">
+                <label className="mb-2 block text-[11px] font-semibold uppercase tracking-wide text-muted">
                   Search ingredients
                 </label>
                 <SearchBar
                   onSearch={setSearchQuery}
                   placeholder="Search by name..."
-                  inputClassName="!rounded-lg !border-gray-300 !py-2.5 !text-sm !shadow-none focus:!border-[#003366] focus:!ring-2 focus:!ring-[#003366]/20"
+                  inputClassName="rounded-lg border-line-strong py-2.5 text-sm shadow-none focus:border-primary focus:ring-2 focus:ring-primary/20"
                 />
               </div>
               <div className="w-full shrink-0 md:max-w-[280px]">
                 <label
                   htmlFor="kitchen-warehouse-alert"
-                  className="mb-2 block text-[11px] font-semibold uppercase tracking-wide text-gray-500"
+                  className="mb-2 block text-[11px] font-semibold uppercase tracking-wide text-muted"
                 >
                   Warehouse for stock alert
                 </label>
@@ -334,7 +334,7 @@ const ViewKitchenInventory: React.FC = () => {
                   id="kitchen-warehouse-alert"
                   value={alertWarehouseId}
                   onChange={(e) => setAlertWarehouseId(e.target.value)}
-                  className={`w-full cursor-pointer rounded-lg border border-gray-300 bg-white px-3 py-2.5 text-sm text-gray-900 shadow-sm focus:border-[#003366] focus:outline-none focus:ring-2 focus:ring-[#003366]/20 ${selectChevron}`}
+                  className={`w-full cursor-pointer rounded-lg border border-line-strong bg-surface px-3 py-2.5 text-sm text-foreground focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20 ${selectChevron}`}
                   aria-label="Warehouse for stock alert"
                 >
                   <option value="">All</option>
@@ -352,30 +352,30 @@ const ViewKitchenInventory: React.FC = () => {
           <div className="overflow-x-auto">
             <table className="min-w-[800px] w-full border-collapse text-left">
               <thead>
-                <tr className="border-b border-gray-200 bg-gray-100">
-                  <th className="px-5 py-3.5 text-left text-[11px] font-semibold uppercase tracking-wider text-gray-500">
+                <tr className="border-b border-line bg-surface-muted">
+                  <th className="px-5 py-3.5 text-left text-[11px] font-semibold uppercase tracking-wider text-muted">
                     Product
                   </th>
-                  <th className="px-5 py-3.5 text-left text-[11px] font-semibold uppercase tracking-wider text-gray-500">
+                  <th className="px-5 py-3.5 text-left text-[11px] font-semibold uppercase tracking-wider text-muted">
                     Unit
                   </th>
-                  <th className="px-5 py-3.5 text-right text-[11px] font-semibold uppercase tracking-wider text-gray-500">
+                  <th className="px-5 py-3.5 text-right text-[11px] font-semibold uppercase tracking-wider text-muted">
                     Stock
                   </th>
-                  <th className="px-5 py-3.5 text-right text-[11px] font-semibold uppercase tracking-wider text-gray-500">
+                  <th className="px-5 py-3.5 text-right text-[11px] font-semibold uppercase tracking-wider text-muted">
                     Alert / min
                   </th>
-                  <th className="px-5 py-3.5 text-right text-[11px] font-semibold uppercase tracking-wider text-gray-500">
+                  <th className="px-5 py-3.5 text-right text-[11px] font-semibold uppercase tracking-wider text-muted">
                     Actions
                   </th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-gray-100">
+              <tbody className="divide-y divide-line">
                 {rows.length === 0 ? (
                   <tr>
                     <td colSpan={5} className="px-5 py-16 text-center">
                       <div className="mx-auto flex max-w-sm flex-col items-center gap-3">
-                        <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-slate-100 text-slate-400">
+                        <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-surface-muted text-subtle">
                           <svg className="h-7 w-7" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path
                               strokeLinecap="round"
@@ -385,11 +385,11 @@ const ViewKitchenInventory: React.FC = () => {
                             />
                           </svg>
                         </div>
-                        <p className="text-base font-semibold text-slate-800">No ingredients yet</p>
-                        <p className="text-sm text-slate-500">Add your first ingredient to start tracking kitchen stock.</p>
+                        <p className="text-base font-semibold text-foreground">No ingredients yet</p>
+                        <p className="text-sm text-muted">Add your first ingredient to start tracking kitchen stock.</p>
                         <Link
                           to="/kitchen/inventory/create"
-                          className="mt-1 inline-flex items-center rounded-lg bg-[#003366] px-4 py-2 text-sm font-semibold text-white hover:bg-[#004080]"
+                          className="mt-1 inline-flex items-center rounded-lg bg-primary px-4 py-2 text-sm font-semibold text-on-primary hover:bg-primary-hover"
                         >
                           Add ingredient
                         </Link>
@@ -400,52 +400,52 @@ const ViewKitchenInventory: React.FC = () => {
                   rows.map((p) => (
                     <tr
                       key={p._id}
-                      className={`border-b border-gray-100 transition-colors ${
-                        isLow(p) ? 'bg-rose-50/50 hover:bg-rose-50/70' : 'hover:bg-gray-50/80'
+                      className={`border-b border-line transition-colors ${
+                        isLow(p) ? 'bg-danger-soft/50 hover:bg-danger-soft/70' : 'hover:bg-surface-raised/80'
                       }`}
                     >
                       <td className="px-5 py-4 align-top">
-                        <div className="font-semibold text-gray-900">{displayName(p.name)}</div>
+                        <div className="font-semibold text-foreground">{displayName(p.name)}</div>
                         {p.inventoryProductId &&
                           typeof p.inventoryProductId === 'object' &&
                           p.inventoryProductId.name && (
-                            <p className="mt-1 text-xs text-gray-500">
+                            <p className="mt-1 text-xs text-muted">
                               Linked {displayName(p.inventoryProductId.name)}
                               {p.inventoryProductId.code ? ` - ${p.inventoryProductId.code}` : ''}
                             </p>
                           )}
                         {p.description && (
-                          <div className="mt-1 line-clamp-1 text-xs text-gray-400">{p.description}</div>
+                          <div className="mt-1 line-clamp-1 text-xs text-subtle">{p.description}</div>
                         )}
                       </td>
-                      <td className="px-5 py-4 align-top text-sm text-gray-700">{unitLabel(p)}</td>
+                      <td className="px-5 py-4 align-top text-sm text-foreground">{unitLabel(p)}</td>
                       <td className="px-5 py-4 align-top text-right">
                         <div className="flex items-center justify-end gap-2">
-                          <span className="font-mono text-base tabular-nums font-semibold text-gray-900">
+                          <span className="font-mono text-base tabular-nums font-semibold text-foreground">
                             {p.currentStock}
                           </span>
                           {isLow(p) && (
-                            <span className="shrink-0 rounded-full bg-red-500 px-2 py-0.5 text-[10px] font-bold uppercase tracking-wide text-white">
+                            <span className="shrink-0 rounded-full bg-danger px-2 py-0.5 text-[10px] font-bold uppercase tracking-wide text-on-danger">
                               LOW
                             </span>
                           )}
                         </div>
                       </td>
-                      <td className="px-5 py-4 align-top text-right text-sm text-gray-700">
+                      <td className="px-5 py-4 align-top text-right text-sm text-foreground">
                         {effectiveMin(p) != null ? (
                           <div className="flex flex-col items-end gap-0.5">
-                            <span className="font-mono tabular-nums font-semibold text-gray-900">
+                            <span className="font-mono tabular-nums font-semibold text-foreground">
                               {effectiveMin(p)}
                             </span>
                             {p.stockAlertFromProduct != null && (
-                              <span className="text-[11px] font-normal text-gray-500">From product</span>
+                              <span className="text-[11px] font-normal text-muted">From product</span>
                             )}
                             {p.stockAlertFromProduct == null && p.minStockLevel != null && (
-                              <span className="text-[11px] font-normal text-gray-500">Kitchen min</span>
+                              <span className="text-[11px] font-normal text-muted">Kitchen min</span>
                             )}
                           </div>
                         ) : (
-                          <span className="text-gray-400">—</span>
+                          <span className="text-subtle">—</span>
                         )}
                       </td>
                       <td className="px-5 py-4 align-top">
@@ -453,7 +453,7 @@ const ViewKitchenInventory: React.FC = () => {
                           <button
                             type="button"
                             onClick={() => openStock('in', p)}
-                            className="inline-flex items-center gap-1.5 rounded-lg border border-emerald-200 bg-emerald-50 px-3 py-2 text-xs font-semibold text-emerald-800 transition hover:bg-emerald-100"
+                            className="inline-flex items-center gap-1.5 rounded-lg border border-secondary-line bg-secondary-soft px-3 py-2 text-xs font-semibold text-secondary transition hover:bg-secondary-soft"
                           >
                             <svg className="h-3.5 w-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
@@ -463,7 +463,7 @@ const ViewKitchenInventory: React.FC = () => {
                           <button
                             type="button"
                             onClick={() => openStock('out', p)}
-                            className="inline-flex items-center gap-1.5 rounded-lg border border-amber-200 bg-amber-50 px-3 py-2 text-xs font-semibold text-amber-800 transition hover:bg-amber-100"
+                            className="inline-flex items-center gap-1.5 rounded-lg border border-warning-line bg-warning-soft px-3 py-2 text-xs font-semibold text-warning transition hover:bg-warning-soft"
                           >
                             <svg className="h-3.5 w-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M20 12H4" />
@@ -474,7 +474,7 @@ const ViewKitchenInventory: React.FC = () => {
                             type="button"
                             title="History"
                             onClick={() => openMovements(p)}
-                            className="inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-lg border border-gray-300 bg-white text-gray-600 transition hover:bg-gray-50"
+                            className="inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-lg border border-line-strong bg-surface text-muted transition hover:bg-surface-raised"
                           >
                             <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                               <path
@@ -488,7 +488,7 @@ const ViewKitchenInventory: React.FC = () => {
                           <Link
                             to={`/kitchen/inventory/edit/${p._id}`}
                             title="Edit"
-                            className="inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-lg border border-sky-200 bg-sky-50 text-[#003366] transition hover:bg-sky-100"
+                            className="inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-lg border border-primary-line bg-primary-soft text-foreground transition hover:bg-primary-soft"
                           >
                             <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                               <path
@@ -503,7 +503,7 @@ const ViewKitchenInventory: React.FC = () => {
                             type="button"
                             title="Delete"
                             onClick={() => setToDelete(p)}
-                            className="inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-lg border border-red-200 bg-red-50 text-red-700 transition hover:bg-red-100"
+                            className="inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-lg border border-danger-line bg-danger-soft text-danger transition hover:bg-danger-soft"
                           >
                             <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                               <path
@@ -526,14 +526,14 @@ const ViewKitchenInventory: React.FC = () => {
       </div>
 
       {stockModal && stockProduct && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/50 p-4 backdrop-blur-sm">
-          <div className="max-h-[90vh] w-full max-w-md overflow-y-auto rounded-2xl border border-slate-100 bg-white p-6 shadow-2xl shadow-slate-900/20">
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-overlay p-4 backdrop-blur-sm">
+          <div className="max-h-[90vh] w-full max-w-md overflow-y-auto rounded-2xl border border-line bg-surface p-6 shadow-elevated">
             <div className="mb-6 flex items-start justify-between gap-4">
               <div>
-                <h2 className="text-xl font-bold text-slate-900">
+                <h2 className="text-xl font-bold text-foreground">
                   {stockModal === 'in' ? 'Stock in' : 'Stock out'}
                 </h2>
-                <p className="mt-1 text-sm text-slate-600">{displayName(stockProduct.name)}</p>
+                <p className="mt-1 text-sm text-muted">{displayName(stockProduct.name)}</p>
               </div>
               <button
                 type="button"
@@ -543,7 +543,7 @@ const ViewKitchenInventory: React.FC = () => {
                   setStockProduct(null);
                   setStockOutReason('');
                 }}
-                className="rounded-lg p-2 text-slate-400 transition hover:bg-slate-100 hover:text-slate-700"
+                className="rounded-lg p-2 text-subtle transition hover:bg-surface-muted hover:text-foreground"
               >
                 <svg className="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
@@ -554,20 +554,20 @@ const ViewKitchenInventory: React.FC = () => {
               <div
                 className={`mb-5 rounded-xl border px-4 py-3 text-sm ${
                   stockModal === 'in'
-                    ? 'border-emerald-200/80 bg-emerald-50/90 text-emerald-950'
-                    : 'border-amber-200/80 bg-amber-50/90 text-amber-950'
+                    ? 'border-secondary-line/80 bg-secondary-soft/90 text-secondary'
+                    : 'border-warning-line/80 bg-warning-soft/90 text-warning'
                 }`}
               >
                 <div className="flex flex-wrap items-baseline justify-between gap-2">
-                  <span className="font-medium text-slate-700">Current stock</span>
-                  <span className="font-mono text-lg font-bold tabular-nums text-slate-900">
+                  <span className="font-medium text-foreground">Current stock</span>
+                  <span className="font-mono text-lg font-bold tabular-nums text-foreground">
                     {stockBalancePreview.current}
                   </span>
                 </div>
                 {stockBalancePreview.next != null &&
                   stockBalancePreview.qty != null &&
                   stockBalancePreview.next >= 0 && (
-                    <p className="mt-2 border-t border-black/5 pt-2 text-sm">
+                    <p className="mt-2 border-t border-line/5 pt-2 text-sm">
                       {stockModal === 'in' ? (
                         <>
                           Adds <span className="font-mono font-semibold">{stockBalancePreview.qty}</span> →{' '}
@@ -590,7 +590,7 @@ const ViewKitchenInventory: React.FC = () => {
                 {stockModal === 'out' &&
                   stockBalancePreview.next != null &&
                   stockBalancePreview.next < 0 && (
-                    <p className="mt-2 text-sm font-medium text-red-700">
+                    <p className="mt-2 text-sm font-medium text-danger">
                       Not enough stock — reduce quantity or use a smaller amount.
                     </p>
                   )}
@@ -598,7 +598,7 @@ const ViewKitchenInventory: React.FC = () => {
             )}
             <form onSubmit={submitStock} className="space-y-5">
               <div>
-                <label className="mb-2 block text-sm font-semibold text-slate-700">Quantity</label>
+                <label className="mb-2 block text-sm font-semibold text-foreground">Quantity</label>
                 <input
                   type="number"
                   step="any"
@@ -613,11 +613,11 @@ const ViewKitchenInventory: React.FC = () => {
 
               {stockModal === 'in' && (
                 <div>
-                  <label className="mb-2 block text-sm font-semibold text-slate-700">
-                    Purchase Price (per unit) <span className="text-xs font-normal text-slate-400">— Optional</span>
+                  <label className="mb-2 block text-sm font-semibold text-foreground">
+                    Purchase Price (per unit) <span className="text-xs font-normal text-subtle">— Optional</span>
                   </label>
                   <div className="relative">
-                    <span className="absolute left-4 top-1/2 -translate-y-1/2 text-sm font-bold text-slate-400">{currencySymbol}</span>
+                    <span className="absolute left-4 top-1/2 -translate-y-1/2 text-sm font-bold text-subtle">{currencySymbol}</span>
                     <input
                       type="number"
                       step="any"
@@ -633,8 +633,8 @@ const ViewKitchenInventory: React.FC = () => {
 
               {stockModal === 'out' && (
                 <div>
-                  <label className="mb-2 block text-sm font-semibold text-slate-700">
-                    Reason for stock out <span className="text-red-600">*</span>
+                  <label className="mb-2 block text-sm font-semibold text-foreground">
+                    Reason for stock out <span className="text-danger">*</span>
                   </label>
                   <select
                     required
@@ -648,13 +648,13 @@ const ViewKitchenInventory: React.FC = () => {
                       </option>
                     ))}
                   </select>
-                  <p className="mt-1.5 text-xs text-slate-500">
+                  <p className="mt-1.5 text-xs text-muted">
                     Helps explain shrinkage and keeps movement history clear for audits.
                   </p>
                 </div>
               )}
               <div>
-                <label className="mb-2 block text-sm font-semibold text-slate-700">
+                <label className="mb-2 block text-sm font-semibold text-foreground">
                   {stockModal === 'in'
                     ? 'Reference note (optional)'
                     : stockOutReason === '__OTHER__'
@@ -675,7 +675,7 @@ const ViewKitchenInventory: React.FC = () => {
                   }
                 />
               </div>
-              <div className="flex justify-end gap-3 border-t border-slate-100 pt-5">
+              <div className="flex justify-end gap-3 border-t border-line pt-5">
                 <button
                   type="button"
                   onClick={() => {
@@ -683,13 +683,13 @@ const ViewKitchenInventory: React.FC = () => {
                     setStockProduct(null);
                     setStockOutReason('');
                   }}
-                  className="rounded-xl border border-slate-200 bg-white px-5 py-2.5 text-sm font-semibold text-slate-700 shadow-sm transition hover:bg-slate-50"
+                  className="rounded-xl border border-line bg-surface px-5 py-2.5 text-sm font-semibold text-foreground transition hover:bg-surface-raised"
                 >
                   Cancel
                 </button>
                 <button
                   type="submit"
-                  className="rounded-xl bg-[#003366] px-5 py-2.5 text-sm font-semibold text-white shadow-lg shadow-[#003366]/25 transition hover:bg-[#004080]"
+                  className="rounded-xl bg-primary px-5 py-2.5 text-sm font-semibold text-on-primary transition hover:bg-primary-hover"
                 >
                   Save
                 </button>
@@ -700,17 +700,17 @@ const ViewKitchenInventory: React.FC = () => {
       )}
 
       {movementsFor && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/50 p-4 backdrop-blur-sm">
-          <div className="flex max-h-[85vh] w-full max-w-lg flex-col overflow-hidden rounded-2xl border border-slate-100 bg-white shadow-2xl shadow-slate-900/20">
-            <div className="flex items-center justify-between border-b border-slate-100 px-6 py-4">
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-overlay p-4 backdrop-blur-sm">
+          <div className="flex max-h-[85vh] w-full max-w-lg flex-col overflow-hidden rounded-2xl border border-line bg-surface shadow-elevated">
+            <div className="flex items-center justify-between border-b border-line px-6 py-4">
               <div>
-                <h2 className="text-lg font-bold text-slate-900">Movement history</h2>
-                <p className="text-sm text-slate-600">{displayName(movementsFor.name)}</p>
+                <h2 className="text-lg font-bold text-foreground">Movement history</h2>
+                <p className="text-sm text-muted">{displayName(movementsFor.name)}</p>
               </div>
               <button
                 type="button"
                 onClick={() => setMovementsFor(null)}
-                className="rounded-lg p-2 text-slate-400 transition hover:bg-slate-100 hover:text-slate-700"
+                className="rounded-lg p-2 text-subtle transition hover:bg-surface-muted hover:text-foreground"
                 aria-label="Close"
               >
                 <svg className="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -720,36 +720,36 @@ const ViewKitchenInventory: React.FC = () => {
             </div>
             <div className="flex-1 overflow-y-auto px-6 py-4">
               {movementsLoading ? (
-                <p className="py-8 text-center text-sm text-slate-500">Loading…</p>
+                <p className="py-8 text-center text-sm text-muted">Loading…</p>
               ) : movements.length === 0 ? (
-                <p className="py-8 text-center text-sm text-slate-500">No movements yet.</p>
+                <p className="py-8 text-center text-sm text-muted">No movements yet.</p>
               ) : (
                 <ul className="space-y-3">
                   {movements.map((m) => (
                     <li
                       key={m._id}
-                      className={`rounded-xl border p-4 text-sm shadow-sm ${
+                      className={`rounded-xl border p-4 text-sm ${
                         m.type === 'in'
-                          ? 'border-emerald-200/80 bg-emerald-50/60'
-                          : 'border-amber-200/80 bg-amber-50/60'
+                          ? 'border-secondary-line/80 bg-secondary-soft/60'
+                          : 'border-warning-line/80 bg-warning-soft/60'
                       }`}
                     >
                       <div className="flex items-start justify-between gap-3">
                         <span
                           className={`inline-flex items-center rounded-md px-2 py-0.5 text-xs font-bold uppercase tracking-wide ${
                             m.type === 'in'
-                              ? 'bg-emerald-200/80 text-emerald-900'
-                              : 'bg-amber-200/80 text-amber-950'
+                              ? 'bg-secondary-soft/80 text-secondary'
+                              : 'bg-warning-soft/80 text-warning'
                           }`}
                         >
                           {m.type === 'in' ? 'In' : 'Out'}
                         </span>
-                        <span className="font-mono text-lg font-bold tabular-nums text-slate-900">{m.quantity}</span>
+                        <span className="font-mono text-lg font-bold tabular-nums text-foreground">{m.quantity}</span>
                       </div>
-                      <p className="mt-2 text-xs text-slate-500">{new Date(m.createdAt).toLocaleString()}</p>
-                      {m.note && <p className="mt-2 text-slate-700">{m.note}</p>}
+                      <p className="mt-2 text-xs text-muted">{new Date(m.createdAt).toLocaleString()}</p>
+                      {m.note && <p className="mt-2 text-foreground">{m.note}</p>}
                       {m.createdBy && (m.createdBy.name || m.createdBy.email) && (
-                        <p className="mt-1 text-xs text-slate-500">
+                        <p className="mt-1 text-xs text-muted">
                           By {m.createdBy.name || m.createdBy.email}
                         </p>
                       )}

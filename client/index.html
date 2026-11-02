@@ -2,9 +2,21 @@
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
-    <link rel="icon" type="image/svg+xml" href="/vite.svg" />
+    <meta name="theme-color" content="#f6f5f2" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Vite + React + TS</title>
+    <title>ServeSmart · Restaurant management</title>
+    <script>
+      // Run before styles or React: honor explicit choice, otherwise device preference.
+      (function () {
+        var saved;
+        try { saved = localStorage.getItem('servesmart.theme'); } catch (_) {}
+        var theme = saved === 'light' || saved === 'dark' ? saved :
+          (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+        document.documentElement.dataset.theme = theme;
+        document.documentElement.style.colorScheme = theme;
+        document.querySelector('meta[name="theme-color"]').content = theme === 'dark' ? '#171a18' : '#f6f5f2';
+      })();
+    </script>
     <style>
       @keyframes shine {
         0% { transform: skewX(-25deg) translateX(-150%); }

@@ -1,6 +1,8 @@
 import React, { useEffect, useMemo, useState, useRef } from "react";
 import { useCurrency } from '../../contexts/CurrencyContext';
 import CalculatorModal from "./CalculatorModal";
+import POSLayout from './POSLayout';
+import { Info, Minus, Plus, Trash2 } from 'lucide-react';
 import { useNavigate } from "react-router-dom";
 import { showInfoToast, showSuccessToast } from "../../utils/toast";
 
@@ -219,61 +221,28 @@ const DEFAULT_BRANDS: Brand[] = [{ id: "all", name: "All Brands" }];
 type ProductCardProps = {
   product: Product;
   onSelect: (product: Product) => void;
+  onDetails: (product: Product) => void;
+  onDecrease?: () => void;
+  quantity: number;
   currencyCode: string;
-  selectedBrand: string;
 };
 
-const ProductCard: React.FC<ProductCardProps> = ({ product, onSelect, currencyCode, selectedBrand }) => {
-  const normalizedBrand = product.brand.toLowerCase().replace(/\s+/g, "-");
-  const isBrandMatch =
-    selectedBrand !== "all" &&
-    (product.brandId ? product.brandId === selectedBrand : normalizedBrand === selectedBrand);
-
-  return (
-    <div
-      onClick={() => onSelect(product)}
-      className="product-card glass-card rounded-2xl overflow-hidden shadow-lg hover-lift smooth-transition cursor-pointer group"
-    >
-      <div className="relative overflow-hidden p-4">
-        <img
-          src={product.image}
-          alt={product.name}
-          className="product-card-image w-[90%] mx-auto rounded-xl smooth-transition group-hover:scale-110"
-        />
-        <div className="absolute inset-0 bg-gradient-to-t from-navy-900/80 via-navy-900/40 to-transparent opacity-0 group-hover:opacity-100 smooth-transition flex items-end justify-center pb-6">
-          <button className="bg-white px-6 py-2.5 rounded-full font-bold text-[#1f3b63] shadow-lg ring-2 ring-offset-2 ring-[#1f3b63]/50 transform translate-y-4 group-hover:translate-y-0 smooth-transition hover:bg-[#1f3b63] hover:text-white">
-            + Add to Cart
-          </button>
-        </div>
-      </div>
-
-      <div className="p-4 flex flex-col flex-1">
-        <div className="flex-1 min-h-0">
-          <h3 className="font-semibold text-navy-900 mb-1.5 text-sm leading-tight line-clamp-2">
-            {product.name}
-          </h3>
-          <span
-            className={`inline-flex items-center justify-center px-2 py-1 rounded-full text-[0.65rem] font-semibold uppercase tracking-[0.16em] mb-3 ${
-              isBrandMatch
-                ? "bg-[#1f3b63] text-white"
-                : "bg-[#f5f7fb] text-[#1f3b63]"
-            }`}
-          >
-            {product.brand}
-          </span>
-        </div>
-        <div className="flex items-center justify-between mt-auto pt-2 border-t border-gray-100">
-          <p className="font-bold text-navy-700 text-base">
-            {currencyCode} {product.price.toFixed(2)}
-          </p>
-          <span className="text-xs font-medium text-navy-600 bg-navy-50 px-2 py-0.5 rounded-full">
-            {product.category}
-          </span>
-        </div>
-      </div>
+const ProductCard: React.FC<ProductCardProps> = ({ product, onSelect, onDetails, onDecrease, quantity, currencyCode }) => (
+  <article className="pos-product" data-product-id={product.id}>
+    <button type="button" className="pos-product-details" onClick={() => onDetails(product)} aria-label={`Product details: ${product.name}`}>
+      <img src={product.image} alt="" loading="lazy" />
+      <span className="pos-product-name">{product.name}</span>
+      <span className="pos-product-price">{currencyCode} {product.price.toFixed(2)}</span>
+    </button>
+    <div className="pos-product-controls">
+      {quantity > 0 ? <>
+        <button type="button" onClick={onDecrease} disabled={!onDecrease} aria-label={`Decrease ${product.name} in catalog`} title={onDecrease ? 'Decrease quantity' : 'Adjust individual variations in your order'}><Minus size={14} /></button>
+        <output aria-label={`${product.name} quantity in order`}>{quantity}</output>
+        <button type="button" onClick={() => onSelect(product)} aria-label={`Add ${product.name}`}><Plus size={14} /></button>
+      </> : <button type="button" className="pos-add" onClick={() => onSelect(product)} aria-label={`Add ${product.name}`}><Plus size={14} />{product.variations?.length ? 'Choose options' : 'Add to order'}</button>}
     </div>
-  );
-};
+  </article>
+);
 
 type CartItemProps = {
   item: CartItem;
@@ -283,63 +252,15 @@ type CartItemProps = {
 };
 
 const CartItemRow: React.FC<CartItemProps> = ({ item, onUpdateQuantity, onRemoveItem, currencyCode }) => (
-  <div className="bg-white p-2.5 rounded-xl mb-2 border border-navy-200 shadow-sm smooth-transition hover:shadow-md hover:border-[#1f3b63]">
-    <div className="flex items-center gap-2.5">
-      <img
-        src={item.image}
-        alt={item.name}
-        className="w-14 h-14 object-cover rounded-lg flex-shrink-0 border border-navy-100"
-      />
-      <div className="flex-1 min-w-0">
-        <h4 className="font-bold text-navy-900 text-base truncate mb-1">
-          {item.name}
-        </h4>
-        {item.selectedVariation && (
-          <p className="text-sm text-navy-600 mb-1">
-            {item.selectedVariation.name}
-          </p>
-        )}
-        <p className="text-[#1f3b63] font-bold text-lg">
-          {currencyCode} {item.price.toFixed(2)}
-        </p>
-      </div>
-      <div className="flex items-center gap-2 flex-shrink-0">
-        <button
-          onClick={(e) => {
-            e.stopPropagation();
-            onUpdateQuantity(item, Math.max(0, item.quantity - 1));
-          }}
-          className="w-8 h-8 bg-[#f5f7fb] hover:bg-[#1f3b63] text-[#1f3b63] hover:text-white border border-[#dde3f0] hover:border-[#1f3b63] rounded-lg font-bold text-base flex items-center justify-center smooth-transition hover-scale"
-        >
-          −
-        </button>
-        <span className="w-10 text-center font-bold text-[#1f3b63] text-base bg-[#f5f7fb] px-2 py-1 rounded-lg border border-[#dde3f0]">
-          {item.quantity}
-        </span>
-        <button
-          onClick={(e) => {
-            e.stopPropagation();
-            onUpdateQuantity(item, item.quantity + 1);
-          }}
-          className="w-8 h-8 bg-[#f5f7fb] hover:bg-[#1f3b63] text-[#1f3b63] hover:text-white border border-[#dde3f0] hover:border-[#1f3b63] rounded-lg font-bold text-base flex items-center justify-center smooth-transition hover-scale"
-        >
-          +
-        </button>
-        <button
-          onClick={(e) => {
-            e.stopPropagation();
-            onRemoveItem(item);
-          }}
-          className="w-8 h-8 bg-[#fff5f5] hover:bg-[#c24141] text-[#c24141] hover:text-white border border-[#fecaca] hover:border-[#c24141] rounded-lg flex items-center justify-center smooth-transition hover-scale"
-          aria-label={`Remove ${item.name}`}
-          title="Remove item"
-        >
-          <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={2}>
-            <path strokeLinecap="round" strokeLinejoin="round" d="M6 7h12M9 7V5h6v2m-7 0 1 12h6l1-12" />
-          </svg>
-        </button>
-      </div>
+  <div className="pos-cart-line" data-cart-key={item.cartKey}>
+    <img src={item.image} alt="" />
+    <div className="pos-cart-line-info"><h4 title={item.name}>{item.name}</h4>{item.selectedVariation && <p>{item.selectedVariation.name}</p>}<strong>{currencyCode} {item.price.toFixed(2)}</strong></div>
+    <div className="pos-stepper">
+      <button type="button" aria-label={`Decrease ${item.name}`} onClick={() => onUpdateQuantity(item, Math.max(0, item.quantity - 1))}><Minus size={13} /></button>
+      <output aria-label={`${item.name} cart quantity`}>{item.quantity}</output>
+      <button type="button" aria-label={`Increase ${item.name}`} onClick={() => onUpdateQuantity(item, item.quantity + 1)}><Plus size={13} /></button>
     </div>
+    <button type="button" className="pos-remove" aria-label={`Remove ${item.name}`} onClick={() => onRemoveItem(item)}><Trash2 size={14} /></button>
   </div>
 );
 
@@ -426,27 +347,27 @@ const ProductSelectionModal: React.FC<ProductSelectionModalProps> = ({
 
   return (
     <div 
-      className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-3 sm:p-4 animate-fadeIn"
+      role="dialog" aria-modal="true" aria-label="Product options" data-pos-dialog className="fixed inset-0 bg-overlay backdrop-blur-sm z-[120] flex items-center justify-center p-3 sm:p-4 animate-fadeIn"
       onClick={onClose}
     >
       <div 
-        className="bg-white rounded-xl sm:rounded-2xl shadow-2xl max-w-sm w-full overflow-hidden animate-slideUp flex flex-col max-h-[85vh]"
+        className="bg-surface rounded-xl sm:rounded-2xl shadow-elevated max-w-sm w-full overflow-hidden animate-slideUp flex flex-col max-h-[85vh]"
         onClick={(e) => e.stopPropagation()}
       >
         {/* Header - Compact */}
-        <div className="flex items-center justify-between p-3 sm:p-4 border-b border-gray-100 bg-gradient-to-r from-white to-gray-50">
+        <div className="flex items-center justify-between p-3 sm:p-4 border-b border-line bg-surface-muted">
           <div className="flex-1 min-w-0 pr-3">
-            <h2 className="text-lg sm:text-xl font-bold text-navy-900 truncate">{product.name}</h2>
-            <p className="text-sm sm:text-base text-[#1f3b63] font-semibold mt-0.5">
+            <h2 className="text-lg sm:text-xl font-bold text-foreground truncate">{product.name}</h2><p className="text-xs text-muted mt-1">{product.category} · {product.brand}</p>
+            <p className="text-sm sm:text-base text-foreground font-semibold mt-0.5">
               {currencyCode} {currentPrice.toFixed(2)}
             </p>
           </div>
           <button
             onClick={onClose}
-            className="w-8 h-8 rounded-full bg-gray-100 hover:bg-gray-200 active:bg-gray-300 flex items-center justify-center smooth-transition flex-shrink-0"
+            className="w-8 h-8 rounded-full bg-surface-muted hover:bg-surface-muted active:bg-surface-muted flex items-center justify-center smooth-transition flex-shrink-0"
             aria-label="Close"
           >
-            <svg className="w-4 h-4 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <svg className="w-4 h-4 text-muted" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
             </svg>
           </button>
@@ -456,7 +377,7 @@ const ProductSelectionModal: React.FC<ProductSelectionModalProps> = ({
         <div className="flex-1 overflow-y-auto custom-scrollbar">
           {/* Product Image - Compact */}
           <div className="p-3 sm:p-4 pb-2">
-            <div className="relative overflow-hidden rounded-lg shadow-md">
+            <div className="relative overflow-hidden rounded-lg">
               <img
                 src={product.image}
                 alt={product.name}
@@ -468,7 +389,7 @@ const ProductSelectionModal: React.FC<ProductSelectionModalProps> = ({
           {/* Variations - Compact */}
           {product.variations && product.variations.length > 0 && (
             <div className="px-3 sm:px-4 pb-3">
-              <h3 className="text-xs sm:text-sm font-semibold text-navy-700 mb-2">Size</h3>
+              <h3 className="text-xs sm:text-sm font-semibold text-foreground mb-2">Size</h3>
               <div className="grid grid-cols-3 gap-2">
                 {product.variations.map((variation) => (
                   <button
@@ -476,8 +397,8 @@ const ProductSelectionModal: React.FC<ProductSelectionModalProps> = ({
                     onClick={() => setSelectedVariation(variation)}
                     className={`py-2 px-2 rounded-lg font-semibold text-xs sm:text-sm smooth-transition ${
                       selectedVariation?.id === variation.id
-                        ? "bg-[#1f3b63] text-white shadow-md"
-                        : "bg-[#f5f7fb] text-[#1f3b63] border border-[#dde3f0] hover:bg-white hover:border-[#1f3b63]"
+                        ? "bg-primary text-on-primary"
+                        : "bg-surface-muted text-primary border border-line-strong hover:bg-surface hover:border-primary"
                     }`}
                   >
                     {variation.name}
@@ -489,11 +410,11 @@ const ProductSelectionModal: React.FC<ProductSelectionModalProps> = ({
 
           {/* Quantity Selector - Compact */}
           <div className="px-3 sm:px-4 pb-3">
-            <h3 className="text-xs sm:text-sm font-semibold text-navy-700 mb-2">Quantity</h3>
+            <h3 className="text-xs sm:text-sm font-semibold text-foreground mb-2">Quantity</h3>
             <div className="flex items-center gap-2">
               <button
                 onClick={() => setQuantity(Math.max(1, quantity - 1))}
-                className="w-9 h-9 bg-[#f5f7fb] hover:bg-[#1f3b63] text-[#1f3b63] hover:text-white border-2 border-[#dde3f0] hover:border-[#1f3b63] rounded-lg font-bold text-lg flex items-center justify-center smooth-transition"
+                className="w-9 h-9 bg-surface-muted hover:bg-primary-hover text-primary hover:text-on-primary border-2 border-line-strong hover:border-primary rounded-lg font-bold text-lg flex items-center justify-center smooth-transition"
                 aria-label="Decrease quantity"
               >
                 −
@@ -502,12 +423,12 @@ const ProductSelectionModal: React.FC<ProductSelectionModalProps> = ({
                 type="number"
                 value={quantity}
                 onChange={(e) => setQuantity(Math.max(1, parseInt(e.target.value) || 1))}
-                className="flex-1 text-center text-lg font-bold text-[#1f3b63] bg-[#f5f7fb] border-2 border-[#dde3f0] rounded-lg py-2 px-2 focus:outline-none focus:border-[#1f3b63]"
+                className="flex-1 text-center text-lg font-bold text-foreground bg-surface-muted border-2 border-line-strong rounded-lg py-2 px-2 focus:outline-none focus:border-primary"
                 min="1"
               />
               <button
                 onClick={() => setQuantity(quantity + 1)}
-                className="w-9 h-9 bg-[#f5f7fb] hover:bg-[#1f3b63] text-[#1f3b63] hover:text-white border-2 border-[#dde3f0] hover:border-[#1f3b63] rounded-lg font-bold text-lg flex items-center justify-center smooth-transition"
+                className="w-9 h-9 bg-surface-muted hover:bg-primary-hover text-primary hover:text-on-primary border-2 border-line-strong hover:border-primary rounded-lg font-bold text-lg flex items-center justify-center smooth-transition"
                 aria-label="Increase quantity"
               >
                 +
@@ -516,10 +437,10 @@ const ProductSelectionModal: React.FC<ProductSelectionModalProps> = ({
           </div>
 
           {/* Total - Compact */}
-          <div className="px-3 sm:px-4 pb-3 border-t border-gray-100 pt-3">
-            <div className="flex justify-between items-center bg-gradient-to-r from-[#f5f7fb] to-white p-3 rounded-lg">
-              <span className="text-sm sm:text-base font-semibold text-navy-700">Total</span>
-              <span className="text-lg sm:text-xl font-bold text-[#1f3b63]">
+          <div className="px-3 sm:px-4 pb-3 border-t border-line pt-3">
+            <div className="flex justify-between items-center p-3 rounded-lg bg-surface-muted">
+              <span className="text-sm sm:text-base font-semibold text-primary">Total</span>
+              <span className="text-lg sm:text-xl font-bold text-primary">
                 {currencyCode} {total.toFixed(2)}
               </span>
             </div>
@@ -527,10 +448,10 @@ const ProductSelectionModal: React.FC<ProductSelectionModalProps> = ({
         </div>
 
         {/* Add to Cart Button - Fixed at Bottom */}
-        <div className="p-3 sm:p-4 pt-2 border-t border-gray-100 bg-white">
+        <div className="p-3 sm:p-4 pt-2 border-t border-line bg-surface">
           <button
             onClick={handleAddToCart}
-            className="w-full bg-[#1f3b63] hover:bg-[#243b53] text-white py-2.5 sm:py-3 rounded-lg font-bold text-sm sm:text-base shadow-md smooth-transition hover:shadow-lg flex items-center justify-center gap-2"
+            className="w-full bg-primary hover:bg-primary-hover text-on-primary py-2.5 sm:py-3 rounded-lg font-bold text-sm sm:text-base smooth-transition flex items-center justify-center gap-2"
           >
             <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
@@ -567,7 +488,6 @@ type CartSidebarProps = {
   onClearCustomer: () => void;
   onUpdateQuantity: (item: CartItem, quantity: number) => void;
   onRemoveItem: (item: CartItem) => void;
-  onHold: () => void;
   onReset: () => void;
   onPayNow: () => void;
   currencyCode: string;
@@ -597,7 +517,6 @@ const CartSidebar: React.FC<CartSidebarProps> = ({
   onClearCustomer,
   onUpdateQuantity,
   onRemoveItem,
-  onHold,
   onReset,
   onPayNow,
   currencyCode,
@@ -649,26 +568,26 @@ const CartSidebar: React.FC<CartSidebarProps> = ({
   };
 
   return (
-    <div className="flex flex-col h-full p-3 min-h-0 space-y-3 overflow-hidden">
+    <div className="pos-order-body">
       {/* Customer Selection */}
       <div className="glass-card p-2.5 rounded-xl relative z-20 flex-shrink-0">
         {selectedCustomer ? (
-          <div className="flex items-start gap-2.5 rounded-lg border border-[#d1d5db] bg-white px-2.5 py-1.5 shadow-sm">
-            <div className="w-8 h-8 rounded-full bg-[#1f3b63]/10 text-[#1f3b63] flex items-center justify-center flex-shrink-0 font-bold text-xs">
+          <div className="flex items-start gap-2.5 rounded-lg border border-line-strong bg-surface px-2.5 py-1.5">
+            <div className="w-8 h-8 rounded-full bg-primary-soft text-foreground flex items-center justify-center flex-shrink-0 font-bold text-xs">
               {selectedCustomer.name.trim().charAt(0).toUpperCase()}
             </div>
             <div className="flex-1 min-w-0 text-left">
-              <p className="text-xs font-bold text-[#111827] leading-tight truncate">
+              <p className="text-xs font-bold text-foreground leading-tight truncate">
                 {selectedCustomer.name}
               </p>
-              <p className="text-[10px] text-[#6b7280] truncate">
+              <p className="text-[10px] text-muted truncate">
                 {selectedCustomer.mobile || "No mobile"}
               </p>
             </div>
             <button
               type="button"
               onClick={onClearCustomer}
-              className="flex-shrink-0 text-xs font-semibold text-[#1f3b63] hover:underline px-1"
+              className="flex-shrink-0 text-xs font-semibold text-primary hover:underline px-1"
             >
               Change
             </button>
@@ -677,7 +596,7 @@ const CartSidebar: React.FC<CartSidebarProps> = ({
           <div className="flex flex-col gap-1.5">
             <div className="relative">
               <svg
-                className="w-4 h-4 text-[#9ca3af] absolute left-2.5 top-1/2 -translate-y-1/2 pointer-events-none"
+                className="w-4 h-4 text-subtle absolute left-2.5 top-1/2 -translate-y-1/2 pointer-events-none"
                 fill="none"
                 stroke="currentColor"
                 viewBox="0 0 24 24"
@@ -687,17 +606,17 @@ const CartSidebar: React.FC<CartSidebarProps> = ({
               </svg>
               <input
                 type="text"
-                placeholder="Find Customer"
+                aria-label="Find customer" placeholder="Find Customer"
                 value={customerQuery}
                 onChange={(e) => setCustomerQuery(e.target.value)}
-                className="w-full h-9 pl-8 pr-8 rounded-md border border-[#d1d5db] bg-white text-xs text-[#374151] placeholder:text-[#9ca3af] focus:outline-none focus:ring-2 focus:ring-[#1f3b63]/30 focus:border-[#1f3b63]"
+                className="w-full h-9 pl-8 pr-8 rounded-md border border-line-strong bg-surface text-xs text-foreground placeholder:text-subtle focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary"
               />
             </div>
 
             {(customerLoading || customerResults.length > 0) && (
-              <div className="absolute left-0 right-0 top-full mt-1 z-30 rounded-md border border-[#d1d5db] bg-white shadow-lg max-h-48 overflow-y-auto custom-scrollbar">
+              <div className="absolute left-0 right-0 top-full mt-1 z-30 rounded-md border border-line-strong bg-surface max-h-48 overflow-y-auto custom-scrollbar">
                 {customerLoading ? (
-                  <div className="px-3 py-2 text-xs text-[#6b7280]">Searching...</div>
+                  <div className="px-3 py-2 text-xs text-muted">Searching...</div>
                 ) : (
                   customerResults.map((customer) => {
                     const contact = [customer.mobile, customer.NIC].filter(Boolean).join(" | ") || "No mobile";
@@ -706,10 +625,10 @@ const CartSidebar: React.FC<CartSidebarProps> = ({
                         key={customer._id}
                         type="button"
                         onClick={() => onSelectCustomer(customer)}
-                        className="w-full text-left px-3 py-2 text-xs text-[#111827] hover:bg-[#f3f4f6] border-b border-[#eef2f7] last:border-b-0 leading-snug"
+                        className="w-full text-left px-3 py-2 text-xs text-foreground hover:bg-surface-muted border-b border-line last:border-b-0 leading-snug"
                       >
                         <span className="font-semibold block truncate">{customer.name}</span>
-                        <span className="text-[10px] text-gray-500 block truncate">{contact}</span>
+                        <span className="text-[10px] text-muted block truncate">{contact}</span>
                       </button>
                     );
                   })
@@ -721,32 +640,33 @@ const CartSidebar: React.FC<CartSidebarProps> = ({
       </div>
 
       {/* Cart Items - Main Flex Expandable Container */}
-      <div className="flex-1 flex flex-col min-h-0 overflow-hidden relative z-0">
+      <div className="pos-cart-section">
         <div className="flex items-center justify-between mb-1.5 flex-shrink-0">
-          <h3 className="font-bold text-white text-sm flex items-center gap-1.5">
+          <h3 className="font-bold text-foreground text-sm flex items-center gap-1.5">
             <span>Cart Items</span>
             {cartItems.length > 0 && (
-              <span className="bg-[#1f3b63] text-white text-xs px-2 py-0.5 rounded-full font-bold">
+              <span className="bg-primary text-on-primary text-xs px-2 py-0.5 rounded-full font-bold">
                 {cartItems.reduce((acc, i) => acc + i.quantity, 0)}
               </span>
             )}
           </h3>
+
           {cartItems.length > 0 && (
             <button
               type="button"
               onClick={onReset}
-              className="text-xs text-red-300 hover:text-red-100 transition font-medium"
+              className="text-xs text-danger hover:text-danger transition font-medium"
             >
               Clear Cart
             </button>
           )}
         </div>
 
-        <div className="custom-scrollbar pr-1 overflow-y-auto flex-1 min-h-0 space-y-2">
+        <div className="pos-cart-lines custom-scrollbar">
           {cartItems.length === 0 ? (
-            <div className="glass-card rounded-2xl p-6 text-center flex flex-col items-center justify-center h-full min-h-[120px]">
+            <div className="rounded-xl p-5 text-center flex flex-col items-center justify-center h-full min-h-[100px] text-muted">
               <svg
-                className="w-12 h-12 mx-auto mb-2 text-navy-300"
+                className="w-9 h-9 mx-auto mb-2 text-subtle"
                 fill="none"
                 stroke="currentColor"
                 viewBox="0 0 24 24"
@@ -758,10 +678,10 @@ const CartSidebar: React.FC<CartSidebarProps> = ({
                   d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z"
                 />
               </svg>
-              <p className="font-semibold text-navy-500 text-sm">
+              <p className="font-semibold text-foreground text-sm">
                 Cart is empty
               </p>
-              <p className="text-xs text-navy-400 mt-0.5">
+              <p className="text-xs text-muted mt-0.5">
                 Add items to get started
               </p>
             </div>
@@ -780,19 +700,17 @@ const CartSidebar: React.FC<CartSidebarProps> = ({
       </div>
 
       {/* Tax, Discount & Special Offer Section - Compact */}
-      <div className="glass-card p-2.5 rounded-xl bg-white shadow-md flex-shrink-0 space-y-2">
+      <details className="pos-adjustments"><summary>Adjustments &amp; offers</summary><div className="pos-adjustments-content">
         <div className="flex items-center justify-between">
-          <span className="font-bold text-navy-900 text-xs uppercase tracking-wide">
-            Tax, Discount &amp; Offer
-          </span>
-          <div className="flex items-center gap-1 bg-[#f5f7fb] p-0.5 rounded-lg border border-[#dde3f0]">
+          <span className="text-xs text-muted">Order discount</span>
+          <div className="flex items-center gap-1 bg-surface-muted p-0.5 rounded-lg border border-line-strong">
             <button
               type="button"
               onClick={() => setDiscountType("fixed")}
               className={`px-2 py-0.5 rounded text-[11px] font-semibold smooth-transition ${
                 discountType === "fixed"
-                  ? "bg-[#1f3b63] text-white shadow-xs"
-                  : "text-[#1f3b63] hover:bg-white"
+                  ? "bg-primary text-on-primary"
+                  : "text-foreground hover:bg-surface"
               }`}
             >
               Fixed
@@ -802,8 +720,8 @@ const CartSidebar: React.FC<CartSidebarProps> = ({
               onClick={() => setDiscountType("percentage")}
               className={`px-2 py-0.5 rounded text-[11px] font-semibold smooth-transition ${
                 discountType === "percentage"
-                  ? "bg-[#1f3b63] text-white shadow-xs"
-                  : "text-[#1f3b63] hover:bg-white"
+                  ? "bg-primary text-on-primary"
+                  : "text-foreground hover:bg-surface"
               }`}
             >
               %
@@ -813,12 +731,12 @@ const CartSidebar: React.FC<CartSidebarProps> = ({
 
         <div className="grid grid-cols-3 gap-1.5">
           <div>
-            <label className="block text-[10px] text-navy-900 font-bold uppercase mb-0.5">
+            <label htmlFor="pos-discount" className="block text-[10px] text-foreground font-bold uppercase mb-0.5">
               Discount {discountType === "percentage" ? "(%)" : ""}
             </label>
             <input
               type="number"
-              value={discount === 0 ? "" : discount}
+              id="pos-discount" value={discount === 0 ? "" : discount}
               onChange={(e) => {
                 const raw = e.target.value;
                 if (raw === "") { setDiscount(0); return; }
@@ -831,18 +749,18 @@ const CartSidebar: React.FC<CartSidebarProps> = ({
                 }
                 setDiscount(Math.max(0, numeric));
               }}
-              className="w-full px-2 py-1 bg-white border border-navy-200 rounded-lg text-xs font-semibold text-navy-900 focus:border-[#1f3b63] focus:outline-none"
+              className="w-full px-2 py-1 bg-surface border border-line rounded-lg text-xs font-semibold text-foreground focus:border-primary focus:outline-none"
               placeholder="0"
             />
           </div>
 
           <div>
-            <label className="block text-[10px] text-navy-900 font-bold uppercase mb-0.5">
+            <label htmlFor="pos-tax" className="block text-[10px] text-foreground font-bold uppercase mb-0.5">
               Tax (%)
             </label>
             <input
               type="number"
-              value={tax === 0 ? "" : tax}
+              id="pos-tax" value={tax === 0 ? "" : tax}
               onChange={(e) => {
                 const raw = e.target.value;
                 if (raw === "") { setTax(0); return; }
@@ -855,7 +773,7 @@ const CartSidebar: React.FC<CartSidebarProps> = ({
                 }
                 setTax(Math.max(0, numeric));
               }}
-              className="w-full px-2 py-1 bg-white border border-navy-200 rounded-lg text-xs font-semibold text-navy-900 focus:border-[#1f3b63] focus:outline-none"
+              className="w-full px-2 py-1 bg-surface border border-line rounded-lg text-xs font-semibold text-foreground focus:border-primary focus:outline-none"
               placeholder="0"
               min="0"
               max="100"
@@ -863,30 +781,30 @@ const CartSidebar: React.FC<CartSidebarProps> = ({
           </div>
 
           <div>
-            <label className="block text-[10px] text-navy-900 font-bold uppercase mb-0.5">
+            <label htmlFor="pos-shipping" className="block text-[10px] text-foreground font-bold uppercase mb-0.5">
               Shipping
             </label>
             <input
               type="number"
-              value={shipping === 0 ? "" : shipping}
+              id="pos-shipping" value={shipping === 0 ? "" : shipping}
               onChange={(e) => {
                 const raw = e.target.value;
                 setShipping(raw === "" ? 0 : Number(raw) || 0);
               }}
-              className="w-full px-2 py-1 bg-white border border-navy-200 rounded-lg text-xs font-semibold text-navy-900 focus:border-[#1f3b63] focus:outline-none"
+              className="w-full px-2 py-1 bg-surface border border-line rounded-lg text-xs font-semibold text-foreground focus:border-primary focus:outline-none"
               placeholder="0"
             />
           </div>
         </div>
 
         <div>
-          <label className="block text-[10px] text-navy-900 font-bold uppercase mb-0.5">
+          <label htmlFor="pos-offer" className="block text-[10px] text-foreground font-bold uppercase mb-0.5">
             Special Offer
           </label>
           <select
-            value={selectedOfferId}
+            id="pos-offer" value={selectedOfferId}
             onChange={(e) => setSelectedOfferId(e.target.value)}
-            className="w-full px-2 py-1 bg-white border border-navy-200 rounded-lg text-xs font-semibold text-navy-900 focus:border-[#1f3b63] focus:outline-none"
+            className="w-full px-2 py-1 bg-surface border border-line rounded-lg text-xs font-semibold text-foreground focus:border-primary focus:outline-none"
           >
             <option value="">No offer selected</option>
             {offersLoading && <option disabled>Loading offers...</option>}
@@ -901,53 +819,53 @@ const CartSidebar: React.FC<CartSidebarProps> = ({
             ))}
           </select>
         </div>
-      </div>
+      </div></details>
 
       {/* Bill Calculating Summary Box - Compact */}
-      <div className="bg-gradient-to-br from-navy-700 to-navy-900 p-2.5 rounded-xl shadow-xl border border-navy-600 flex-shrink-0">
+      <div className="pos-summary">
         <div className="space-y-1">
           <div className="flex justify-between items-center text-xs">
-            <span className="text-white/80 font-medium">Subtotal</span>
-            <span className="font-bold text-white text-xs">
+            <span className="text-foreground font-medium">Subtotal</span>
+            <span className="font-bold text-foreground text-xs">
               {currencyCode} {subtotal.toFixed(2)}
             </span>
           </div>
           {discountAmount > 0 && (
             <div className="flex justify-between items-center text-xs">
-              <span className="text-white/80 font-medium">Discount</span>
-              <span className="font-bold text-emerald-300 text-xs">
+              <span className="text-foreground font-medium">Discount</span>
+              <span className="font-bold text-secondary text-xs">
                 -{currencyCode} {discountAmount.toFixed(2)}
               </span>
             </div>
           )}
           {selectedOffer && specialOfferDiscount > 0 && (
             <div className="flex justify-between items-center text-xs">
-              <span className="text-white/80 font-medium truncate max-w-[180px]">Offer: {selectedOffer.offerName}</span>
-              <span className="font-bold text-emerald-300 text-xs">
+              <span className="text-foreground font-medium truncate max-w-[180px]">Offer: {selectedOffer.offerName}</span>
+              <span className="font-bold text-secondary text-xs">
                 -{currencyCode} {specialOfferDiscount.toFixed(2)}
               </span>
             </div>
           )}
           {taxAmount > 0 && (
             <div className="flex justify-between items-center text-xs">
-              <span className="text-white/80 font-medium">Tax</span>
-              <span className="font-bold text-white text-xs">
+              <span className="text-foreground font-medium">Tax</span>
+              <span className="font-bold text-foreground text-xs">
                 {currencyCode} {taxAmount.toFixed(2)}
               </span>
             </div>
           )}
           {shipping > 0 && (
             <div className="flex justify-between items-center text-xs">
-              <span className="text-white/80 font-medium">Shipping</span>
-              <span className="font-bold text-white text-xs">
+              <span className="text-foreground font-medium">Shipping</span>
+              <span className="font-bold text-foreground text-xs">
                 {currencyCode} {shipping.toFixed(2)}
               </span>
             </div>
           )}
-          <div className="border-t border-white/20 pt-1.5 mt-1">
+          <div className="border-t border-line/20 pt-1.5 mt-1">
             <div className="flex justify-between items-center">
-              <span className="font-bold text-white text-sm">Total</span>
-              <span className="font-extrabold text-white text-lg">
+              <span className="font-bold text-foreground text-sm">Total</span>
+              <span className="font-extrabold text-foreground text-lg">
                 {currencyCode} {total.toFixed(2)}
               </span>
             </div>
@@ -955,39 +873,10 @@ const CartSidebar: React.FC<CartSidebarProps> = ({
         </div>
       </div>
 
-      {/* Action Buttons */}
-      <div className="grid grid-cols-3 gap-1.5 flex-shrink-0">
-        <button
-          type="button"
-          onClick={onHold}
-          className="bg-white hover:bg-[#f9fafb] border border-[#e5e7eb] text-[#e0a06d] py-2 rounded-xl font-bold smooth-transition hover-scale flex items-center justify-center gap-1 shadow-xs text-xs"
-        >
-          <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={2.2}>
-            <path strokeLinecap="round" strokeLinejoin="round" d="M10 6v12M14 6v12" />
-          </svg>
-          Hold
-        </button>
-        <button
-          type="button"
-          onClick={onReset}
-          className="bg-white hover:bg-[#f9fafb] border border-[#e5e7eb] text-[#c24141] py-2 rounded-xl font-bold smooth-transition hover-scale flex items-center justify-center gap-1 shadow-xs text-xs"
-        >
-          <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={2.2}>
-            <path strokeLinecap="round" strokeLinejoin="round" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
-          </svg>
-          Reset
-        </button>
-        <button
-          type="button"
-          onClick={handlePayNowClick}
-          className="bg-[#1f3b63] hover:bg-[#163052] text-white py-2 rounded-xl font-bold smooth-transition hover-scale flex items-center justify-center gap-1 shadow-md text-xs disabled:opacity-50 disabled:cursor-not-allowed"
-          disabled={!hasSession}
-        >
-          <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={2.2}>
-            <rect x="3" y="6.5" width="18" height="11" rx="2.2" />
-            <path strokeLinecap="round" strokeLinejoin="round" d="M3 10.5h18" />
-          </svg>
-          Pay Now
+      <div className="pos-checkout-actions">
+        <button type="button" onClick={onReset} className="border border-line bg-surface text-muted flex items-center justify-center" aria-label="Reset order" title="Reset order"><Trash2 size={17} /></button>
+        <button type="button" onClick={handlePayNowClick} className="bg-primary text-on-primary font-semibold text-sm disabled:opacity-50" disabled={!hasSession}>
+          Checkout <span className="ml-2 opacity-80">{currencyCode} {total.toFixed(2)}</span>
         </button>
       </div>
     </div>
@@ -1503,10 +1392,6 @@ const POSCheckout: React.FC<POSCheckoutProps> = ({ onSessionClosed }) => {
     handleUpdateQuantity(target, 0);
   };
 
-  const handleHold = () => {
-    // Placeholder behaviour for now
-    alert("Order held successfully!");
-  };
 
   const handleReset = () => {
     if (confirm("Are you sure you want to clear the cart?")) {
@@ -1782,9 +1667,63 @@ const POSCheckout: React.FC<POSCheckoutProps> = ({ onSessionClosed }) => {
   };
 
   return (
-    <div className="animated-gradient h-screen flex flex-col lg:flex-row overflow-hidden">
-      <div className="w-full lg:w-[420px] glass border-r border-white/20 flex-shrink-0 h-full overflow-y-auto custom-scrollbar">
-        <CartSidebar
+    <div className="ss-pos">
+      <POSLayout quantity={cartItems.reduce((sum, item) => sum + item.quantity, 0)} total={`${currencyCode} ${orderGrandTotal.toFixed(2)}`}
+        isFullScreen={isFullScreen} onDashboard={() => navigate('/dashboard')} onSales={() => navigate('/viewSales')}
+        onCalculator={() => setShowCalculator(true)} onFullScreen={toggleFullScreen} onCloseRegister={handleCloseRegister}
+        catalog={<>
+          <div className="pos-toolbar">
+            <label className="pos-field"><span>Warehouse</span><select
+                value={selectedWarehouseId}
+                onChange={(e) => setSelectedWarehouseId(e.target.value)}
+                disabled={warehouses.length === 0 || catalogLoading}
+                className="pos-toolbar-input"
+                aria-label="Warehouse"
+              >
+                {warehouses.length === 0 ? (
+                  <option value="">No warehouse</option>
+                ) : (
+                  warehouses.map((w) => (
+                    <option key={w._id} value={w._id}>
+                      {w.name}
+                    </option>
+                  ))
+                )}
+              </select></label>
+            <label className="pos-field"><span>Barcode</span><input
+                  type="text"
+                  placeholder="Scan Barcode"
+                  value={barcodeQuery}
+                  onChange={(e) => setBarcodeQuery(e.target.value)}
+                  className="pos-toolbar-input"
+                /></label>
+            <label className="pos-field"><span>Find a product</span><input
+                  type="text"
+                  placeholder="Find By Name Code"
+                  value={nameCodeQuery}
+                  onChange={(e) => setNameCodeQuery(e.target.value)}
+                  className="pos-toolbar-input"
+                /></label>
+          </div>
+          <div className="pos-filters">
+            <div className="pos-categories" role="group" aria-label="Product categories">
+              {uiCategories.map(category => <button key={category.id} type="button" className="pos-category" aria-pressed={selectedCategory === category.id} onClick={() => setSelectedCategory(category.id)}>{category.name}</button>)}
+            </div>
+            <div className="pos-brand-row"><label>Brand <select aria-label="Brand" value={selectedBrand} onChange={event => setSelectedBrand(event.target.value)}>{uiBrands.map(brand => <option key={brand.id} value={brand.id}>{brand.name}</option>)}</select></label><span>{filteredProducts.length} products</span></div>
+          </div>
+          <div className="pos-products-scroll custom-scrollbar" aria-label="Product catalog">
+            {catalogLoading ? <div className="ss-state" role="status">Loading products…</div> : filteredProducts.length === 0 ? <div className="ss-state"><Info size={24} className="mx-auto mb-3 text-subtle" /><h2 className="font-semibold text-foreground">No products found</h2><p className="mt-1 text-xs">Try another search, category, or warehouse.</p></div> :
+              <div className="pos-product-grid">{filteredProducts.map(product => {
+                const baseItem = cartItems.find(item => item.id === product.id && !item.selectedVariation);
+                const quantity = cartItems.filter(item => item.id === product.id).reduce((sum, item) => sum + item.quantity, 0);
+                return <ProductCard key={product.id} product={product} onSelect={handleSelectProduct}
+                  onDetails={item => { setSelectedProduct(item); setIsModalOpen(true); }}
+                  onDecrease={baseItem ? () => handleUpdateQuantity(baseItem, Math.max(0, baseItem.quantity - 1)) : undefined}
+                  quantity={quantity} currencyCode={currencyCode} />;
+              })}</div>}
+          </div>
+        </>}
+        order={        <CartSidebar
           cartItems={cartItems}
           discountType={discountType}
           setDiscountType={handleDiscountTypeChange}
@@ -1808,239 +1747,12 @@ const POSCheckout: React.FC<POSCheckoutProps> = ({ onSessionClosed }) => {
           onClearCustomer={handleClearCustomer}
           onUpdateQuantity={handleUpdateQuantity}
           onRemoveItem={handleRemoveItem}
-          onHold={handleHold}
           onReset={handleReset}
           onPayNow={handlePayNow}
           currencyCode={currencyCode}
-        />
-      </div>
+        />}
+      />
 
-      <div className="flex-1 flex flex-col min-w-0 min-h-0 overflow-hidden">
-        <div className="glass-white border-b border-gray-200 px-4 py-3 sm:px-5 flex-shrink-0 shadow-sm bg-[#f3f4f6]">
-          <div className="flex flex-wrap items-center gap-2 sm:gap-3">
-            <div className="relative flex-shrink-0">
-              <select
-                value={selectedWarehouseId}
-                onChange={(e) => setSelectedWarehouseId(e.target.value)}
-                disabled={warehouses.length === 0 || catalogLoading}
-                className="h-11 pl-3 pr-9 rounded-lg border border-[#d1d5db] bg-white text-sm font-medium text-[#111827] appearance-none cursor-pointer focus:outline-none focus:ring-2 focus:ring-[#1f3b63]/20 focus:border-[#b8c4d4] min-w-[160px] disabled:opacity-60 disabled:cursor-not-allowed"
-                aria-label="Warehouse"
-              >
-                {warehouses.length === 0 ? (
-                  <option value="">No warehouse</option>
-                ) : (
-                  warehouses.map((w) => (
-                    <option key={w._id} value={w._id}>
-                      {w.name}
-                    </option>
-                  ))
-                )}
-              </select>
-              <svg
-                className="w-4 h-4 text-[#6b7280] absolute right-2.5 top-1/2 -translate-y-1/2 pointer-events-none"
-                fill="none"
-                stroke="currentColor"
-                viewBox="0 0 24 24"
-              >
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
-              </svg>
-            </div>
-
-            <div className="flex flex-1 flex-wrap gap-2 min-w-0 items-center">
-              <div className="relative flex-1 min-w-[160px]">
-                <svg
-                  className="w-4 h-4 text-[#9ca3af] absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none"
-                  fill="none"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={2}
-                    d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"
-                  />
-                </svg>
-                <input
-                  type="text"
-                  placeholder="Scan Barcode"
-                  value={barcodeQuery}
-                  onChange={(e) => setBarcodeQuery(e.target.value)}
-                  className="w-full h-11 pl-9 pr-3 rounded-lg border border-[#d1d5db] bg-white text-sm text-[#374151] placeholder:text-[#9ca3af] focus:outline-none focus:ring-2 focus:ring-[#1f3b63]/25 focus:border-[#1f3b63]"
-                />
-              </div>
-              <div className="relative flex-1 min-w-[160px]">
-                <input
-                  type="text"
-                  placeholder="Find By Name Code"
-                  value={nameCodeQuery}
-                  onChange={(e) => setNameCodeQuery(e.target.value)}
-                  className="w-full h-11 px-3 rounded-lg border border-[#d1d5db] bg-white text-sm text-[#374151] placeholder:text-[#9ca3af] focus:outline-none focus:ring-2 focus:ring-[#1f3b63]/25 focus:border-[#1f3b63]"
-                />
-              </div>
-            </div>
-
-            <div className="flex items-center gap-2 flex-shrink-0 w-full sm:w-auto justify-end">
-              <div className="flex gap-2 p-2 rounded-xl border border-[#1f2937] bg-white shadow-sm overflow-x-auto max-w-full">
-                {[
-                  {
-                    icon: <img src="/icons/1.png" alt="" className="w-9 h-9 sm:w-10 sm:h-10 object-contain drop-shadow-sm" draggable={false} />,
-                    title: "Dashboard",
-                  },
-                  {
-                    icon: <img src="/icons/2.png" alt="" className="w-9 h-9 sm:w-10 sm:h-10 object-contain drop-shadow-sm" draggable={false} />,
-                    title: "POS Sales",
-                    onClick: () => navigate("/viewSales"),
-                  },
-                  {
-                    icon: <img src="/icons/3.png" alt="" className="w-9 h-9 sm:w-10 sm:h-10 object-contain drop-shadow-sm" draggable={false} />,
-                    title: "Close Register",
-                    onClick: handleCloseRegister,
-                  },
-                  {
-                    icon: <img src="/icons/4.png" alt="" className="w-9 h-9 sm:w-10 sm:h-10 object-contain drop-shadow-sm" draggable={false} />,
-                    title: "Back to Dashboard",
-                    onClick: () => navigate("/dashboard"),
-                  },
-                  {
-                    icon: <img src="/icons/5.png" alt="" className="w-9 h-9 sm:w-10 sm:h-10 object-contain drop-shadow-sm" draggable={false} />,
-                    title: isFullScreen ? "Exit Full Screen" : "Enter Full Screen",
-                    onClick: toggleFullScreen,
-                    active: isFullScreen,
-                  },
-                  {
-                    icon: <img src="/icons/6.png" alt="" className="w-9 h-9 sm:w-10 sm:h-10 object-contain drop-shadow-sm" draggable={false} />,
-                    title: "Calculator",
-                    onClick: () => setShowCalculator(true),
-                  },
-                ].map((item, idx) => (
-                  <button
-                    key={idx}
-                    type="button"
-                    title={item.title}
-                    onClick={item.onClick}
-                    className={`min-w-[3.25rem] min-h-[3.25rem] w-14 h-14 sm:w-[3.75rem] sm:h-[3.75rem] shrink-0 rounded-lg bg-[#1f3b63] flex items-center justify-center smooth-transition hover:bg-[#163052] active:scale-[0.97] ${item.active ? "ring-2 ring-white/90 ring-offset-2 ring-offset-white" : ""}`}
-                  >
-                    {item.icon}
-                  </button>
-                ))}
-              </div>
-
-              <button
-                type="button"
-                className="h-11 px-5 rounded-lg font-bold text-sm sm:text-base bg-[#1f3b63] text-white shadow-sm hover:bg-[#163052] smooth-transition whitespace-nowrap"
-              >
-                View Menu
-              </button>
-            </div>
-          </div>
-        </div>
-
-        <div className="glass-white px-5 py-4 border-b border-gray-200 flex-shrink-0 shadow-sm mb-3">
-          <div className="mb-3">
-            <h3 className="text-xs font-bold text-navy-800 mb-2.5 uppercase tracking-wide">
-              Categories
-            </h3>
-            <div className="flex flex-wrap gap-2">
-              {uiCategories.map((category) => {
-                const isActive = normalizeFilterValue(selectedCategory) === normalizeFilterValue(category.id);
-
-                return (
-                  <button
-                    key={category.id}
-                    onClick={() => setSelectedCategory(category.id)}
-                    className={`px-4 py-2 rounded-lg font-semibold smooth-transition text-sm shadow-sm hover:shadow-md ${
-                      isActive
-                        ? "bg-[#1f3b63] text-white shadow-md ring-1 ring-[#1f3b63]/30 font-bold"
-                        : "bg-[#f5f7fb] text-[#1f3b63] border border-[#dde3f0] hover:bg-white hover:border-[#1f3b63]"
-                    }`}
-                    type="button"
-                  >
-                    {category.name}
-                  </button>
-                );
-              })}
-            </div>
-          </div>
-
-          <div>
-            <h3 className="text-xs font-bold text-navy-800 mb-2.5 uppercase tracking-wide">
-              Brands
-            </h3>
-            <div className="flex flex-wrap gap-2">
-              {uiBrands.map((brand) => {
-                const isActive = normalizeFilterValue(selectedBrand) === normalizeFilterValue(brand.id);
-
-                return (
-                  <button
-                    key={brand.id}
-                    onClick={() => setSelectedBrand(brand.id)}
-                    className={`px-4 py-2 rounded-lg font-semibold smooth-transition text-sm shadow-sm hover:shadow-md ${
-                      isActive
-                        ? "bg-[#1f3b63] text-white shadow-md ring-1 ring-[#1f3b63]/30 font-bold"
-                        : "bg-[#f5f7fb] text-[#1f3b63] border border-[#dde3f0] hover:bg-white hover:border-[#1f3b63]"
-                    }`}
-                    type="button"
-                  >
-                    {brand.name}
-                  </button>
-                );
-              })}
-            </div>
-          </div>
-        </div>
-
-        <div className="flex-1 overflow-y-auto custom-scrollbar px-3 py-4 sm:px-4 md:px-5 lg:px-6 mt-3">
-          {filteredProducts.length === 0 ? (
-            <div className="flex items-center justify-center h-full">
-              <div className="glass-card rounded-3xl p-16 text-center max-w-md">
-                {catalogLoading && selectedWarehouseId && !catalogFromApi ? (
-                  <>
-                    <p className="text-xl font-bold text-navy-700 mb-2">Loading products…</p>
-                    <p className="text-sm text-navy-500">Fetching catalog for the selected warehouse.</p>
-                  </>
-                ) : (
-                  <>
-                    <svg
-                      className="w-24 h-24 mx-auto mb-6 text-navy-300"
-                      fill="none"
-                      stroke="currentColor"
-                      viewBox="0 0 24 24"
-                    >
-                      <path
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        strokeWidth={1.5}
-                        d="M9.172 16.172a4 4 0 015.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
-                      />
-                    </svg>
-                    <p className="text-xl font-bold text-navy-700 mb-2">
-                      No products found
-                    </p>
-                    <p className="text-sm text-navy-500">
-                      Try adjusting your filters or search query
-                    </p>
-                  </>
-                )}
-              </div>
-            </div>
-          ) : (
-            <div className="perfect-grid">
-              {filteredProducts.map((product) => (
-                <ProductCard
-                  key={product.id}
-                  product={product}
-                  onSelect={handleSelectProduct}
-                  currencyCode={currencyCode}
-                  selectedBrand={selectedBrand}
-                />
-              ))}
-            </div>
-          )}
-        </div>
-      </div>
-
-      {/* Product Selection Modal */}
       <ProductSelectionModal
         product={selectedProduct}
         isOpen={isModalOpen}
@@ -2060,41 +1772,41 @@ const POSCheckout: React.FC<POSCheckoutProps> = ({ onSessionClosed }) => {
       )}
 
       {showCheckoutModal && (
-        <div className="fixed inset-0 z-[120] flex items-center justify-center bg-black/45 backdrop-blur-sm p-4">
-          <div className="w-full max-w-4xl min-w-0 rounded-2xl bg-[#f7f9fc] border border-[#cfd8e4] shadow-2xl overflow-hidden">
+        <div role="dialog" aria-modal="true" aria-label="Checkout" data-pos-dialog className="fixed inset-0 z-[120] flex items-center justify-center bg-overlay backdrop-blur-sm p-4">
+          <div className="pos-dialog-panel w-full max-w-4xl min-w-0 rounded-2xl bg-surface-raised border border-line-strong shadow-elevated overflow-hidden">
             <div className="max-h-[78vh] overflow-y-auto custom-scrollbar p-4 sm:p-5 space-y-3">
               <div className="flex items-center gap-3">
                 <button
                   type="button"
                   onClick={() => setShowCheckoutModal(false)}
-                  className="w-8 h-8 rounded-full flex items-center justify-center text-[#374151] hover:bg-[#e9edf3] smooth-transition"
+                  className="w-8 h-8 rounded-full flex items-center justify-center text-foreground hover:bg-surface-muted smooth-transition"
                   aria-label="Back"
                 >
                   <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={2.5}>
                     <path strokeLinecap="round" strokeLinejoin="round" d="M15 6l-6 6 6 6" />
                   </svg>
                 </button>
-                <div className="flex-1 h-9 rounded-xl border border-[#d9e2ee] bg-white flex items-center justify-center shadow-sm">
-                  <h3 className="text-base font-semibold text-[#111827]">Checkout</h3>
+                <div className="flex-1 h-9 rounded-xl border border-line-strong bg-surface flex items-center justify-center">
+                  <h3 className="text-base font-semibold text-foreground">Checkout</h3>
                 </div>
               </div>
 
-              <div className="rounded-xl border border-[#d9e2ee] bg-white p-3">
-                <h4 className="text-sm font-semibold text-[#1f2937] mb-2.5">Cart Items</h4>
+              <div className="rounded-xl border border-line-strong bg-surface p-3">
+                <h4 className="text-sm font-semibold text-foreground mb-2.5">Cart Items</h4>
                 <div className="space-y-2">
                 {cartItems.map((item) => (
-                  <div key={`${item.id}-${item.selectedVariation?.id || "base"}`} className="flex items-center justify-between rounded-lg border border-[#edf1f6] px-2 py-1.5">
+                  <div key={`${item.id}-${item.selectedVariation?.id || "base"}`} className="flex items-center justify-between rounded-lg border border-line px-2 py-1.5">
                     <div className="flex items-center gap-3 min-w-0">
-                      <img src={item.image} alt={item.name} className="w-10 h-10 rounded-md object-cover border border-[#e5e7eb]" />
+                      <img src={item.image} alt={item.name} className="w-10 h-10 rounded-md object-cover border border-line" />
                       <div className="min-w-0">
-                        <p className="text-sm font-semibold text-[#1f2937] truncate">{item.name}</p>
+                        <p className="text-sm font-semibold text-foreground truncate">{item.name}</p>
                         {item.selectedVariation?.name && (
-                          <p className="text-xs text-[#6b7280]">{item.selectedVariation.name}</p>
+                          <p className="text-xs text-muted">{item.selectedVariation.name}</p>
                         )}
-                        <p className="text-xs font-semibold text-[#374151]">Rs {item.price.toFixed(2)}</p>
+                        <p className="text-xs font-semibold text-foreground">Rs {item.price.toFixed(2)}</p>
                       </div>
                     </div>
-                    <span className="w-8 h-6 rounded-md border border-[#e5e7eb] bg-white flex items-center justify-center text-xs font-semibold text-[#374151]">
+                    <span className="w-8 h-6 rounded-md border border-line bg-surface flex items-center justify-center text-xs font-semibold text-foreground">
                       {item.quantity}
                     </span>
                   </div>
@@ -2102,114 +1814,114 @@ const POSCheckout: React.FC<POSCheckoutProps> = ({ onSessionClosed }) => {
                 </div>
               </div>
 
-              <div className="rounded-xl border border-[#d9e2ee] bg-white p-3">
-                <h4 className="text-sm font-semibold text-[#1f2937] mb-2.5">Payment Method</h4>
+              <div className="rounded-xl border border-line-strong bg-surface p-3">
+                <h4 className="text-sm font-semibold text-foreground mb-2.5">Payment Method</h4>
                 <div className="grid grid-cols-1 sm:grid-cols-3 gap-2.5 min-w-0">
-                  <div className="rounded-lg border border-[#e5e7eb] p-2.5 bg-[#fbfcfe] min-w-0">
-                    <div className="flex items-center gap-2 text-[#7cb389] mb-1.5">
+                  <div className="rounded-lg border border-line p-2.5 bg-surface-raised min-w-0">
+                    <div className="flex items-center gap-2 text-secondary mb-1.5">
                       <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={2}>
                         <rect x="3" y="6.5" width="18" height="11" rx="2" />
                         <path d="M7 12h4" />
                       </svg>
-                      <span className="text-xs font-semibold text-[#1f2937]">Cash</span>
+                      <span className="text-xs font-semibold text-foreground">Cash</span>
                     </div>
                     <input
                       type="text"
                       inputMode="decimal"
-                      value={cashPayment === 0 ? "" : String(cashPayment)}
+                      aria-label="Cash payment" value={cashPayment === 0 ? "" : String(cashPayment)}
                       onChange={(e) => setCashPayment(sanitizePaymentInput(e.target.value))}
-                      className="w-full h-8 rounded-md border border-[#d5dfeb] bg-white px-2 text-sm"
+                      className="w-full h-8 rounded-md border border-line-strong bg-surface px-2 text-sm"
                       placeholder="0"
                     />
                   </div>
-                  <div className="rounded-lg border border-[#e5e7eb] p-2.5 bg-[#fbfcfe] min-w-0">
-                    <div className="flex items-center gap-2 text-[#5d79c9] mb-1.5">
+                  <div className="rounded-lg border border-line p-2.5 bg-surface-raised min-w-0">
+                    <div className="flex items-center gap-2 text-primary mb-1.5">
                       <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={2}>
                         <rect x="3" y="6.5" width="18" height="11" rx="2" />
                         <path d="M3 10.5h18" />
                       </svg>
-                      <span className="text-xs font-semibold text-[#1f2937]">Card Payment</span>
+                      <span className="text-xs font-semibold text-foreground">Card Payment</span>
                     </div>
                     <input
                       type="text"
                       inputMode="decimal"
-                      value={cardPayment === 0 ? "" : String(cardPayment)}
+                      aria-label="Card payment" value={cardPayment === 0 ? "" : String(cardPayment)}
                       onChange={(e) => setCardPayment(sanitizePaymentInput(e.target.value))}
-                      className="w-full h-8 rounded-md border border-[#d5dfeb] bg-white px-2 text-sm"
+                      className="w-full h-8 rounded-md border border-line-strong bg-surface px-2 text-sm"
                       placeholder="0"
                     />
                   </div>
-                  <div className="rounded-lg border border-[#e5e7eb] p-2.5 bg-[#fbfcfe] min-w-0">
-                    <div className="flex items-center gap-2 text-[#e07a7a] mb-1.5">
+                  <div className="rounded-lg border border-line p-2.5 bg-surface-raised min-w-0">
+                    <div className="flex items-center gap-2 text-danger mb-1.5">
                       <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={2}>
                         <rect x="7" y="2.5" width="10" height="19" rx="2" />
                         <path d="M11 18.5h2" />
                       </svg>
-                      <span className="text-xs font-semibold text-[#1f2937]">Bank Transfer</span>
+                      <span className="text-xs font-semibold text-foreground">Bank Transfer</span>
                     </div>
                     <input
                       type="text"
                       inputMode="decimal"
-                      value={bankPayment === 0 ? "" : String(bankPayment)}
+                      aria-label="Bank transfer payment" value={bankPayment === 0 ? "" : String(bankPayment)}
                       onChange={(e) => setBankPayment(sanitizePaymentInput(e.target.value))}
-                      className="w-full h-8 rounded-md border border-[#d5dfeb] bg-white px-2 text-sm"
+                      className="w-full h-8 rounded-md border border-line-strong bg-surface px-2 text-sm"
                       placeholder="0"
                     />
                   </div>
                 </div>
               </div>
 
-              <div className="rounded-xl border border-[#d9e2ee] bg-white p-3">
-                <h4 className="text-sm font-semibold text-[#1f2937] mb-2.5">Order Summary</h4>
-                <div className="space-y-1.5 text-[13px] text-[#374151]">
+              <div className="rounded-xl border border-line-strong bg-surface p-3">
+                <h4 className="text-sm font-semibold text-foreground mb-2.5">Order Summary</h4>
+                <div className="space-y-1.5 text-[13px] text-foreground">
                   <div className="flex justify-between"><span>Subtotal</span><span className="font-semibold">Rs {orderSubtotal.toFixed(2)}</span></div>
                   {orderDiscountAmount > 0 && (
-                    <div className="flex justify-between text-red-600">
+                    <div className="flex justify-between text-danger">
                       <span>Discount</span>
                       <span className="font-semibold">-Rs {orderDiscountAmount.toFixed(2)}</span>
                     </div>
                   )}
                   {selectedOffer && orderSpecialOfferDiscount > 0 && (
-                    <div className="flex justify-between text-emerald-600">
+                    <div className="flex justify-between text-secondary">
                       <span>Offer: {selectedOffer.offerName} ({selectedOffer.percentage}%)</span>
                       <span className="font-semibold">-Rs {orderSpecialOfferDiscount.toFixed(2)}</span>
                     </div>
                   )}
                   <div className="flex justify-between"><span>Delivery / Shipping</span><span className="font-semibold">Rs {shipping.toFixed(2)}</span></div>
                   <div className="flex justify-between"><span>Tax ({tax.toFixed(2)}%)</span><span className="font-semibold">Rs {orderTaxAmount.toFixed(2)}</span></div>
-                  <div className="flex justify-between border-t border-[#e5e7eb] pt-2 mt-2 text-base font-bold text-[#1f2937]"><span>Total</span><span>Rs {orderGrandTotal.toFixed(2)}</span></div>
+                  <div className="flex justify-between border-t border-line pt-2 mt-2 text-base font-bold text-foreground"><span>Total</span><span>Rs {orderGrandTotal.toFixed(2)}</span></div>
                   <div className="flex justify-between gap-3 min-w-0"><span className="shrink-0">Paid Amount</span><span className="font-semibold text-right tabular-nums">Rs {orderPaid.toFixed(2)}</span></div>
                   <div className="flex justify-between gap-3 min-w-0">
-                    <span className={`shrink-0 font-semibold ${orderPaidOverTotal ? "text-red-600" : "text-[#374151]"}`}>{orderDueOrBalanceLabel}</span>
-                    <span className={`font-semibold text-right tabular-nums ${orderPaidOverTotal ? "text-red-600" : "text-[#111827]"}`}>Rs {orderDueOrBalanceAmount.toFixed(2)}</span>
+                    <span className={`shrink-0 font-semibold ${orderPaidOverTotal ? "text-danger" : "text-foreground"}`}>{orderDueOrBalanceLabel}</span>
+                    <span className={`font-semibold text-right tabular-nums ${orderPaidOverTotal ? "text-danger" : "text-foreground"}`}>Rs {orderDueOrBalanceAmount.toFixed(2)}</span>
                   </div>
                   <div className="flex justify-between items-center">
                     <span>Sale type</span>
-                    <span className="px-2 py-0.5 rounded bg-[#eef2ff] text-[#6575a6] text-[11px] font-semibold">POS</span>
+                    <span className="px-2 py-0.5 rounded bg-surface-muted text-primary text-[11px] font-semibold">POS</span>
                   </div>
                 </div>
               </div>
             </div>
 
-            <div className="p-3 border-t border-[#d9e2ee] bg-[#f7f9fc] grid grid-cols-3 gap-2.5">
+            <div className="p-3 border-t border-line-strong bg-surface-raised grid grid-cols-3 gap-2.5">
               <button
                 type="button"
                 onClick={() => setShowCheckoutModal(false)}
-                className="h-10 rounded-lg bg-[#e7ecf2] text-[#4b5563] font-semibold border border-[#d3dbe6] hover:bg-[#dfe5ed] text-sm"
+                className="h-10 rounded-lg bg-surface-muted text-muted font-semibold border border-line-strong hover:bg-surface-muted text-sm"
               >
                 Cancel
               </button>
               <button
                 type="button"
                 onClick={() => handleCheckoutSubmit(false)}
-                className="h-10 rounded-lg bg-[#68ae59] hover:bg-[#5da04f] text-white font-semibold text-sm"
+                className="h-10 rounded-lg bg-secondary hover:bg-secondary-hover text-on-secondary font-semibold text-sm"
               >
                 Submit Payment
               </button>
               <button
                 type="button"
                 onClick={() => handleCheckoutSubmit(true)}
-                className="h-10 rounded-lg bg-[#2f3f6f] hover:bg-[#293862] text-white font-semibold text-sm"
+                className="h-10 rounded-lg bg-primary hover:bg-primary-hover text-on-primary font-semibold text-sm"
               >
                 Submit &amp; Print Bill
               </button>
@@ -2219,16 +1931,16 @@ const POSCheckout: React.FC<POSCheckoutProps> = ({ onSessionClosed }) => {
       )}
 
       {showCloseRegisterModal && (
-        <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/45 backdrop-blur-sm p-4">
-          <div className="w-full max-w-md rounded-2xl bg-white shadow-2xl border border-[#e5e7eb] overflow-hidden animate-slideUp">
+        <div role="dialog" aria-modal="true" aria-label="Close register" data-pos-dialog className="fixed inset-0 z-[100] flex items-center justify-center bg-overlay backdrop-blur-sm p-4">
+          <div className="w-full max-w-md rounded-2xl bg-surface shadow-elevated border border-line overflow-hidden animate-slideUp">
             <div className="px-6 pt-6 pb-4">
-              <div className="mx-auto mb-4 w-14 h-14 rounded-full bg-[#e8eef7] flex items-center justify-center border border-[#c9d5e8]">
-                <svg className="w-7 h-7 text-[#1f3b63]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <div className="mx-auto mb-4 w-14 h-14 rounded-full bg-surface-muted flex items-center justify-center border border-line-strong">
+                <svg className="w-7 h-7 text-foreground" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v4m0 4h.01M4.93 19h14.14c1.54 0 2.5-1.67 1.73-3L13.73 3c-.77-1.33-2.69-1.33-3.46 0L3.2 16c-.77 1.33.19 3 1.73 3z" />
                 </svg>
               </div>
-              <h3 className="text-center text-xl font-semibold text-[#111827]">Close Register?</h3>
-              <p className="mt-2 text-center text-sm text-[#6b7280]">
+              <h3 className="text-center text-xl font-semibold text-foreground">Close Register?</h3>
+              <p className="mt-2 text-center text-sm text-muted">
                 Are you sure you want to close the register for this session?
               </p>
             </div>
@@ -2237,7 +1949,7 @@ const POSCheckout: React.FC<POSCheckoutProps> = ({ onSessionClosed }) => {
               <button
                 type="button"
                 onClick={cancelCloseRegister}
-                className="px-5 py-2.5 rounded-xl bg-[#eef2f7] text-[#1f3b63] font-medium border border-[#d5dfeb] hover:bg-[#e1e9f5] transition"
+                className="px-5 py-2.5 rounded-xl bg-surface-muted text-primary font-medium border border-line-strong hover:bg-surface-muted transition"
               >
                 Cancel
               </button>
@@ -2245,7 +1957,7 @@ const POSCheckout: React.FC<POSCheckoutProps> = ({ onSessionClosed }) => {
                 type="button"
                 onClick={confirmCloseRegister}
                 disabled={reportLoading}
-                className="px-5 py-2.5 rounded-xl bg-gradient-to-r from-[#1f3b63] to-[#2b4d7a] text-white font-semibold shadow-md hover:opacity-95 transition"
+                className="px-5 py-2.5 rounded-xl text-on-primary font-semibold hover:opacity-95 transition bg-primary"
               >
                 {reportLoading ? "Loading..." : "Confirm"}
               </button>
@@ -2255,39 +1967,39 @@ const POSCheckout: React.FC<POSCheckoutProps> = ({ onSessionClosed }) => {
       )}
 
       {showRegisterReportModal && registerReport && (
-        <div className="fixed inset-0 z-[110] flex items-center justify-center bg-black/55 backdrop-blur-sm p-4">
-          <div className="w-full max-w-5xl rounded-xl bg-white shadow-2xl border border-[#dbe3ef] overflow-hidden animate-slideUp">
-            <div className="px-6 py-4 border-b border-[#e5e7eb]">
-              <h3 className="text-3xl font-semibold text-center text-[#1f3b63]">Register Report</h3>
+        <div role="dialog" aria-modal="true" aria-label="Register report" data-pos-dialog className="fixed inset-0 z-[110] flex items-center justify-center bg-overlay backdrop-blur-sm p-4">
+          <div className="pos-register-dialog w-full max-w-5xl rounded-xl bg-surface shadow-elevated border border-line-strong overflow-hidden animate-slideUp">
+            <div className="px-6 py-4 border-b border-line">
+              <h3 className="text-3xl font-semibold text-center text-foreground">Register Report</h3>
             </div>
 
             <div className="p-5">
-              <div className="rounded-md border border-[#e5e7eb] overflow-hidden">
-                <div className="grid grid-cols-5 bg-[#f7f9fc] text-[11px] font-semibold text-[#6b7280] uppercase">
-                  <div className="p-3 border-r border-[#e5e7eb]">Open Time</div>
-                  <div className="p-3 border-r border-[#e5e7eb]">Cashier</div>
-                  <div className="p-3 border-r border-[#e5e7eb]">Cash Hand In</div>
-                  <div className="p-3 border-r border-[#e5e7eb]">Your Sale (without cash hand)</div>
+              <div className="rounded-md border border-line overflow-hidden">
+                <div className="grid grid-cols-5 bg-surface-raised text-[11px] font-semibold text-muted uppercase">
+                  <div className="p-3 border-r border-line">Open Time</div>
+                  <div className="p-3 border-r border-line">Cashier</div>
+                  <div className="p-3 border-r border-line">Cash Hand In</div>
+                  <div className="p-3 border-r border-line">Your Sale (without cash hand)</div>
                   <div className="p-3">Today Total Sale (without cash hand)</div>
                 </div>
-                <div className="grid grid-cols-5 text-sm bg-white">
-                  <div className="p-3 border-r border-[#e5e7eb]"><span className="inline-block bg-[#fde8e8] text-[#b45353] px-2 py-1 rounded">{new Date(registerReport.openTime).toLocaleString()}</span></div>
-                  <div className="p-3 border-r border-[#e5e7eb] font-medium">{registerReport.cashierName}</div>
-                  <div className="p-3 border-r border-[#e5e7eb]"><span className="inline-block bg-[#e8f0fe] text-[#355f9a] px-2 py-1 rounded">LKR {registerReport.openingCash.toFixed(2)}</span></div>
-                  <div className="p-3 border-r border-[#e5f8ea]"><span className="inline-block bg-[#e5f8ea] text-[#2f8f56] px-2 py-1 rounded">LKR {registerReport.userSales.toFixed(2)}</span></div>
-                  <div className="p-3"><span className="inline-block bg-[#e5f8ea] text-[#2f8f56] px-2 py-1 rounded">LKR {registerReport.todayTotalSales.toFixed(2)}</span></div>
+                <div className="grid grid-cols-5 text-sm bg-surface">
+                  <div className="p-3 border-r border-line"><span className="inline-block bg-danger-soft text-danger px-2 py-1 rounded">{new Date(registerReport.openTime).toLocaleString()}</span></div>
+                  <div className="p-3 border-r border-line font-medium">{registerReport.cashierName}</div>
+                  <div className="p-3 border-r border-line"><span className="inline-block bg-surface-muted text-primary px-2 py-1 rounded">LKR {registerReport.openingCash.toFixed(2)}</span></div>
+                  <div className="p-3 border-r border-secondary-line"><span className="inline-block bg-secondary-soft text-secondary px-2 py-1 rounded">LKR {registerReport.userSales.toFixed(2)}</span></div>
+                  <div className="p-3"><span className="inline-block bg-secondary-soft text-secondary px-2 py-1 rounded">LKR {registerReport.todayTotalSales.toFixed(2)}</span></div>
                 </div>
               </div>
 
               <div className="grid grid-cols-4 gap-3 mt-3 text-sm">
-                <div><div className="mb-1">Total Discount :</div><div className="h-10 rounded border border-[#d8dee9] bg-[#f9fafb] px-3 flex items-center">LKR&nbsp;{registerReport.totalDiscount.toFixed(2)}</div></div>
-                <div><div className="mb-1">Cash :</div><div className="h-10 rounded border border-[#d8dee9] bg-[#f9fafb] px-3 flex items-center">LKR&nbsp;{registerReport.cashPayments.toFixed(2)}</div></div>
-                <div><div className="mb-1">Card :</div><div className="h-10 rounded border border-[#d8dee9] bg-[#f9fafb] px-3 flex items-center">LKR&nbsp;{registerReport.cardPayments.toFixed(2)}</div></div>
-                <div><div className="mb-1">Bank Transfer :</div><div className="h-10 rounded border border-[#d8dee9] bg-[#f9fafb] px-3 flex items-center">LKR&nbsp;{registerReport.bankTransferPayments.toFixed(2)}</div></div>
+                <div><div className="mb-1">Total Discount :</div><div className="h-10 rounded border border-line-strong bg-surface-raised px-3 flex items-center">LKR&nbsp;{registerReport.totalDiscount.toFixed(2)}</div></div>
+                <div><div className="mb-1">Cash :</div><div className="h-10 rounded border border-line-strong bg-surface-raised px-3 flex items-center">LKR&nbsp;{registerReport.cashPayments.toFixed(2)}</div></div>
+                <div><div className="mb-1">Card :</div><div className="h-10 rounded border border-line-strong bg-surface-raised px-3 flex items-center">LKR&nbsp;{registerReport.cardPayments.toFixed(2)}</div></div>
+                <div><div className="mb-1">Bank Transfer :</div><div className="h-10 rounded border border-line-strong bg-surface-raised px-3 flex items-center">LKR&nbsp;{registerReport.bankTransferPayments.toFixed(2)}</div></div>
               </div>
 
-              <div className="mt-5 rounded-xl bg-[#f7f9fc] border border-[#e5e7eb] p-4">
-                <div className="font-semibold text-[#1f3b63] mb-3">Handle Cash Balancing</div>
+              <div className="mt-5 rounded-xl bg-surface-raised border border-line p-4">
+                <div className="font-semibold text-foreground mb-3">Handle Cash Balancing</div>
                 <div className="grid grid-cols-12 gap-3 items-start">
                   <div className="col-span-5 grid grid-cols-2 gap-x-3 gap-y-2">
                     {[...noteDenominationKeys, ...coinDenominationKeys].map((k) => (
@@ -2298,7 +2010,7 @@ const POSCheckout: React.FC<POSCheckoutProps> = ({ onSessionClosed }) => {
                           min="0"
                           value={closingDenominations[k]}
                           onChange={(e) => setClosingQty(k, Number(e.target.value) || 0)}
-                          className="w-24 h-9 border border-[#d5dfeb] rounded px-2 text-center text-sm bg-white"
+                          className="w-24 h-9 border border-line-strong rounded px-2 text-center text-sm bg-surface"
                         />
                       </div>
                     ))}
@@ -2306,24 +2018,24 @@ const POSCheckout: React.FC<POSCheckoutProps> = ({ onSessionClosed }) => {
 
                   <div className="col-span-3">
                     <div className="text-sm mb-1">Total Cash</div>
-                    <div className={`h-10 rounded border px-3 flex items-center ${countedCash === 0 ? "border-[#e89aa0] bg-[#fff7f7] text-[#b45353]" : "border-[#d5dfeb] bg-white text-[#111827]"}`}>
+                    <div className={`h-10 rounded border px-3 flex items-center ${countedCash === 0 ? "border-danger-line bg-danger-soft text-danger" : "border-line-strong bg-surface text-foreground"}`}>
                       LKR {countedCash.toFixed(2)}
                     </div>
-                    {countedCash === 0 && <div className="text-xs text-[#c16a6a] mt-1">No cash detected</div>}
+                    {countedCash === 0 && <div className="text-xs text-danger mt-1">No cash detected</div>}
                   </div>
 
                   <div className="col-span-3">
                     <div className="text-sm mb-1">Cash Variance</div>
-                    <div className="h-10 rounded border border-[#d5dfeb] bg-white px-3 flex items-center">
+                    <div className="h-10 rounded border border-line-strong bg-surface px-3 flex items-center">
                       LKR {cashVariance.toFixed(2)}
                     </div>
-                    <div className={`text-xs mt-1 ${Math.abs(cashVariance) < 0.0001 ? "text-green-600" : "text-red-600"}`}>
+                    <div className={`text-xs mt-1 ${Math.abs(cashVariance) < 0.0001 ? "text-secondary" : "text-danger"}`}>
                       {Math.abs(cashVariance) < 0.0001 ? "Register is balanced" : "Variance detected"}
                     </div>
                   </div>
 
                   <div className="col-span-1 flex justify-center pt-6">
-                    <div className="w-12 h-12 rounded bg-[#1f6d7a] text-white flex items-center justify-center">
+                    <div className="w-12 h-12 rounded bg-primary text-on-primary flex items-center justify-center">
                       <svg viewBox="0 0 24 24" className="w-6 h-6" fill="none" stroke="currentColor" strokeWidth="2">
                         <path d="M8 2h8l1 3h3v17H4V5h3l1-3z" />
                         <path d="M8 8h8M8 12h8M8 16h5" />
@@ -2334,14 +2046,14 @@ const POSCheckout: React.FC<POSCheckoutProps> = ({ onSessionClosed }) => {
               </div>
             </div>
 
-            <div className="px-6 py-4 border-t border-[#e5e7eb] flex justify-start gap-2">
+            <div className="px-6 py-4 border-t border-line flex justify-start gap-2">
               <button
                 type="button"
                 onClick={() => {
                   setShowRegisterReportModal(false);
                   showInfoToast("Register close cancelled.");
                 }}
-                className="px-5 py-2 rounded-lg bg-[#eef2f7] text-[#1f3b63] border border-[#d5dfeb] hover:bg-[#e1e9f5] transition"
+                className="px-5 py-2 rounded-lg bg-surface-muted text-primary border border-line-strong hover:bg-surface-muted transition"
               >
                 Cancel
               </button>
@@ -2349,7 +2061,7 @@ const POSCheckout: React.FC<POSCheckoutProps> = ({ onSessionClosed }) => {
                 type="button"
                 onClick={finalizeCloseRegister}
                 disabled={closeSubmitting}
-                className="px-5 py-2 rounded-lg bg-gradient-to-r from-[#1f3b63] to-[#2b4d7a] text-white font-semibold hover:opacity-95 transition"
+                className="px-5 py-2 rounded-lg text-on-primary font-semibold hover:opacity-95 transition bg-primary"
               >
                 {closeSubmitting ? "Closing..." : "Close the POS"}
               </button>

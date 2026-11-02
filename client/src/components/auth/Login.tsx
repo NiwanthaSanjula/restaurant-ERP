@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
+import { usePermissions } from '../../contexts/PermissionContext';
 
 const validateEmail = (email: string) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
 
@@ -12,6 +13,7 @@ const Login: React.FC = () => {
   const [fieldErrors, setFieldErrors] = useState<{ email?: string; password?: string }>({});
   const [mounted, setMounted] = useState(false);
   const navigate = useNavigate();
+  const { refreshPermissions } = usePermissions();
 
   React.useEffect(() => {
     setMounted(true);
@@ -57,6 +59,7 @@ const Login: React.FC = () => {
       }
       localStorage.setItem('token', data.data.token);
       localStorage.setItem('user', JSON.stringify(data.data.user));
+      await refreshPermissions();
       // Clear any legacy systemType
       localStorage.removeItem('systemType');
 
@@ -71,7 +74,7 @@ const Login: React.FC = () => {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-[#001F54] via-[#0a2744] to-[#001a33] relative overflow-hidden">
+    <div className="ss-auth-shell min-h-screen flex items-center justify-center relative overflow-hidden py-20">
       {/* Curved decorative lines */}
       <svg className="absolute inset-0 w-full h-full pointer-events-none" viewBox="0 0 1200 900" preserveAspectRatio="xMidYMid slice" aria-hidden="true">
         <defs>
@@ -90,24 +93,24 @@ const Login: React.FC = () => {
         <path fill="rgba(255,255,255,0.04)" d="M1200 0 Q950 400 1200 900 L1200 0 Z" />
       </svg>
 
-      <div className={`relative z-10 w-full max-w-xl mx-4 transition-all duration-500 ease-out ${mounted ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'}`}>
-        <div className="bg-white/98 backdrop-blur-md rounded-[2rem] shadow-2xl shadow-[#001F54]/20 p-10 md:p-12 min-h-[520px] md:min-h-[56vh] border border-white/30 ring-1 ring-black/5">
+      <div className={`relative z-10 w-full max-w-md mx-4 transition-all duration-500 ease-out ${mounted ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'}`}>
+        <div className="bg-surface backdrop-blur-md rounded-2xl shadow-elevated p-6 sm:p-9 border border-line">
           <div className="flex flex-col items-center justify-center mb-8">
             <div className="flex flex-col items-center justify-center mb-4">
-              <div className="w-12 h-12 rounded-lg bg-[#001F54] flex items-center justify-center shadow-lg shadow-[#001F54]/30 transition-transform duration-300 hover:scale-105 opacity-0 animate-login-fade-in-up mb-3" style={{ animationDelay: '0.1s' }}>
-                <span className="text-white font-bold text-lg">SS</span>
+              <div className="w-12 h-12 rounded-lg bg-primary flex items-center justify-center transition-transform duration-300 hover:scale-105 opacity-0 animate-login-fade-in-up mb-3" style={{ animationDelay: '0.1s' }}>
+                <span className="text-on-primary font-bold text-lg">SS</span>
               </div>
               <div className="text-center opacity-0 animate-login-fade-in-up" style={{ animationDelay: '0.2s' }}>
-                <div className="text-2xl font-semibold text-[#001F54]">ServeSmart</div>
-                <div className="text-sm text-[#7E7F83]">Restaurant POS</div>
+                <div className="text-2xl font-semibold text-foreground">ServeSmart</div>
+                <div className="text-sm text-muted">Restaurant POS</div>
               </div>
             </div>
-            <p className="text-[#7E7F83] text-lg text-center opacity-0 animate-login-fade-in-up" style={{ animationDelay: '0.3s' }}>Sign in to your account to continue</p>
+            <p className="text-muted text-lg text-center opacity-0 animate-login-fade-in-up" style={{ animationDelay: '0.3s' }}>Sign in to your account to continue</p>
           </div>
 
           {error && (
-            <div key={error} className="mb-4 text-sm text-red-600 bg-red-50 border border-red-200 rounded-xl px-4 py-2.5 flex items-center gap-2 animate-login-shake">
-              <svg className="w-4 h-4 flex-shrink-0 text-red-500" fill="currentColor" viewBox="0 0 20 20">
+            <div key={error} className="mb-4 text-sm text-danger bg-danger-soft border border-danger-line rounded-xl px-4 py-2.5 flex items-center gap-2 animate-login-shake">
+              <svg className="w-4 h-4 flex-shrink-0 text-danger" fill="currentColor" viewBox="0 0 20 20">
                 <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clipRule="evenodd" />
               </svg>
               {error}
@@ -116,7 +119,7 @@ const Login: React.FC = () => {
 
           <form onSubmit={handleSubmit} className="space-y-6">
             <div className="opacity-0 animate-login-fade-in-up" style={{ animationDelay: '0.35s' }}>
-              <label htmlFor="username" className="block text-sm font-semibold text-[#001F54] mb-2">
+              <label htmlFor="username" className="block text-sm font-semibold text-foreground mb-2">
                 Email
               </label>
               <div className="relative">
@@ -127,16 +130,16 @@ const Login: React.FC = () => {
                   value={username}
                   onChange={(e) => setUsername(e.target.value)}
                   required
-                  className={`w-full px-4 py-3 pl-12 border-2 rounded-xl text-[#001F54] placeholder-[#9CA3AF] focus:outline-none focus:ring-2 focus:ring-[#4A90E2]/50 focus:border-[#4A90E2] transition-all duration-200 ${fieldErrors.email ? 'border-red-500 focus:border-red-500 focus:ring-red-500/50' : 'border-gray-200 hover:border-gray-300'}`}
+                  className={`w-full px-4 py-3 pl-12 border-2 rounded-xl text-foreground placeholder-subtle focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary transition-all duration-200 ${fieldErrors.email ? 'border-danger-line focus:border-danger-line focus:ring-danger-line/50' : 'border-line hover:border-line-strong'}`}
                 />
                 <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
-                  <svg className={`w-5 h-5 ${fieldErrors.email ? 'text-red-500' : 'text-[#7E7F83]'}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <svg className={`w-5 h-5 ${fieldErrors.email ? 'text-danger' : 'text-muted'}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
                   </svg>
                 </div>
               </div>
               {fieldErrors.email && (
-                <p className="mt-1.5 text-sm text-red-600 flex items-center gap-1 animate-login-fade-in-up">
+                <p className="mt-1.5 text-sm text-danger flex items-center gap-1 animate-login-fade-in-up">
                   <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
                     <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clipRule="evenodd" />
                   </svg>
@@ -146,7 +149,7 @@ const Login: React.FC = () => {
             </div>
 
             <div className="opacity-0 animate-login-fade-in-up" style={{ animationDelay: '0.45s' }}>
-              <label htmlFor="password" className="block text-sm font-semibold text-[#001F54] mb-2">
+              <label htmlFor="password" className="block text-sm font-semibold text-foreground mb-2">
                 Password
               </label>
               <div className="relative">
@@ -157,17 +160,17 @@ const Login: React.FC = () => {
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
                   required
-                  className={`w-full px-4 py-3 pl-12 pr-12 border-2 rounded-xl text-[#001F54] placeholder-[#9CA3AF] focus:outline-none focus:ring-2 focus:ring-[#4A90E2]/50 focus:border-[#4A90E2] transition-all duration-200 ${fieldErrors.password ? 'border-red-500 focus:border-red-500 focus:ring-red-500/50' : 'border-gray-200 hover:border-gray-300'}`}
+                  className={`w-full px-4 py-3 pl-12 pr-12 border-2 rounded-xl text-foreground placeholder-subtle focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary transition-all duration-200 ${fieldErrors.password ? 'border-danger-line focus:border-danger-line focus:ring-danger-line/50' : 'border-line hover:border-line-strong'}`}
                 />
                 <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
-                  <svg className={`w-5 h-5 ${fieldErrors.password ? 'text-red-500' : 'text-[#7E7F83]'}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <svg className={`w-5 h-5 ${fieldErrors.password ? 'text-danger' : 'text-muted'}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
                   </svg>
                 </div>
                 <button
                   type="button"
                   onClick={() => setShowPassword(!showPassword)}
-                  className={`absolute inset-y-0 right-0 pr-4 flex items-center transition-colors ${fieldErrors.password ? 'text-red-500 hover:text-red-600' : 'text-[#7E7F83] hover:text-[#4A90E2]'}`}
+                  className={`absolute inset-y-0 right-0 pr-4 flex items-center transition-colors ${fieldErrors.password ? 'text-danger hover:text-danger' : 'text-muted hover:text-primary'}`}
                   aria-label={showPassword ? 'Hide password' : 'Show password'}
                 >
                   <span className={`inline-block transition-transform duration-300 ${showPassword ? 'rotate-180' : ''}`}>
@@ -185,7 +188,7 @@ const Login: React.FC = () => {
                 </button>
               </div>
               {fieldErrors.password && (
-                <p className="mt-1.5 text-sm text-red-600 flex items-center gap-1 animate-login-fade-in-up">
+                <p className="mt-1.5 text-sm text-danger flex items-center gap-1 animate-login-fade-in-up">
                   <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
                     <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clipRule="evenodd" />
                   </svg>
@@ -198,11 +201,11 @@ const Login: React.FC = () => {
               <label className="flex items-center cursor-pointer">
                 <input
                   type="checkbox"
-                  className="w-4 h-4 text-[#4A90E2] bg-gray-100 border-gray-300 rounded focus:ring-[#4A90E2] focus:ring-2 transition-transform duration-150 checked:scale-110"
+                  className="w-4 h-4 text-primary bg-surface-muted border-line-strong rounded focus:ring-primary focus:ring-2 transition-transform duration-150 checked:scale-110"
                 />
-                <span className="ml-2 text-sm text-[#7E7F83]">Remember me</span>
+                <span className="ml-2 text-sm text-muted">Remember me</span>
               </label>
-              <Link to="/forgot-password" className="text-sm text-[#4A90E2] hover:text-[#003366] hover:underline font-medium transition-colors">
+              <Link to="/forgot-password" className="text-sm text-primary hover:text-primary hover:underline font-medium transition-colors">
                 Forgot password?
               </Link>
             </div>
@@ -211,11 +214,11 @@ const Login: React.FC = () => {
               <button
                 type="submit"
                 disabled={loading}
-                className="w-full bg-gradient-to-r from-[#001F54] to-[#003366] text-white font-semibold py-3.5 px-4 rounded-xl shadow-lg shadow-[#001F54]/25 hover:shadow-xl hover:shadow-[#001F54]/30 hover:from-[#002147] hover:to-[#004080] focus:outline-none focus:ring-2 focus:ring-[#4A90E2] focus:ring-offset-2 transition-all duration-300 transform hover:scale-[1.01] active:scale-[0.99] flex items-center justify-center gap-2"
+                className="w-full text-on-primary font-semibold py-3.5 px-4 rounded-xl focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2 transition-all duration-300 transform hover:scale-[1.01] active:scale-[0.99] flex items-center justify-center gap-2 bg-primary"
               >
                 {loading ? (
                   <>
-                    <svg className="w-5 h-5 animate-spin text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" aria-hidden="true">
+                    <svg className="w-5 h-5 animate-spin text-foreground" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" aria-hidden="true">
                       <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
                       <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" />
                     </svg>

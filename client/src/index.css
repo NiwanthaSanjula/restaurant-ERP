@@ -1,20 +1,19 @@
 /* src/index.css */
 @import "tailwindcss";
+@import "./styles/theme.css";
 
 @import url("https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap");
 
 body {
-  background-color: white;
-  color: rgb(31 41 55);
+  background-color: var(--ss-canvas);
+  color: var(--ss-foreground);
   font-family: "Inter", system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI",
     sans-serif;
 }
 
 /* Premium POS shared styles */
 .animated-gradient {
-  background: linear-gradient(-45deg, #1a2b3d, #243b53, #334e68, #486581);
-  background-size: 400% 400%;
-  animation: gradient 15s ease infinite;
+  background: var(--ss-canvas);
 }
 
 @keyframes gradient {
@@ -30,24 +29,24 @@ body {
 }
 
 .glass {
-  background: rgba(255, 255, 255, 0.1);
+  background: var(--ss-surface-raised);
   backdrop-filter: blur(10px);
   -webkit-backdrop-filter: blur(10px);
-  border: 1px solid rgba(255, 255, 255, 0.2);
+  border: 1px solid var(--ss-border);
 }
 
 .glass-white {
-  background: rgba(255, 255, 255, 0.95);
+  background: var(--ss-surface);
   backdrop-filter: blur(10px);
   -webkit-backdrop-filter: blur(10px);
-  border: 1px solid rgba(255, 255, 255, 0.3);
+  border: 1px solid var(--ss-border);
 }
 
 .glass-card {
-  background: rgba(255, 255, 255, 0.98);
+  background: var(--ss-surface);
   backdrop-filter: blur(8px);
   -webkit-backdrop-filter: blur(8px);
-  border: 1px solid rgba(255, 255, 255, 0.4);
+  border: 1px solid var(--ss-border);
 }
 
 .custom-scrollbar::-webkit-scrollbar {
@@ -56,17 +55,26 @@ body {
 }
 
 .custom-scrollbar::-webkit-scrollbar-track {
-  background: rgba(255, 255, 255, 0.1);
+  background: var(--ss-surface-muted);
   border-radius: 10px;
 }
 
 .custom-scrollbar::-webkit-scrollbar-thumb {
-  background: rgba(72, 101, 129, 0.6);
+  background: var(--ss-border-strong);
   border-radius: 10px;
 }
 
 .custom-scrollbar::-webkit-scrollbar-thumb:hover {
-  background: rgba(72, 101, 129, 0.8);
+  background: var(--ss-muted);
+}
+
+.sidebar-scrollbar {
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+
+.sidebar-scrollbar::-webkit-scrollbar {
+  display: none;
 }
 
 .smooth-transition {
@@ -103,10 +111,10 @@ body {
 }
 
 .glass-input:focus {
-  background: rgba(255, 255, 255, 1);
-  border-color: rgba(72, 101, 129, 0.5);
+  background: var(--ss-surface);
+  border-color: var(--ss-primary);
   outline: none;
-  box-shadow: 0 0 0 3px rgba(72, 101, 129, 0.1);
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--ss-primary) 20%, transparent);
 }
 
 /* Modal Animations */
@@ -805,6 +813,16 @@ body {
 .recipe-costing-bar-glow {
   transform-origin: left center;
   animation: recipe-costing-bar 3.2s ease-in-out infinite;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  :root body *, :root body *::before, :root body *::after {
+    animation-duration: 0.01ms;
+    animation-delay: 0ms;
+    animation-iteration-count: 1;
+    transition-duration: 0.01ms;
+    scroll-behavior: auto;
+  }
 }
 
 @media (prefers-reduced-motion: reduce) {

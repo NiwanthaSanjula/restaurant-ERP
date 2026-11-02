@@ -58,8 +58,8 @@ const POSGate: React.FC = () => {
 
   if (loading) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-[#0f172a]">
-        <p className="text-white font-semibold text-sm">Loading POS…</p>
+      <div className="min-h-screen flex items-center justify-center bg-canvas">
+        <p className="text-foreground font-semibold text-sm">Loading POS…</p>
       </div>
     );
   }

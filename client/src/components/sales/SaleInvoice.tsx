@@ -123,28 +123,28 @@ const SaleInvoice: React.FC = () => {
     switch (status.toLowerCase()) {
       case 'completed':
       case 'received':
-        return 'bg-green-100 text-green-800';
+        return 'bg-secondary-soft text-secondary';
       case 'draft':
-        return 'bg-gray-100 text-gray-800';
+        return 'bg-surface-muted text-foreground';
       case 'cancelled':
-        return 'bg-red-100 text-red-800';
+        return 'bg-danger-soft text-danger';
       case 'returned':
-        return 'bg-amber-100 text-amber-800';
+        return 'bg-warning-soft text-warning';
       default:
-        return 'bg-gray-100 text-gray-800';
+        return 'bg-surface-muted text-foreground';
     }
   };
 
   const getPaymentStatusColor = (status: string) => {
     switch (status.toLowerCase()) {
       case 'paid':
-        return 'bg-green-100 text-green-800';
+        return 'bg-secondary-soft text-secondary';
       case 'partial':
-        return 'bg-yellow-100 text-yellow-800';
+        return 'bg-warning-soft text-warning';
       case 'unpaid':
-        return 'bg-red-100 text-red-800';
+        return 'bg-danger-soft text-danger';
       default:
-        return 'bg-gray-100 text-gray-800';
+        return 'bg-surface-muted text-foreground';
     }
   };
 
@@ -199,23 +199,23 @@ const SaleInvoice: React.FC = () => {
     : '';
 
   return (
-    <div className="min-h-screen bg-[#F8FAFC]">
+    <div className="min-h-screen bg-canvas">
       {/* Header */}
-      <div className="bg-white border-b border-gray-200 px-6 py-4">
+      <div className="bg-surface border-b border-line px-6 py-4">
         <div className="max-w-7xl mx-auto flex justify-between items-center">
           <div className="flex items-center gap-3">
             <button
               onClick={() => navigate('/viewSales')}
-              className="flex items-center justify-center w-10 h-10 text-[#1A3E73] hover:text-[#0F2A55] hover:bg-gray-100 rounded-lg transition"
+              className="flex items-center justify-center w-10 h-10 text-primary hover:text-primary hover:bg-surface-muted rounded-lg transition"
               title="Back"
             >
               <ArrowLeft size={20} />
             </button>
-            <h1 className="text-2xl font-bold text-[#1A3E73]">Sale Details</h1>
+            <h1 className="text-2xl font-bold text-foreground">Sale Details</h1>
           </div>
           <button
             onClick={() => navigate(`/editSale/${sale._id}`)}
-            className="px-4 py-2 bg-[#1A3E73] text-white rounded-lg hover:bg-[#0F2A55] font-medium transition flex items-center gap-2"
+            className="px-4 py-2 bg-primary text-on-primary rounded-lg hover:bg-primary-hover font-medium transition flex items-center gap-2"
           >
             <Edit size={16} />
             Edit
@@ -225,10 +225,10 @@ const SaleInvoice: React.FC = () => {
 
       {/* Main Content */}
       <div className="max-w-7xl mx-auto p-6">
-        <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-8">
+        <div className="bg-surface rounded-lg border border-line p-8">
           {/* Sale Details Identifier */}
           <div className="text-center mb-8">
-            <h2 className="text-xl font-semibold text-[#1A3E73]">
+            <h2 className="text-xl font-semibold text-foreground">
               Sale Details : {sale.invoiceId || sale._id}
             </h2>
           </div>
@@ -236,77 +236,77 @@ const SaleInvoice: React.FC = () => {
           {/* Three Column Info Section */}
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
             {/* CUSTOMER INFO */}
-            <div className="border border-gray-200 rounded-lg p-4 bg-gray-50">
-              <h3 className="text-sm font-semibold text-[#64748B] mb-4 uppercase">Customer Info</h3>
+            <div className="border border-line rounded-lg p-4 bg-surface-raised">
+              <h3 className="text-sm font-semibold text-muted mb-4 uppercase">Customer Info</h3>
               <div className="space-y-3">
                 <div className="flex items-start gap-3">
-                  <User className="text-gray-400 mt-1" size={18} />
-                  <span className="text-gray-700">{sale.customerId.name}</span>
+                  <User className="text-subtle mt-1" size={18} />
+                  <span className="text-foreground">{sale.customerId.name}</span>
                 </div>
                 {sale.customerId.email && (
                   <div className="flex items-start gap-3">
-                    <Mail className="text-gray-400 mt-1" size={18} />
-                    <span className="text-gray-700">{sale.customerId.email}</span>
+                    <Mail className="text-subtle mt-1" size={18} />
+                    <span className="text-foreground">{sale.customerId.email}</span>
                   </div>
                 )}
                 <div className="flex items-start gap-3">
-                  <Phone className="text-gray-400 mt-1" size={18} />
-                  <span className="text-gray-700">{sale.customerId.mobile}</span>
+                  <Phone className="text-subtle mt-1" size={18} />
+                  <span className="text-foreground">{sale.customerId.mobile}</span>
                 </div>
                 {sale.customerId.address && (
                   <div className="flex items-start gap-3">
-                    <MapPin className="text-gray-400 mt-1" size={18} />
-                    <span className="text-gray-700">{sale.customerId.address}</span>
+                    <MapPin className="text-subtle mt-1" size={18} />
+                    <span className="text-foreground">{sale.customerId.address}</span>
                   </div>
                 )}
               </div>
             </div>
 
             {/* COMPANY INFO */}
-            <div className="border border-gray-200 rounded-lg p-4 bg-gray-50">
-              <h3 className="text-sm font-semibold text-[#64748B] mb-4 uppercase">Company Info</h3>
+            <div className="border border-line rounded-lg p-4 bg-surface-raised">
+              <h3 className="text-sm font-semibold text-muted mb-4 uppercase">Company Info</h3>
               <div className="space-y-3">
                 <div className="flex items-start gap-3">
-                  <Building2 className="text-gray-400 mt-1" size={18} />
-                  <span className="text-gray-700">{companySettings?.companyName || 'General Store'}</span>
+                  <Building2 className="text-subtle mt-1" size={18} />
+                  <span className="text-foreground">{companySettings?.companyName || 'General Store'}</span>
                 </div>
                 <div className="flex items-start gap-3">
-                  <Mail className="text-gray-400 mt-1" size={18} />
-                  <span className="text-gray-700">{companySettings?.defaultEmail || 'support@infypos.com'}</span>
+                  <Mail className="text-subtle mt-1" size={18} />
+                  <span className="text-foreground">{companySettings?.defaultEmail || 'support@infypos.com'}</span>
                 </div>
                 <div className="flex items-start gap-3">
-                  <Phone className="text-gray-400 mt-1" size={18} />
-                  <span className="text-gray-700">{companySettings?.companyMobile || '1234567890'}</span>
+                  <Phone className="text-subtle mt-1" size={18} />
+                  <span className="text-foreground">{companySettings?.companyMobile || '1234567890'}</span>
                 </div>
                 {companyAddress && (
                   <div className="flex items-start gap-3">
-                    <MapPin className="text-gray-400 mt-1" size={18} />
-                    <span className="text-gray-700">{companyAddress}</span>
+                    <MapPin className="text-subtle mt-1" size={18} />
+                    <span className="text-foreground">{companyAddress}</span>
                   </div>
                 )}
               </div>
             </div>
 
             {/* INVOICE INFO */}
-            <div className="border border-gray-200 rounded-lg p-4 bg-gray-50">
-              <h3 className="text-sm font-semibold text-[#64748B] mb-4 uppercase">Invoice Info</h3>
+            <div className="border border-line rounded-lg p-4 bg-surface-raised">
+              <h3 className="text-sm font-semibold text-muted mb-4 uppercase">Invoice Info</h3>
               <div className="space-y-3">
                 <div>
-                  <span className="text-gray-600 text-sm">Reference : </span>
-                  <span className="text-gray-800 font-medium">{sale.invoiceId || sale._id}</span>
+                  <span className="text-muted text-sm">Reference : </span>
+                  <span className="text-foreground font-medium">{sale.invoiceId || sale._id}</span>
                 </div>
                 <div>
-                  <span className="text-gray-600 text-sm">Status : </span>
+                  <span className="text-muted text-sm">Status : </span>
                   <span className={`inline-flex px-2 py-1 rounded-full text-xs font-medium ${getStatusColor(sale.status)}`}>
                     {sale.status.charAt(0).toUpperCase() + sale.status.slice(1)}
                   </span>
                 </div>
                 <div>
-                  <span className="text-gray-600 text-sm">Warehouse : </span>
-                  <span className="text-gray-800">{sale.warehouseId.name}</span>
+                  <span className="text-muted text-sm">Warehouse : </span>
+                  <span className="text-foreground">{sale.warehouseId.name}</span>
                 </div>
                 <div>
-                  <span className="text-gray-600 text-sm">Payment Status : </span>
+                  <span className="text-muted text-sm">Payment Status : </span>
                   <span className={`inline-flex px-2 py-1 rounded-full text-xs font-medium ${getPaymentStatusColor(sale.paymentStatus)}`}>
                     {sale.paymentStatus.charAt(0).toUpperCase() + sale.paymentStatus.slice(1)}
                   </span>
@@ -319,46 +319,46 @@ const SaleInvoice: React.FC = () => {
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
             {/* ORDER SUMMARY - Takes 2 columns */}
             <div className="lg:col-span-2">
-              <h3 className="text-lg font-semibold text-[#1A3E73] mb-4">Order Summary</h3>
-              <div className="border border-gray-200 rounded-lg overflow-hidden">
+              <h3 className="text-lg font-semibold text-foreground mb-4">Order Summary</h3>
+              <div className="border border-line rounded-lg overflow-hidden">
                 <table className="w-full">
-                  <thead className="bg-gray-100">
+                  <thead className="bg-surface-muted">
                     <tr>
-                      <th className="px-4 py-3 text-left text-xs font-semibold text-gray-700 uppercase">Product</th>
-                      <th className="px-4 py-3 text-right text-xs font-semibold text-gray-700 uppercase">Net Unit Price</th>
-                      <th className="px-4 py-3 text-right text-xs font-semibold text-gray-700 uppercase">Quantity</th>
-                      <th className="px-4 py-3 text-right text-xs font-semibold text-gray-700 uppercase">Unit Price</th>
-                      <th className="px-4 py-3 text-right text-xs font-semibold text-gray-700 uppercase">Discount</th>
-                      <th className="px-4 py-3 text-right text-xs font-semibold text-gray-700 uppercase">Tax</th>
-                      <th className="px-4 py-3 text-right text-xs font-semibold text-gray-700 uppercase">Subtotal</th>
+                      <th className="px-4 py-3 text-left text-xs font-semibold text-foreground uppercase">Product</th>
+                      <th className="px-4 py-3 text-right text-xs font-semibold text-foreground uppercase">Net Unit Price</th>
+                      <th className="px-4 py-3 text-right text-xs font-semibold text-foreground uppercase">Quantity</th>
+                      <th className="px-4 py-3 text-right text-xs font-semibold text-foreground uppercase">Unit Price</th>
+                      <th className="px-4 py-3 text-right text-xs font-semibold text-foreground uppercase">Discount</th>
+                      <th className="px-4 py-3 text-right text-xs font-semibold text-foreground uppercase">Tax</th>
+                      <th className="px-4 py-3 text-right text-xs font-semibold text-foreground uppercase">Subtotal</th>
                     </tr>
                   </thead>
-                  <tbody className="divide-y divide-gray-200">
+                  <tbody className="divide-y divide-line">
                     {sale.products.map((product, index) => {
                       const netUnitPrice = product.price;
                       const unitPrice = product.price;
                       
                       return (
-                        <tr key={index} className="hover:bg-gray-50">
+                        <tr key={index} className="hover:bg-surface-raised">
                           <td className="px-4 py-3">
-                            <div className="text-sm font-medium text-gray-900">{product.productName}</div>
+                            <div className="text-sm font-medium text-foreground">{product.productName}</div>
                             {product.productCode && (
-                              <div className="text-xs text-gray-500">({product.productCode})</div>
+                              <div className="text-xs text-muted">({product.productCode})</div>
                             )}
                             {product.variation && (
-                              <div className="text-xs text-gray-500">Variation: {product.variation}</div>
+                              <div className="text-xs text-muted">Variation: {product.variation}</div>
                             )}
                           </td>
-                          <td className="px-4 py-3 text-right text-sm text-gray-700">{formatCurrency(netUnitPrice)}</td>
-                          <td className="px-4 py-3 text-right text-sm text-gray-700">{product.qty}</td>
-                          <td className="px-4 py-3 text-right text-sm text-gray-700">{formatCurrency(unitPrice)}</td>
-                          <td className="px-4 py-3 text-right text-sm text-gray-700">
+                          <td className="px-4 py-3 text-right text-sm text-foreground">{formatCurrency(netUnitPrice)}</td>
+                          <td className="px-4 py-3 text-right text-sm text-foreground">{product.qty}</td>
+                          <td className="px-4 py-3 text-right text-sm text-foreground">{formatCurrency(unitPrice)}</td>
+                          <td className="px-4 py-3 text-right text-sm text-foreground">
                             {product.discount > 0 ? `${product.discount}${product.discountType === 'percentage' ? '%' : ''}` : '0.0'}
                           </td>
-                          <td className="px-4 py-3 text-right text-sm text-gray-700">
+                          <td className="px-4 py-3 text-right text-sm text-foreground">
                             {product.tax > 0 ? `${product.tax}%` : '0.0'}
                           </td>
-                          <td className="px-4 py-3 text-right text-sm font-medium text-gray-900">{formatCurrency(product.subtotal)}</td>
+                          <td className="px-4 py-3 text-right text-sm font-medium text-foreground">{formatCurrency(product.subtotal)}</td>
                         </tr>
                       );
                     })}
@@ -371,32 +371,32 @@ const SaleInvoice: React.FC = () => {
             <div className="space-y-6">
               {/* PAYMENT DETAILS */}
               <div>
-                <h3 className="text-lg font-semibold text-[#1A3E73] mb-4">Payment Details</h3>
-                <div className="border border-gray-200 rounded-lg overflow-hidden">
+                <h3 className="text-lg font-semibold text-foreground mb-4">Payment Details</h3>
+                <div className="border border-line rounded-lg overflow-hidden">
                   <table className="w-full">
-                    <thead className="bg-gray-100">
+                    <thead className="bg-surface-muted">
                       <tr>
-                        <th className="px-4 py-3 text-left text-xs font-semibold text-gray-700 uppercase">Date</th>
-                        <th className="px-4 py-3 text-left text-xs font-semibold text-gray-700 uppercase">Reference</th>
-                        <th className="px-4 py-3 text-left text-xs font-semibold text-gray-700 uppercase">Payment Type</th>
-                        <th className="px-4 py-3 text-right text-xs font-semibold text-gray-700 uppercase">Amount</th>
+                        <th className="px-4 py-3 text-left text-xs font-semibold text-foreground uppercase">Date</th>
+                        <th className="px-4 py-3 text-left text-xs font-semibold text-foreground uppercase">Reference</th>
+                        <th className="px-4 py-3 text-left text-xs font-semibold text-foreground uppercase">Payment Type</th>
+                        <th className="px-4 py-3 text-right text-xs font-semibold text-foreground uppercase">Amount</th>
                       </tr>
                     </thead>
-                    <tbody className="divide-y divide-gray-200">
+                    <tbody className="divide-y divide-line">
                       {payments.length > 0 ? (
                         payments.map((payment, index) => (
-                          <tr key={index} className="hover:bg-gray-50">
-                            <td className="px-4 py-3 text-sm text-gray-700">
+                          <tr key={index} className="hover:bg-surface-raised">
+                            <td className="px-4 py-3 text-sm text-foreground">
                               {formatDate(payment.date)}
                             </td>
-                            <td className="px-4 py-3 text-sm text-gray-700">{payment.reference || 'N/A'}</td>
-                            <td className="px-4 py-3 text-sm text-gray-700">{formatPaymentType(payment.paymentType)}</td>
-                            <td className="px-4 py-3 text-right text-sm font-medium text-gray-900">{formatCurrency(payment.amount)}</td>
+                            <td className="px-4 py-3 text-sm text-foreground">{payment.reference || 'N/A'}</td>
+                            <td className="px-4 py-3 text-sm text-foreground">{formatPaymentType(payment.paymentType)}</td>
+                            <td className="px-4 py-3 text-right text-sm font-medium text-foreground">{formatCurrency(payment.amount)}</td>
                           </tr>
                         ))
                       ) : (
                         <tr>
-                          <td colSpan={4} className="px-4 py-4 text-center text-sm text-gray-500">
+                          <td colSpan={4} className="px-4 py-4 text-center text-sm text-muted">
                             No payment entries
                           </td>
                         </tr>
@@ -407,30 +407,30 @@ const SaleInvoice: React.FC = () => {
               </div>
 
               {/* Summary of Charges */}
-              <div className="border border-gray-200 rounded-lg p-4 bg-gray-50">
-                <h3 className="text-lg font-semibold text-[#1A3E73] mb-4">Summary of Charges</h3>
+              <div className="border border-line rounded-lg p-4 bg-surface-raised">
+                <h3 className="text-lg font-semibold text-foreground mb-4">Summary of Charges</h3>
                 <div className="space-y-2">
                   {specialOfferDiscount > 0 && (
-                    <div className="flex justify-between text-sm text-green-600 font-semibold">
+                    <div className="flex justify-between text-sm text-secondary font-semibold">
                       <span>Special Offer ({specialOffer?.offerName} - {specialOffer?.percentage}%):</span>
                       <span>-{formatCurrency(specialOfferDiscount)}</span>
                     </div>
                   )}
                   {discountAmount > 0 && (
                     <div className="flex justify-between text-sm">
-                      <span className="text-[#64748B]">Discount:</span>
-                      <span className="text-gray-800">{formatCurrency(discountAmount)}</span>
+                      <span className="text-muted">Discount:</span>
+                      <span className="text-foreground">{formatCurrency(discountAmount)}</span>
                     </div>
                   )}
                   <div className="flex justify-between text-sm">
-                    <span className="text-[#64748B]">Order Tax:</span>
-                    <span className="text-gray-800">{formatCurrency(taxAmount)} ({sale.saleTaxValue}%)</span>
+                    <span className="text-muted">Order Tax:</span>
+                    <span className="text-foreground">{formatCurrency(taxAmount)} ({sale.saleTaxValue}%)</span>
                   </div>
                   <div className="flex justify-between text-sm">
-                    <span className="text-[#64748B]">Shipping:</span>
-                    <span className="text-gray-800">{formatCurrency(sale.shippingCost)}</span>
+                    <span className="text-muted">Shipping:</span>
+                    <span className="text-foreground">{formatCurrency(sale.shippingCost)}</span>
                   </div>
-                  <div className="flex justify-between text-lg font-bold text-[#1A3E73] pt-2 border-t border-gray-300 mt-2">
+                  <div className="flex justify-between text-lg font-bold text-foreground pt-2 border-t border-line-strong mt-2">
                     <span>Grand Total:</span>
                     <span>{formatCurrency(sale.total)}</span>
                   </div>

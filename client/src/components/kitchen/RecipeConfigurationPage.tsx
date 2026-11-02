@@ -842,21 +842,21 @@ const RecipeConfigurationPage: React.FC = () => {
       : undefined;
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-100/90 via-white to-slate-50 p-4 sm:p-8">
+    <div className="min-h-screen p-4 sm:p-8 bg-surface-muted">
       {(loadingKitchen || loading) && <Loader text="Loading" />}
       <div className="max-w-5xl mx-auto">
         <header className="mb-8 sm:mb-10">
           <div className="flex flex-wrap items-center gap-3 mb-2">
-            <span className="inline-flex items-center rounded-full bg-[#003366]/10 px-3 py-1 text-xs font-semibold uppercase tracking-wider text-[#003366]">
+            <span className="inline-flex items-center rounded-full bg-primary-soft px-3 py-1 text-xs font-semibold uppercase tracking-wider text-primary">
               Kitchen
             </span>
           </div>
-          <h1 className="text-3xl sm:text-4xl font-bold tracking-tight text-slate-900">
+          <h1 className="text-3xl sm:text-4xl font-bold tracking-tight text-foreground">
             Recipe configuration
           </h1>
-          <p className="mt-2 max-w-2xl text-sm sm:text-base text-slate-600 leading-relaxed">
+          <p className="mt-2 max-w-2xl text-sm sm:text-base text-muted leading-relaxed">
             Link prepared dishes to kitchen stock. Quantities are per portion; units follow{' '}
-            <span className="font-medium text-slate-800">Kitchen inventory</span>.
+            <span className="font-medium text-foreground">Kitchen inventory</span>.
           </p>
         </header>
 
@@ -864,15 +864,15 @@ const RecipeConfigurationPage: React.FC = () => {
           <div
             ref={dishCardRef}
             id="recipe-dish-card"
-            className="group relative rounded-2xl border border-slate-200/80 bg-white/90 shadow-xl shadow-slate-200/50 backdrop-blur-sm scroll-mt-6 overflow-visible"
+            className="group relative rounded-2xl border border-line/80 bg-surface backdrop-blur-sm scroll-mt-6 overflow-visible"
           >
             <div className="pointer-events-none absolute inset-x-0 top-0 z-0 h-1 overflow-hidden rounded-t-2xl">
-              <div className="h-full w-full bg-gradient-to-r from-[#003366] via-sky-600 to-[#003366] opacity-90" />
+              <div className="h-full w-full opacity-90 bg-surface-muted" />
             </div>
             <div className="relative z-10 p-6 sm:p-8">
               <div ref={dishSearchWrapRef} className="relative z-20 max-w-xl">
-                <label className="flex items-center gap-2 text-sm font-semibold text-slate-800 mb-2">
-                  <span className="flex h-8 w-8 items-center justify-center rounded-lg bg-slate-100 text-[#003366]">
+                <label className="flex items-center gap-2 text-sm font-semibold text-foreground mb-2">
+                  <span className="flex h-8 w-8 items-center justify-center rounded-lg bg-surface-muted text-primary">
                     <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden>
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
                     </svg>
@@ -889,10 +889,10 @@ const RecipeConfigurationPage: React.FC = () => {
                       onFocus={() => setDishListOpen(true)}
                       placeholder="e.g. grilled chicken, SKU…"
                       autoComplete="off"
-                      className="w-full rounded-xl border border-slate-200 bg-slate-50/50 px-4 py-3 text-sm text-slate-900 shadow-inner shadow-slate-200/30 transition-all placeholder:text-slate-400 focus:border-[#003366]/40 focus:bg-white focus:outline-none focus:ring-4 focus:ring-[#003366]/15"
+                      className="w-full rounded-xl border border-line bg-surface-raised/50 px-4 py-3 text-sm text-foreground transition-all placeholder:text-subtle focus:border-primary/40 focus:bg-surface focus:outline-none focus:ring-4 focus:ring-primary/15"
                     />
                     {dishSearchLoading && (
-                      <span className="absolute right-4 top-1/2 -translate-y-1/2 text-xs font-medium text-slate-400">
+                      <span className="absolute right-4 top-1/2 -translate-y-1/2 text-xs font-medium text-subtle">
                         Searching…
                       </span>
                     )}
@@ -901,16 +901,16 @@ const RecipeConfigurationPage: React.FC = () => {
                     <button
                       type="button"
                       onClick={clearDish}
-                      className="shrink-0 rounded-xl border border-slate-200 bg-white px-4 py-3 text-sm font-semibold text-slate-600 shadow-sm transition-all hover:border-slate-300 hover:bg-slate-50"
+                      className="shrink-0 rounded-xl border border-line bg-surface px-4 py-3 text-sm font-semibold text-muted transition-all hover:border-line-strong hover:bg-surface-raised"
                     >
                       Clear
                     </button>
                   )}
                 </div>
                 {dishListOpen && dishQuery.trim() && (
-                  <div className="absolute left-0 right-0 z-[200] mt-2 max-h-72 w-full min-w-0 overflow-auto rounded-xl border border-slate-200/80 bg-white py-1 shadow-2xl shadow-slate-300/40 ring-1 ring-black/5">
+                  <div className="absolute left-0 right-0 z-[200] mt-2 max-h-72 w-full min-w-0 overflow-auto rounded-xl border border-line/80 bg-surface py-1 shadow-elevated ring-1 ring-line/5">
                     {dishResults.length === 0 && !dishSearchLoading ? (
-                      <div className="px-4 py-5 text-sm text-slate-500">
+                      <div className="px-4 py-5 text-sm text-muted">
                         No prepared dishes match &quot;{dishQuery.trim()}&quot;.
                       </div>
                     ) : (
@@ -920,12 +920,12 @@ const RecipeConfigurationPage: React.FC = () => {
                           type="button"
                           onMouseDown={(e) => e.preventDefault()}
                           onClick={() => pickDish(d)}
-                          className="w-full text-left px-4 py-3 text-sm transition-colors hover:bg-slate-50 border-b border-slate-50 last:border-0"
+                          className="w-full text-left px-4 py-3 text-sm transition-colors hover:bg-surface-raised border-b border-line last:border-0"
                         >
-                          <span className="font-semibold text-slate-900">{d.name}</span>
-                          <span className="text-slate-500 ml-2 font-mono text-xs">{d.code}</span>
+                          <span className="font-semibold text-foreground">{d.name}</span>
+                          <span className="text-muted ml-2 font-mono text-xs">{d.code}</span>
                           {d.ptype === 'Variation' && (
-                            <span className="ml-2 text-[10px] font-bold uppercase tracking-wide text-amber-800 bg-amber-100 px-2 py-0.5 rounded-md">
+                            <span className="ml-2 text-[10px] font-bold uppercase tracking-wide text-warning bg-warning-soft px-2 py-0.5 rounded-md">
                               variation
                             </span>
                           )}
@@ -938,23 +938,23 @@ const RecipeConfigurationPage: React.FC = () => {
             </div>
           </div>
 
-          <div className="overflow-hidden rounded-2xl border border-slate-200/80 bg-white/90 shadow-xl shadow-slate-200/50 backdrop-blur-sm">
-            <div className="border-b border-slate-100 bg-gradient-to-r from-slate-50/80 to-white p-6 sm:p-8">
+          <div className="overflow-hidden rounded-2xl border border-line/80 bg-surface backdrop-blur-sm">
+            <div className="border-b border-line p-6 sm:p-8 bg-surface-muted">
               <div className="flex flex-col gap-6 lg:flex-row lg:items-start lg:justify-between">
                 <div>
-                  <h2 className="text-xl font-bold text-slate-900">Saved recipes</h2>
-                  <p className="mt-1.5 max-w-lg text-sm text-slate-600 leading-relaxed">
+                  <h2 className="text-xl font-bold text-foreground">Saved recipes</h2>
+                  <p className="mt-1.5 max-w-lg text-sm text-muted leading-relaxed">
                     Browse and manage saved formulas. Units resolve from{' '}
-                    <strong className="font-semibold text-slate-800">Kitchen inventory</strong>.
+                    <strong className="font-semibold text-foreground">Kitchen inventory</strong>.
                   </p>
                 </div>
                 <div className="flex flex-wrap items-center gap-2">
                   <button
                     type="button"
                     onClick={() => loadRecipesList(listQuery)}
-                    className="inline-flex items-center justify-center rounded-xl border border-slate-200 bg-white px-4 py-2.5 text-sm font-semibold text-slate-700 shadow-sm transition-all hover:bg-slate-50 hover:border-slate-300"
+                    className="inline-flex items-center justify-center rounded-xl border border-line bg-surface px-4 py-2.5 text-sm font-semibold text-foreground transition-all hover:bg-surface-raised hover:border-line-strong"
                   >
-                    <svg className="mr-2 h-4 w-4 text-slate-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <svg className="mr-2 h-4 w-4 text-muted" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
                     </svg>
                     Refresh
@@ -962,7 +962,7 @@ const RecipeConfigurationPage: React.FC = () => {
                   <button
                     type="button"
                     onClick={startNewRecipe}
-                    className="inline-flex items-center rounded-xl bg-[#003366] px-5 py-2.5 text-sm font-semibold text-white shadow-lg shadow-[#003366]/30 transition-all hover:bg-[#004080] hover:shadow-xl hover:shadow-[#003366]/25"
+                    className="inline-flex items-center rounded-xl bg-primary px-5 py-2.5 text-sm font-semibold text-on-primary transition-all hover:bg-primary-hover"
                   >
                     <svg className="mr-2 h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
@@ -976,79 +976,79 @@ const RecipeConfigurationPage: React.FC = () => {
                   onSearch={setListQuery}
                   placeholder="Search saved recipes by dish name or code…"
                   className="w-full"
-                  inputClassName="rounded-xl border-slate-200 bg-slate-50/80 py-3 shadow-sm focus:bg-white"
+                  inputClassName="rounded-xl border-line bg-surface-raised/80 py-3 focus:bg-surface"
                 />
               </div>
             </div>
 
             {recipesListLoading ? (
-              <div className="flex items-center justify-center gap-3 px-6 py-16 text-sm font-medium text-slate-500">
-                <span className="h-2 w-2 animate-pulse rounded-full bg-[#003366]" />
+              <div className="flex items-center justify-center gap-3 px-6 py-16 text-sm font-medium text-muted">
+                <span className="h-2 w-2 animate-pulse rounded-full bg-primary" />
                 Loading recipes…
               </div>
             ) : recipesList.length === 0 ? (
-              <div className="mx-6 my-10 rounded-xl border border-dashed border-slate-200 bg-slate-50/50 px-6 py-10 text-center">
-                <p className="text-sm text-slate-600">
+              <div className="mx-6 my-10 rounded-xl border border-dashed border-line bg-surface-raised/50 px-6 py-10 text-center">
+                <p className="text-sm text-muted">
                   No recipes match your filters. Use{' '}
-                  <strong className="text-slate-800">Add recipe</strong> or save from the editor below.
+                  <strong className="text-foreground">Add recipe</strong> or save from the editor below.
                 </p>
               </div>
             ) : (
               <div className="overflow-x-auto p-4 sm:p-6">
-                <div className="overflow-hidden rounded-xl border border-slate-100 shadow-inner shadow-slate-100">
-                  <table className="min-w-full divide-y divide-slate-100">
+                <div className="overflow-hidden rounded-xl border border-line">
+                  <table className="min-w-full divide-y divide-line">
                     <thead>
-                      <tr className="bg-gradient-to-r from-slate-50 to-slate-100/80">
-                        <th className="px-5 py-4 text-left text-[11px] font-bold uppercase tracking-widest text-slate-500">
+                      <tr className="bg-surface-muted">
+                        <th className="px-5 py-4 text-left text-[11px] font-bold uppercase tracking-widest text-muted">
                           Dish name
                         </th>
-                        <th className="px-5 py-4 text-center text-[11px] font-bold uppercase tracking-widest text-slate-500">
+                        <th className="px-5 py-4 text-center text-[11px] font-bold uppercase tracking-widest text-muted">
                           Ingredients
                         </th>
-                        <th className="px-5 py-4 text-left text-[11px] font-bold uppercase tracking-widest text-slate-500">
+                        <th className="px-5 py-4 text-left text-[11px] font-bold uppercase tracking-widest text-muted">
                           Quantity
                         </th>
-                        <th className="px-5 py-4 text-left text-[11px] font-bold uppercase tracking-widest text-slate-500">
+                        <th className="px-5 py-4 text-left text-[11px] font-bold uppercase tracking-widest text-muted">
                           Unit
                         </th>
-                        <th className="px-5 py-4 text-right text-[11px] font-bold uppercase tracking-widest text-slate-500">
+                        <th className="px-5 py-4 text-right text-[11px] font-bold uppercase tracking-widest text-muted">
                           Actions
                         </th>
                       </tr>
                     </thead>
-                    <tbody className="divide-y divide-slate-100 bg-white">
+                    <tbody className="divide-y divide-line bg-surface">
                       {recipesList.map((r) => {
                         const ings = parseRecipeIngredients(r);
                         return (
                           <tr
                             key={r._id}
-                            className="transition-colors hover:bg-slate-50/90"
+                            className="transition-colors hover:bg-surface-raised/90"
                           >
                             <td className="px-5 py-5 align-top">
-                              <div className="text-base font-bold text-slate-900">
+                              <div className="text-base font-bold text-foreground">
                                 {r.dishName || '—'}
                                 {r.dishCode ? (
-                                  <span className="text-slate-500 font-semibold font-mono text-sm">
+                                  <span className="text-muted font-semibold font-mono text-sm">
                                     {' '}
                                     ({r.dishCode})
                                   </span>
                                 ) : null}
                               </div>
                               {r.variationName ? (
-                                <div className="mt-2 inline-flex items-center rounded-lg bg-amber-50 px-2.5 py-1 text-xs font-medium text-amber-900 ring-1 ring-amber-200/60">
+                                <div className="mt-2 inline-flex items-center rounded-lg bg-warning-soft px-2.5 py-1 text-xs font-medium text-warning ring-1 ring-warning-line/60">
                                   {r.variationName}
                                 </div>
                               ) : null}
                             </td>
                             <td className="px-5 py-5 text-center align-top">
-                              <span className="inline-flex min-h-9 min-w-9 items-center justify-center rounded-full bg-slate-100 px-3 text-sm font-bold text-slate-700 ring-1 ring-slate-200/80">
+                              <span className="inline-flex min-h-9 min-w-9 items-center justify-center rounded-full bg-surface-muted px-3 text-sm font-bold text-foreground ring-1 ring-primary/80">
                                 {ings.length}
                               </span>
                             </td>
                             <td className="px-5 py-5 align-top">
-                              <div className="space-y-1.5 text-sm font-medium text-slate-800">
+                              <div className="space-y-1.5 text-sm font-medium text-foreground">
                                 {ings.length === 0 ? (
-                                  <span className="text-slate-400">—</span>
+                                  <span className="text-subtle">—</span>
                                 ) : (
                                   ings.map((ing, idx) => (
                                     <div key={`${r._id}-q-${idx}`} className="tabular-nums">
@@ -1059,9 +1059,9 @@ const RecipeConfigurationPage: React.FC = () => {
                               </div>
                             </td>
                             <td className="px-5 py-5 align-top">
-                              <div className="space-y-1.5 text-sm text-slate-600">
+                              <div className="space-y-1.5 text-sm text-muted">
                                 {ings.length === 0 ? (
-                                  <span className="text-slate-400">—</span>
+                                  <span className="text-subtle">—</span>
                                 ) : (
                                   ings.map((ing, idx) => {
                                     const kid = ing.ingredientProductId || '';
@@ -1071,7 +1071,7 @@ const RecipeConfigurationPage: React.FC = () => {
                                     const u = fromKitchen || ing.unit || '—';
                                     return (
                                       <div key={`${r._id}-u-${idx}`}>
-                                        <span className="rounded-md bg-slate-100 px-2 py-0.5 text-xs font-semibold uppercase text-slate-600">
+                                        <span className="rounded-md bg-surface-muted px-2 py-0.5 text-xs font-semibold uppercase text-muted">
                                           {u}
                                         </span>
                                       </div>
@@ -1081,11 +1081,11 @@ const RecipeConfigurationPage: React.FC = () => {
                               </div>
                             </td>
                             <td className="px-5 py-5 whitespace-nowrap text-right align-top">
-                              <div className="inline-flex items-center gap-0.5 rounded-xl bg-slate-100/80 p-1 ring-1 ring-slate-200/60">
+                              <div className="inline-flex items-center gap-0.5 rounded-xl bg-surface-muted p-1 ring-1 ring-primary/60">
                                 <button
                                   type="button"
                                   onClick={() => setViewingRecipe(r)}
-                                  className="inline-flex items-center rounded-lg p-2 text-emerald-600 transition-colors hover:bg-white hover:text-emerald-700 hover:shadow-sm"
+                                  className="inline-flex items-center rounded-lg p-2 text-secondary transition-colors hover:bg-surface hover:text-secondary"
                                   title="View recipe"
                                 >
                                   <svg className="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -1096,7 +1096,7 @@ const RecipeConfigurationPage: React.FC = () => {
                                 <button
                                   type="button"
                                   onClick={() => openEditorForRecipe(r)}
-                                  className="inline-flex items-center rounded-lg p-2 text-[#003366] transition-colors hover:bg-white hover:shadow-sm"
+                                  className="inline-flex items-center rounded-lg p-2 text-primary transition-colors hover:bg-surface"
                                   title="Edit recipe"
                                 >
                                   <svg className="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -1106,7 +1106,7 @@ const RecipeConfigurationPage: React.FC = () => {
                                 <button
                                   type="button"
                                   onClick={() => setPendingDeleteRecipe(r)}
-                                  className="inline-flex items-center rounded-lg p-2 text-red-600 transition-colors hover:bg-white hover:text-red-700 hover:shadow-sm"
+                                  className="inline-flex items-center rounded-lg p-2 text-danger transition-colors hover:bg-surface hover:text-danger"
                                   title="Delete recipe"
                                 >
                                   <svg className="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -1126,22 +1126,22 @@ const RecipeConfigurationPage: React.FC = () => {
           </div>
 
           {dishId && (
-            <div className="space-y-6 rounded-2xl border border-slate-200/80 bg-white/90 p-6 sm:p-8 shadow-xl shadow-slate-200/50 backdrop-blur-sm">
-              <div className="flex flex-wrap items-center justify-between gap-3 border-b border-slate-100 pb-4">
+            <div className="space-y-6 rounded-2xl border border-line/80 bg-surface p-6 sm:p-8 backdrop-blur-sm">
+              <div className="flex flex-wrap items-center justify-between gap-3 border-b border-line pb-4">
                 <div>
-                  <h2 className="text-lg font-bold text-slate-900">Recipe editor</h2>
-                  <p className="text-xs text-slate-500 mt-0.5">Per portion — link kitchen SKUs and quantities</p>
+                  <h2 className="text-lg font-bold text-foreground">Recipe editor</h2>
+                  <p className="text-xs text-muted mt-0.5">Per portion — link kitchen SKUs and quantities</p>
                 </div>
               </div>
           {variations.length > 0 && (
             <div>
-              <label className="block text-sm font-semibold text-slate-800 mb-2">
-                Portion / variation <span className="font-normal text-slate-400">(optional)</span>
+              <label className="block text-sm font-semibold text-foreground mb-2">
+                Portion / variation <span className="font-normal text-subtle">(optional)</span>
               </label>
               <select
                 value={variationName}
                 onChange={(e) => setVariationName(e.target.value)}
-                className="w-full max-w-xl rounded-xl border border-slate-200 bg-slate-50/50 px-4 py-3 text-sm font-medium text-slate-900 shadow-sm transition-all focus:border-[#003366]/40 focus:bg-white focus:outline-none focus:ring-4 focus:ring-[#003366]/15"
+                className="w-full max-w-xl rounded-xl border border-line bg-surface-raised/50 px-4 py-3 text-sm font-medium text-foreground transition-all focus:border-primary/40 focus:bg-surface focus:outline-none focus:ring-4 focus:ring-primary/15"
               >
                 <option value="">Default recipe (no variation)</option>
                 {variations.map((v) => (
@@ -1150,26 +1150,26 @@ const RecipeConfigurationPage: React.FC = () => {
                   </option>
                 ))}
               </select>
-              <p className="mt-2 text-xs text-slate-500 leading-relaxed">
+              <p className="mt-2 text-xs text-muted leading-relaxed">
                 Save a separate recipe per size (e.g. Small / Large) when the dish has variations on the POS.
               </p>
             </div>
           )}
 
-              <div className="border-t border-slate-100 pt-6">
+              <div className="border-t border-line pt-6">
                 <div className="mb-4">
-                  <span className="text-base font-bold text-slate-900">
+                  <span className="text-base font-bold text-foreground">
                     Ingredients (per 1 portion)
                   </span>
-                  <p className="mt-0.5 text-xs text-slate-500">
+                  <p className="mt-0.5 text-xs text-muted">
                     Type to search kitchen stock (live query). Pick a row below or add another line.
                   </p>
                 </div>
-                <div className="rounded-xl border border-slate-200/90 bg-slate-50/40 overflow-hidden">
+                <div className="rounded-xl border border-line/90 bg-surface-raised/40 overflow-hidden">
                   <div className="overflow-x-auto">
                     <table className="w-full min-w-[520px] border-collapse text-sm">
                       <thead>
-                        <tr className="border-b border-slate-200 bg-slate-100/90 text-left text-xs font-bold uppercase tracking-wide text-slate-600">
+                        <tr className="border-b border-line bg-surface-muted text-left text-xs font-bold uppercase tracking-wide text-muted">
                           <th className="px-3 py-3 sm:px-4">Ingredient</th>
                           <th className="px-3 py-3 w-[6.5rem] sm:px-4">Quantity</th>
                           <th className="px-3 py-3 w-[5rem] sm:px-4">Unit</th>
@@ -1178,7 +1178,7 @@ const RecipeConfigurationPage: React.FC = () => {
                           </th>
                         </tr>
                       </thead>
-                      <tbody className="bg-white">
+                      <tbody className="bg-surface">
                         {rows.map((row, i) => {
                           const ingMatches = ingredientMatchesForRow(i, row);
                           const showSuggest =
@@ -1186,7 +1186,7 @@ const RecipeConfigurationPage: React.FC = () => {
                           return (
                             <tr
                               key={i}
-                              className="border-b border-slate-100 align-top last:border-0"
+                              className="border-b border-line align-top last:border-0"
                             >
                               <td className="px-3 py-3 sm:px-4">
                                 <div
@@ -1203,21 +1203,21 @@ const RecipeConfigurationPage: React.FC = () => {
                                     onFocus={() => setIngOpenRow(i)}
                                     placeholder="Search kitchen products…"
                                     autoComplete="off"
-                                    className="w-full rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm shadow-sm transition-colors focus:border-[#003366]/40 focus:outline-none focus:ring-2 focus:ring-[#003366]/12"
+                                    className="w-full rounded-lg border border-line bg-surface px-3 py-2 text-sm transition-colors focus:border-primary/40 focus:outline-none focus:ring-2 focus:ring-primary/12"
                                   />
                                   {showSuggest ? (
-                                    <div className="absolute z-20 left-0 right-0 top-full mt-1 max-h-52 overflow-auto rounded-lg border border-slate-200/80 bg-white py-1 shadow-xl ring-1 ring-black/5">
+                                    <div className="absolute z-20 left-0 right-0 top-full mt-1 max-h-52 overflow-auto rounded-lg border border-line/80 bg-surface py-1 ring-1 ring-line/5">
                                       {ingredientSuggestLoading &&
                                       row.ingQuery.trim() &&
                                       ingMatches.length === 0 ? (
-                                        <div className="px-3 py-2.5 text-xs font-medium text-slate-500">
+                                        <div className="px-3 py-2.5 text-xs font-medium text-muted">
                                           Searching…
                                         </div>
                                       ) : null}
                                       {row.ingQuery.trim() &&
                                       !ingredientSuggestLoading &&
                                       ingMatches.length === 0 ? (
-                                        <div className="px-3 py-2.5 text-sm text-slate-500">
+                                        <div className="px-3 py-2.5 text-sm text-muted">
                                           No ingredients match &quot;{row.ingQuery.trim()}&quot;.
                                         </div>
                                       ) : null}
@@ -1227,12 +1227,12 @@ const RecipeConfigurationPage: React.FC = () => {
                                           type="button"
                                           onMouseDown={(e) => e.preventDefault()}
                                           onClick={() => pickKitchenIng(i, k)}
-                                          className="w-full border-b border-slate-50 px-3 py-2.5 text-left text-sm transition-colors last:border-0 hover:bg-slate-50"
+                                          className="w-full border-b border-line px-3 py-2.5 text-left text-sm transition-colors last:border-0 hover:bg-surface-raised"
                                         >
-                                          <span className="font-semibold text-slate-900">
+                                          <span className="font-semibold text-foreground">
                                             {k.name}
                                           </span>
-                                          <span className="ml-2 font-mono text-xs text-slate-500">
+                                          <span className="ml-2 font-mono text-xs text-muted">
                                             {k.unitId?.shortName || '—'}
                                           </span>
                                         </button>
@@ -1251,7 +1251,7 @@ const RecipeConfigurationPage: React.FC = () => {
                                   onChange={(e) =>
                                     updateRow(i, { quantity: e.target.value })
                                   }
-                                  className="w-full min-w-[4.5rem] rounded-lg border border-slate-200 bg-white px-2 py-2 text-sm tabular-nums shadow-sm focus:border-[#003366]/40 focus:outline-none focus:ring-2 focus:ring-[#003366]/12"
+                                  className="w-full min-w-[4.5rem] rounded-lg border border-line bg-surface px-2 py-2 text-sm tabular-nums focus:border-primary/40 focus:outline-none focus:ring-2 focus:ring-primary/12"
                                 />
                               </td>
                               <td className="px-3 py-3 sm:px-4">
@@ -1261,14 +1261,14 @@ const RecipeConfigurationPage: React.FC = () => {
                                   value={
                                     row.unit || unitForKitchenId(row.kitchenProductId)
                                   }
-                                  className="w-full min-w-[3rem] rounded-lg border border-slate-200 bg-slate-50/90 px-2 py-2 text-sm font-medium text-slate-600"
+                                  className="w-full min-w-[3rem] rounded-lg border border-line bg-surface-raised/90 px-2 py-2 text-sm font-medium text-muted"
                                 />
                               </td>
                               <td className="px-3 py-3 text-right sm:px-4">
                                 <button
                                   type="button"
                                   onClick={() => removeRow(i)}
-                                  className="rounded-lg px-2 py-1.5 text-sm font-semibold text-red-600 transition-colors hover:bg-red-50"
+                                  className="rounded-lg px-2 py-1.5 text-sm font-semibold text-danger transition-colors hover:bg-danger-soft"
                                 >
                                   Remove
                                 </button>
@@ -1284,7 +1284,7 @@ const RecipeConfigurationPage: React.FC = () => {
                   <button
                     type="button"
                     onClick={addRow}
-                    className="inline-flex items-center rounded-xl border-2 border-dashed border-slate-300 bg-slate-50/60 px-4 py-2.5 text-sm font-semibold text-[#003366] transition-all hover:border-[#003366]/35 hover:bg-white"
+                    className="inline-flex items-center rounded-xl border-2 border-dashed border-line-strong bg-surface-raised/60 px-4 py-2.5 text-sm font-semibold text-primary transition-all hover:border-primary/35 hover:bg-surface"
                   >
                     <svg
                       className="mr-1.5 h-4 w-4"
@@ -1304,17 +1304,17 @@ const RecipeConfigurationPage: React.FC = () => {
                   </button>
                 </div>
               </div>
-              <div className="flex flex-wrap items-center gap-3 border-t border-slate-100 pt-6">
+              <div className="flex flex-wrap items-center gap-3 border-t border-line pt-6">
                 <button
                   type="button"
                   onClick={cancelRecipeEdit}
-                  className="rounded-xl border border-slate-200 bg-white px-6 py-3 text-sm font-semibold text-slate-700 shadow-sm transition-all hover:bg-slate-50"
+                  className="rounded-xl border border-line bg-surface px-6 py-3 text-sm font-semibold text-foreground transition-all hover:bg-surface-raised"
                 >
                   Cancel
                 </button>
                 <button
                   type="submit"
-                  className="rounded-xl bg-[#003366] px-8 py-3 text-sm font-semibold text-white shadow-lg shadow-[#003366]/30 transition-all hover:bg-[#004080] hover:shadow-xl"
+                  className="rounded-xl bg-primary px-8 py-3 text-sm font-semibold text-on-primary transition-all hover:bg-primary-hover"
                 >
                   {recipeExistsInDb ? 'Update recipe' : 'Save recipe'}
                 </button>
@@ -1340,17 +1340,17 @@ const RecipeConfigurationPage: React.FC = () => {
           >
             <div className="flex min-h-full items-center justify-center p-4 sm:p-6">
               <div
-                className="fixed inset-0 bg-slate-900/60 backdrop-blur-[10px]"
+                className="fixed inset-0 bg-overlay backdrop-blur-[10px]"
                 aria-hidden
                 onClick={() => setViewingRecipe(null)}
               />
-              <div className="relative w-full max-w-xl overflow-hidden rounded-3xl border border-slate-200/90 bg-white text-left shadow-[0_25px_80px_-12px_rgba(15,23,42,0.35)] ring-1 ring-black/5">
-                <div className="pointer-events-none absolute inset-0 bg-gradient-to-br from-[#003366]/[0.06] via-transparent to-sky-500/[0.05]" />
-                <div className="relative h-1.5 bg-gradient-to-r from-[#003366] via-sky-500 to-[#003366]" />
+              <div className="relative w-full max-w-xl overflow-hidden rounded-3xl border border-line/90 bg-surface text-left shadow-[0_25px_80px_-12px_rgba(15,23,42,0.35)] ring-1 ring-line/5">
+                <div className="pointer-events-none absolute inset-0 /[0.06] /[0.05] bg-surface-muted" />
+                <div className="relative h-1.5 bg-surface-muted" />
                 <div className="relative">
-                  <div className="flex items-start justify-between gap-4 border-b border-slate-100/90 px-6 pb-5 pt-6 sm:px-8 sm:pt-8">
+                  <div className="flex items-start justify-between gap-4 border-b border-line/90 px-6 pb-5 pt-6 sm:px-8 sm:pt-8">
                     <div className="flex min-w-0 flex-1 gap-4">
-                      <div className="flex h-14 w-14 shrink-0 items-center justify-center rounded-2xl bg-gradient-to-br from-[#003366] to-sky-800 text-white shadow-lg shadow-[#003366]/35">
+                      <div className="flex h-14 w-14 shrink-0 items-center justify-center rounded-2xl text-on-primary bg-primary">
                         <svg className="h-7 w-7" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden>
                           <path
                             strokeLinecap="round"
@@ -1361,23 +1361,23 @@ const RecipeConfigurationPage: React.FC = () => {
                         </svg>
                       </div>
                       <div className="min-w-0 pt-0.5">
-                        <p className="text-[10px] font-bold uppercase tracking-[0.2em] text-slate-400">
+                        <p className="text-[10px] font-bold uppercase tracking-[0.2em] text-subtle">
                           Recipe preview
                         </p>
                         <h3
                           id="recipe-view-title"
-                          className="mt-1 text-2xl font-bold tracking-tight text-slate-900 sm:text-3xl"
+                          className="mt-1 text-2xl font-bold tracking-tight text-foreground sm:text-3xl"
                         >
                           {viewingRecipe.dishName || 'Recipe'}
                         </h3>
                         <div className="mt-3 flex flex-wrap items-center gap-2">
                           {viewingRecipe.dishCode ? (
-                            <span className="inline-flex items-center rounded-lg bg-slate-100 px-2.5 py-1 font-mono text-xs font-bold text-slate-700 ring-1 ring-slate-200/80">
+                            <span className="inline-flex items-center rounded-lg bg-surface-muted px-2.5 py-1 font-mono text-xs font-bold text-foreground ring-1 ring-primary/80">
                               {viewingRecipe.dishCode}
                             </span>
                           ) : null}
                           {viewingRecipe.variationName ? (
-                            <span className="inline-flex items-center rounded-lg bg-gradient-to-r from-amber-50 to-orange-50 px-2.5 py-1 text-xs font-semibold text-amber-950 ring-1 ring-amber-200/70">
+                            <span className="inline-flex items-center rounded-lg px-2.5 py-1 text-xs font-semibold text-warning ring-1 ring-warning-line/70 bg-surface-muted">
                               {viewingRecipe.variationName}
                             </span>
                           ) : null}
@@ -1387,7 +1387,7 @@ const RecipeConfigurationPage: React.FC = () => {
                     <button
                       type="button"
                       onClick={() => setViewingRecipe(null)}
-                      className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full border border-slate-200/80 bg-white text-slate-500 shadow-sm transition-all hover:border-slate-300 hover:bg-slate-50 hover:text-slate-800"
+                      className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full border border-line/80 bg-surface text-muted transition-all hover:border-line-strong hover:bg-surface-raised hover:text-foreground"
                       aria-label="Close"
                     >
                       <svg className="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -1398,7 +1398,7 @@ const RecipeConfigurationPage: React.FC = () => {
 
                   <div className="px-6 py-5 sm:px-8">
                     <div className="mb-4 flex items-center gap-3">
-                      <span className="flex h-9 w-9 items-center justify-center rounded-xl bg-emerald-50 text-emerald-600 ring-1 ring-emerald-100">
+                      <span className="flex h-9 w-9 items-center justify-center rounded-xl bg-secondary-soft text-secondary ring-1 ring-secondary-line">
                         <svg className="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden>
                           <path
                             strokeLinecap="round"
@@ -1409,17 +1409,17 @@ const RecipeConfigurationPage: React.FC = () => {
                         </svg>
                       </span>
                       <div>
-                        <p className="text-sm font-bold text-slate-900">Ingredients</p>
-                        <p className="text-xs text-slate-500">
+                        <p className="text-sm font-bold text-foreground">Ingredients</p>
+                        <p className="text-xs text-muted">
                           Per portion · units from{' '}
-                          <span className="font-semibold text-slate-600">Kitchen inventory</span>
+                          <span className="font-semibold text-muted">Kitchen inventory</span>
                         </p>
                       </div>
                     </div>
 
                     <ul className="max-h-[min(22rem,50vh)] space-y-2.5 overflow-y-auto pr-1">
                       {parseRecipeIngredients(viewingRecipe).length === 0 ? (
-                        <li className="rounded-2xl border border-dashed border-slate-200 bg-slate-50/80 px-5 py-10 text-center text-sm text-slate-500">
+                        <li className="rounded-2xl border border-dashed border-line bg-surface-raised/80 px-5 py-10 text-center text-sm text-muted">
                           No ingredients in this recipe
                         </li>
                       ) : null}
@@ -1431,19 +1431,19 @@ const RecipeConfigurationPage: React.FC = () => {
                         return (
                           <li
                             key={idx}
-                            className="group flex items-stretch gap-3 rounded-2xl border border-slate-100 bg-gradient-to-r from-white to-slate-50/40 p-4 shadow-sm ring-1 ring-slate-100/80 transition-all hover:border-slate-200/90 hover:shadow-md"
+                            className="group flex items-stretch gap-3 rounded-2xl border border-line p-4 ring-1 ring-primary/80 transition-all hover:border-line/90 bg-surface-muted"
                           >
-                            <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-slate-100 text-sm font-bold text-slate-600 transition-colors group-hover:bg-[#003366]/10 group-hover:text-[#003366]">
+                            <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-surface-muted text-sm font-bold text-muted transition-colors group-hover:bg-primary-soft group-hover:text-primary">
                               {idx + 1}
                             </div>
                             <div className="min-w-0 flex-1">
-                              <p className="font-semibold leading-snug text-slate-900">{name}</p>
+                              <p className="font-semibold leading-snug text-foreground">{name}</p>
                             </div>
                             <div className="shrink-0 text-right">
-                              <p className="text-lg font-bold tabular-nums leading-none text-slate-900">
+                              <p className="text-lg font-bold tabular-nums leading-none text-foreground">
                                 {Number.isFinite(ing.quantity) ? ing.quantity : '—'}
                               </p>
-                              <p className="mt-1.5 inline-block rounded-md bg-slate-200/70 px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider text-slate-600">
+                              <p className="mt-1.5 inline-block rounded-md bg-surface-muted px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider text-muted">
                                 {unitDisp}
                               </p>
                             </div>
@@ -1453,18 +1453,18 @@ const RecipeConfigurationPage: React.FC = () => {
                     </ul>
                   </div>
 
-                  <div className="border-t border-slate-100 bg-gradient-to-br from-slate-50 via-white to-slate-50/80 px-6 py-6 sm:px-8">
-                    <p className="text-[10px] font-bold uppercase tracking-[0.2em] text-slate-400">
+                  <div className="border-t border-line px-6 py-6 sm:px-8 bg-surface-muted">
+                    <p className="text-[10px] font-bold uppercase tracking-[0.2em] text-subtle">
                       Selling price
                     </p>
                     {viewModalDishLoading ? (
-                      <div className="mt-3 h-11 w-52 max-w-full animate-pulse rounded-xl bg-slate-200/80" />
+                      <div className="mt-3 h-11 w-52 max-w-full animate-pulse rounded-xl bg-surface-muted" />
                     ) : viewModalSellingPrice !== undefined ? (
-                      <p className="mt-2 text-3xl font-bold tabular-nums tracking-tight text-[#003366] sm:text-4xl">
+                      <p className="mt-2 text-3xl font-bold tabular-nums tracking-tight text-foreground sm:text-4xl">
                         {currencyCode} {viewModalSellingPrice.toFixed(2)}
                       </p>
                     ) : (
-                      <p className="mt-2 text-sm font-medium text-slate-500">
+                      <p className="mt-2 text-sm font-medium text-muted">
                         No POS price set for this dish or variation.
                       </p>
                     )}
@@ -1477,22 +1477,22 @@ const RecipeConfigurationPage: React.FC = () => {
 
         {dishId && effectiveSellingPrice !== undefined && (
           <div
-            className="recipe-costing-summary-root group relative mt-10 overflow-hidden rounded-2xl border border-[#003366]/18 bg-gradient-to-br from-[#003366]/[0.09] via-white to-slate-50 p-6 shadow-xl shadow-[#003366]/12 ring-1 ring-[#003366]/10 transition-all duration-500 ease-out hover:border-[#003366]/28 hover:shadow-2xl hover:shadow-[#003366]/18 sm:p-8"
+            className="recipe-costing-summary-root group relative mt-10 overflow-hidden rounded-2xl border border-primary/18 /[0.09] p-6 ring-1 ring-primary/10 transition-all duration-500 ease-out hover:border-primary/28 hover:shadow-elevated sm:p-8 bg-surface-muted"
             role="region"
             aria-label="Recipe costing summary"
           >
             <div
-              className="recipe-costing-orb pointer-events-none absolute -right-20 -top-24 h-56 w-56 rounded-full bg-[#003366]/15 blur-3xl"
+              className="recipe-costing-orb pointer-events-none absolute -right-20 -top-24 h-56 w-56 rounded-full bg-primary-soft blur-3xl"
               aria-hidden
             />
             <div
-              className="recipe-costing-orb--alt pointer-events-none absolute -bottom-28 -left-16 h-52 w-52 rounded-full bg-[#0a4f7a]/20 blur-3xl"
+              className="recipe-costing-orb--alt pointer-events-none absolute -bottom-28 -left-16 h-52 w-52 rounded-full bg-primary-soft blur-3xl"
               aria-hidden
             />
 
             <div className="relative flex flex-col gap-8 lg:flex-row lg:items-stretch lg:justify-between lg:gap-10">
               <div className="flex min-w-0 flex-1 items-start gap-4">
-                <div className="flex h-14 w-14 shrink-0 items-center justify-center rounded-2xl bg-[#003366] text-white shadow-lg shadow-[#003366]/35 ring-2 ring-white/30 transition-transform duration-300 ease-out group-hover:scale-[1.04] group-hover:shadow-xl group-hover:shadow-[#003366]/45">
+                <div className="flex h-14 w-14 shrink-0 items-center justify-center rounded-2xl bg-primary text-on-primary ring-2 ring-line/30 transition-transform duration-300 ease-out group-hover:scale-[1.04]">
                   <svg
                     className="h-7 w-7"
                     fill="none"
@@ -1509,13 +1509,13 @@ const RecipeConfigurationPage: React.FC = () => {
                   </svg>
                 </div>
                 <div className="min-w-0 pt-0.5">
-                  <h3 className="text-xs font-bold uppercase tracking-[0.22em] text-[#003366]/80">
+                  <h3 className="text-xs font-bold uppercase tracking-[0.22em] text-foreground/80">
                     Recipe costing summary
                   </h3>
-                  <p className="mt-2 text-sm leading-relaxed text-slate-600">
+                  <p className="mt-2 text-sm leading-relaxed text-muted">
                     Selling price from POS for this dish
                     {variationName.trim() ? (
-                      <span className="font-semibold text-slate-800">
+                      <span className="font-semibold text-foreground">
                         {' '}
                         · {variationName.trim()}
                       </span>
@@ -1526,21 +1526,21 @@ const RecipeConfigurationPage: React.FC = () => {
               </div>
 
               <div className="relative w-full shrink-0 lg:max-w-sm">
-                <div className="relative overflow-hidden rounded-2xl border border-[#003366]/22 bg-white/95 p-6 shadow-inner shadow-[#003366]/[0.08] backdrop-blur-sm transition-all duration-300 group-hover:border-[#003366]/32 group-hover:bg-white group-hover:shadow-md">
+                <div className="relative overflow-hidden rounded-2xl border border-primary/22 bg-surface p-6 /[0.08] backdrop-blur-sm transition-all duration-300 group-hover:border-primary/32 group-hover:bg-surface">
                   <div className="recipe-costing-price-shine" aria-hidden />
-                  <p className="text-[10px] font-bold uppercase tracking-[0.2em] text-slate-400">
+                  <p className="text-[10px] font-bold uppercase tracking-[0.2em] text-subtle">
                     Selling price
                   </p>
-                  <p className="mt-3 bg-gradient-to-r from-[#003366] via-[#0a4f7a] to-[#003366] bg-clip-text text-3xl font-bold tabular-nums tracking-tight text-transparent transition-transform duration-300 ease-out group-hover:scale-[1.02] sm:text-4xl">
+                  <p className="mt-3 bg-clip-text text-3xl font-bold tabular-nums tracking-tight text-transparent transition-transform duration-300 ease-out group-hover:scale-[1.02] sm:text-4xl bg-surface-muted">
                     {currencyCode} {effectiveSellingPrice.toFixed(2)}
                   </p>
                   <div
-                    className="mt-5 h-1 overflow-hidden rounded-full bg-slate-100"
+                    className="mt-5 h-1 overflow-hidden rounded-full bg-surface-muted"
                     aria-hidden
                   >
-                    <div className="recipe-costing-bar-glow h-full w-full rounded-full bg-gradient-to-r from-[#003366]/25 via-[#003366]/55 to-[#0a4f7a]/40 motion-reduce:scale-x-100 motion-reduce:opacity-100" />
+                    <div className="recipe-costing-bar-glow h-full w-full rounded-full motion-reduce:scale-x-100 motion-reduce:opacity-100 bg-surface-muted" />
                   </div>
-                  <p className="mt-3 text-[11px] font-medium text-slate-500">
+                  <p className="mt-3 text-[11px] font-medium text-muted">
                     Menu price for the selected dish{variationName.trim() ? ' & variation' : ''}.
                   </p>
                 </div>

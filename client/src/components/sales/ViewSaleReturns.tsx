@@ -93,16 +93,16 @@ const ViewSaleReturns: React.FC = () => {
   };
 
   return (
-    <div className="p-8 bg-[#F8FAFC] min-h-screen">
+    <div className="p-8 bg-canvas min-h-screen">
       <div className="max-w-7xl mx-auto">
         <div className="flex justify-between items-center mb-8">
           <div>
-            <h1 className="text-4xl font-black text-[#003366] mb-2">Sale Returns</h1>
-            <p className="text-[#64748B] font-bold">View all sale return transactions</p>
+            <h1 className="text-4xl font-black text-foreground mb-2">Sale Returns</h1>
+            <p className="text-muted font-bold">View all sale return transactions</p>
           </div>
           <Link
             to="/viewSales"
-            className="bg-[#003366] text-white px-6 py-3 rounded-lg hover:bg-[#004080] font-black flex items-center gap-2 transition"
+            className="bg-primary text-on-primary px-6 py-3 rounded-lg hover:bg-primary-hover font-black flex items-center gap-2 transition"
           >
             <Plus size={20} /> Sales
           </Link>
@@ -117,27 +117,27 @@ const ViewSaleReturns: React.FC = () => {
               type="date"
               value={filterDate}
               onChange={e => { setFilterDate(e.target.value); setPagination(p => ({ ...p, page: 1 })); }}
-              className="px-4 py-2.5 pl-10 border border-slate-200 rounded-lg focus:outline-none focus:border-[#003366] bg-white"
+              className="px-4 py-2.5 pl-10 border border-line rounded-lg focus:outline-none focus:border-primary bg-surface"
             />
-            <Calendar size={18} className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none" />
+            <Calendar size={18} className="absolute left-3 top-1/2 -translate-y-1/2 text-subtle pointer-events-none" />
           </div>
         </div>
 
-        <div className="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden">
+        <div className="bg-surface rounded-2xl border border-line overflow-hidden">
           {loading ? (
             <Loader />
           ) : returns.length === 0 ? (
             <div className="p-12 text-center">
-              <p className="text-[#64748B] font-bold mb-2">No sale returns found</p>
-              <p className="text-sm text-[#64748B] mb-4">Sale returns can be created from a completed sale in the Sales list.</p>
-              <Link to="/viewSales" className="bg-[#003366] text-white px-6 py-2 rounded-lg hover:bg-[#004080] font-bold inline-block">
+              <p className="text-muted font-bold mb-2">No sale returns found</p>
+              <p className="text-sm text-muted mb-4">Sale returns can be created from a completed sale in the Sales list.</p>
+              <Link to="/viewSales" className="bg-primary text-on-primary px-6 py-2 rounded-lg hover:bg-primary-hover font-bold inline-block">
                 Go to Sales
               </Link>
             </div>
           ) : (
             <div className="overflow-x-auto">
               <table className="w-full text-left">
-                <thead className="bg-[#F1F5F9] text-[#64748B] text-[10px] uppercase tracking-[0.2em] font-black">
+                <thead className="bg-surface-muted text-muted text-[10px] uppercase tracking-[0.2em] font-black">
                   <tr>
                     <th className="p-6">Reference</th>
                     <th className="p-6">Sale</th>
@@ -149,33 +149,33 @@ const ViewSaleReturns: React.FC = () => {
                     <th className="p-6">Created</th>
                   </tr>
                 </thead>
-                <tbody className="divide-y divide-slate-50">
+                <tbody className="divide-y divide-line">
                   {returns.map(r => (
-                    <tr key={r.id} className="hover:bg-slate-50/50 transition-colors">
+                    <tr key={r.id} className="hover:bg-surface-raised/50 transition-colors">
                       <td className="p-6">
-                        <span className="inline-flex px-3 py-1 rounded-full text-xs font-bold border border-amber-300 bg-amber-50 text-amber-700">
+                        <span className="inline-flex px-3 py-1 rounded-full text-xs font-bold border border-warning-line bg-warning-soft text-warning">
                           {r.returnId}
                         </span>
                       </td>
-                      <td className="p-6 font-semibold text-[#003366]">{r.saleRef}</td>
-                      <td className="p-6 font-semibold text-[#003366]">{r.customerName}</td>
-                      <td className="p-6 font-semibold text-[#003366]">{r.warehouseName}</td>
-                      <td className="p-6 text-[#64748B]">{formatDate(r.returnDate)}</td>
+                      <td className="p-6 font-semibold text-foreground">{r.saleRef}</td>
+                      <td className="p-6 font-semibold text-foreground">{r.customerName}</td>
+                      <td className="p-6 font-semibold text-foreground">{r.warehouseName}</td>
+                      <td className="p-6 text-muted">{formatDate(r.returnDate)}</td>
                       <td className="p-6 text-center">
-                        <span className="inline-flex px-3 py-1 text-xs font-bold rounded-full border border-green-300 bg-green-50 text-green-700">
+                        <span className="inline-flex px-3 py-1 text-xs font-bold rounded-full border border-secondary-line bg-secondary-soft text-secondary">
                           {r.status}
                         </span>
                       </td>
-                      <td className="p-6 text-right font-black text-[#003366]">
+                      <td className="p-6 text-right font-black text-foreground">
                         {currencySymbol} {(r.totalAmount ?? 0).toFixed(2)}
                       </td>
-                      <td className="p-6 text-[#64748B] font-medium">{formatDate(r.createdAt)}</td>
+                      <td className="p-6 text-muted font-medium">{formatDate(r.createdAt)}</td>
                     </tr>
                   ))}
                 </tbody>
               </table>
               {pagination.total > 0 && (
-                <div className="px-4 py-3 border-t border-slate-200 bg-[#F8FAFC]">
+                <div className="px-4 py-3 border-t border-line bg-surface-raised">
                   <Pagination
                     totalItems={pagination.total}
                     itemsPerPage={pagination.limit}

@@ -110,13 +110,13 @@ const ViewQuotations: React.FC = () => {
 
   const getStatusColor = (status: string) => {
     switch (status) {
-      case 'Draft': return 'bg-gray-100 text-gray-600';
-      case 'Sent': return 'bg-blue-100 text-blue-600';
-      case 'Approved': return 'bg-green-100 text-green-600';
-      case 'Rejected': return 'bg-red-100 text-red-600';
+      case 'Draft': return 'bg-surface-muted text-muted';
+      case 'Sent': return 'bg-primary-soft text-primary';
+      case 'Approved': return 'bg-secondary-soft text-secondary';
+      case 'Rejected': return 'bg-danger-soft text-danger';
       case 'Expired': return 'bg-orange-100 text-orange-600';
-      case 'Converted': return 'bg-purple-100 text-purple-600';
-      default: return 'bg-gray-100 text-gray-600';
+      case 'Converted': return 'bg-violet-soft text-violet-status';
+      default: return 'bg-surface-muted text-muted';
     }
   };
 
@@ -273,35 +273,35 @@ const ViewQuotations: React.FC = () => {
   };
 
   return (
-    <div className="p-6 bg-[#F8FAFC] min-h-screen">
+    <div className="p-6 bg-canvas min-h-screen">
       {loading && <Loader text="Loading..." />}
       
       <div className="max-w-7xl mx-auto">
         <div className="flex justify-between items-center mb-8">
           <div>
-            <h1 className="text-4xl font-black text-[#001F54] mb-2 uppercase tracking-tight">Quotations</h1>
-            <p className="text-[#64748B] font-bold">Manage and track your customer price offers</p>
+            <h1 className="text-4xl font-black text-foreground mb-2 uppercase tracking-tight">Quotations</h1>
+            <p className="text-muted font-bold">Manage and track your customer price offers</p>
           </div>
           <Link 
             to="/createQuotation"
-            className="bg-[#001F54] text-white px-8 py-4 rounded-2xl font-black flex items-center gap-3 hover:bg-[#003366] transition-all shadow-lg shadow-[#001F54]/10"
+            className="bg-primary text-on-primary px-8 py-4 rounded-2xl font-black flex items-center gap-3 hover:bg-primary-hover transition-all"
           >
             <Plus size={24} /> NEW QUOTATION
           </Link>
         </div>
 
         {/* Filters */}
-        <div className="bg-white p-8 rounded-[32px] shadow-sm border border-slate-100 mb-8">
+        <div className="bg-surface p-8 rounded-2xl border border-line mb-8">
           <div className="flex flex-col md:flex-row gap-6 items-end">
             <div className="flex-1 grid grid-cols-1 md:grid-cols-4 gap-6 w-full">
               <div className="space-y-2">
-                <label className="text-[10px] font-black text-[#64748B] uppercase tracking-widest">Search</label>
+                <label className="text-[10px] font-black text-muted uppercase tracking-widest">Search</label>
                 <div className="relative">
-                  <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-[#64748B]" size={18} />
+                  <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-muted" size={18} />
                   <input 
                     type="text" 
                     placeholder="ID, Reference..." 
-                    className="w-full pl-12 pr-4 py-4 bg-slate-50 border-none rounded-2xl font-bold text-[#1A3E73] focus:ring-2 focus:ring-[#3B82F6] outline-none"
+                    className="w-full pl-12 pr-4 py-4 bg-surface-raised border-none rounded-2xl font-bold text-foreground focus:ring-2 focus:ring-primary outline-none"
                     value={q}
                     onChange={(e) => setQ(e.target.value)}
                   />
@@ -309,9 +309,9 @@ const ViewQuotations: React.FC = () => {
               </div>
 
               <div className="space-y-2">
-                <label className="text-[10px] font-black text-[#64748B] uppercase tracking-widest">Status</label>
+                <label className="text-[10px] font-black text-muted uppercase tracking-widest">Status</label>
                 <select 
-                  className="w-full p-4 bg-slate-50 border-none rounded-2xl font-bold text-[#1A3E73] focus:ring-2 focus:ring-[#3B82F6] outline-none"
+                  className="w-full p-4 bg-surface-raised border-none rounded-2xl font-bold text-foreground focus:ring-2 focus:ring-primary outline-none"
                   value={status}
                   onChange={(e) => setStatus(e.target.value)}
                 >
@@ -326,20 +326,20 @@ const ViewQuotations: React.FC = () => {
               </div>
 
               <div className="space-y-2">
-                <label className="text-[10px] font-black text-[#64748B] uppercase tracking-widest">From Date</label>
+                <label className="text-[10px] font-black text-muted uppercase tracking-widest">From Date</label>
                 <input 
                   type="date" 
-                  className="w-full p-4 bg-slate-50 border-none rounded-2xl font-bold text-[#1A3E73] focus:ring-2 focus:ring-[#3B82F6] outline-none"
+                  className="w-full p-4 bg-surface-raised border-none rounded-2xl font-bold text-foreground focus:ring-2 focus:ring-primary outline-none"
                   value={startDate}
                   onChange={(e) => setStartDate(e.target.value)}
                 />
               </div>
 
               <div className="space-y-2">
-                <label className="text-[10px] font-black text-[#64748B] uppercase tracking-widest">To Date</label>
+                <label className="text-[10px] font-black text-muted uppercase tracking-widest">To Date</label>
                 <input 
                   type="date" 
-                  className="w-full p-4 bg-slate-50 border-none rounded-2xl font-bold text-[#1A3E73] focus:ring-2 focus:ring-[#3B82F6] outline-none"
+                  className="w-full p-4 bg-surface-raised border-none rounded-2xl font-bold text-foreground focus:ring-2 focus:ring-primary outline-none"
                   value={endDate}
                   onChange={(e) => setEndDate(e.target.value)}
                 />
@@ -349,7 +349,7 @@ const ViewQuotations: React.FC = () => {
             {selectedIds.length > 0 && (
               <button 
                 onClick={handleBulkDelete}
-                className="bg-[#EF4444] text-white px-8 py-4 rounded-2xl font-black hover:bg-[#DC2626] transition-all shadow-lg shadow-[#EF4444]/20 flex items-center gap-2 whitespace-nowrap"
+                className="bg-danger-soft text-foreground px-8 py-4 rounded-2xl font-black hover:bg-danger-hover transition-all shadow-danger-line/20 flex items-center gap-2 whitespace-nowrap"
               >
                 <Trash2 size={18} /> DELETE MULTIPLES
               </button>
@@ -358,14 +358,14 @@ const ViewQuotations: React.FC = () => {
         </div>
 
         {/* Table */}
-        <div className="bg-white rounded-[32px] shadow-sm border border-slate-100 overflow-hidden">
+        <div className="bg-surface rounded-2xl border border-line overflow-hidden">
           <table className="w-full text-left">
-            <thead className="bg-[#F8FAFC] text-[#64748B] text-[10px] font-black uppercase tracking-widest border-b border-slate-100">
+            <thead className="bg-surface-raised text-muted text-[10px] font-black uppercase tracking-widest border-b border-line">
               <tr>
                 <th className="p-6 w-10">
                   <input 
                     type="checkbox" 
-                    className="w-5 h-5 rounded-lg border-2 border-slate-300 text-[#3B82F6] focus:ring-[#3B82F6] cursor-pointer"
+                    className="w-5 h-5 rounded-lg border-2 border-line-strong text-primary focus:ring-primary cursor-pointer"
                     checked={quotations.length > 0 && selectedIds.length === quotations.length}
                     onChange={toggleSelectAll}
                   />
@@ -379,26 +379,26 @@ const ViewQuotations: React.FC = () => {
                 <th className="p-6 text-right">ACTION</th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-slate-50">
+            <tbody className="divide-y divide-line">
               {quotations.map((qtn) => (
-                <tr key={qtn._id} className="hover:bg-slate-50/50 transition-all group">
+                <tr key={qtn._id} className="hover:bg-surface-raised/50 transition-all group">
                   <td className="p-6">
                     <input 
                       type="checkbox" 
-                      className="w-5 h-5 rounded-lg border-2 border-slate-300 text-[#3B82F6] focus:ring-[#3B82F6] cursor-pointer"
+                      className="w-5 h-5 rounded-lg border-2 border-line-strong text-primary focus:ring-primary cursor-pointer"
                       checked={selectedIds.includes(qtn._id)}
                       onChange={() => toggleSelect(qtn._id)}
                     />
                   </td>
                   <td className="p-6">
-                    <span className="px-3 py-1 bg-red-50 text-[#EF4444] text-[11px] font-bold rounded-lg uppercase tracking-wider">
+                    <span className="px-3 py-1 bg-danger-soft text-danger text-[11px] font-bold rounded-lg uppercase tracking-wider">
                       {qtn.quotationId}
                     </span>
                   </td>
-                  <td className="p-6 font-bold text-[#1A3E73]">
+                  <td className="p-6 font-bold text-foreground">
                     {qtn.customerName || 'walk-in-customer'}
                   </td>
-                  <td className="p-6 font-bold text-[#64748B]">
+                  <td className="p-6 font-bold text-muted">
                     {qtn.warehouseName || 'warehouse'}
                   </td>
                   <td className="p-6">
@@ -406,11 +406,11 @@ const ViewQuotations: React.FC = () => {
                       {qtn.status}
                     </span>
                   </td>
-                  <td className="p-6 font-black text-[#001F54]">
+                  <td className="p-6 font-black text-foreground">
                     {currencyCode} {qtn.total.toFixed(2)}
                   </td>
                   <td className="p-6">
-                    <div className="text-[11px] font-bold text-[#3B82F6] bg-blue-50 px-3 py-1 rounded-lg inline-block text-center">
+                    <div className="text-[11px] font-bold text-primary bg-primary-soft px-3 py-1 rounded-lg inline-block text-center">
                       <div>{new Date(qtn.date).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</div>
                       <div>{toBusinessDateInputValue(qtn.date)}</div>
                     </div>
@@ -419,7 +419,7 @@ const ViewQuotations: React.FC = () => {
                     <div className="flex justify-end gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
                       <button 
                         onClick={() => setViewingQuotation(qtn)}
-                        className="p-3 bg-blue-50 text-blue-600 rounded-xl hover:bg-blue-100 transition-colors"
+                        className="p-3 bg-primary-soft text-primary rounded-xl hover:bg-primary-soft transition-colors"
                         title="View Details"
                       >
                         <Eye size={18} />
@@ -427,7 +427,7 @@ const ViewQuotations: React.FC = () => {
                       {qtn.status !== 'Converted' && (
                         <button 
                           onClick={() => navigate(`/editQuotation/${qtn._id}`)}
-                          className="p-3 bg-amber-50 text-amber-600 rounded-xl hover:bg-amber-100 transition-colors"
+                          className="p-3 bg-warning-soft text-warning rounded-xl hover:bg-warning-soft transition-colors"
                           title="Edit"
                         >
                           <Edit2 size={18} />
@@ -435,7 +435,7 @@ const ViewQuotations: React.FC = () => {
                       )}
                       <button 
                         onClick={() => setToDelete(qtn._id)}
-                        className="p-3 bg-red-50 text-red-600 rounded-xl hover:bg-red-100 transition-colors"
+                        className="p-3 bg-danger-soft text-danger rounded-xl hover:bg-danger-soft transition-colors"
                         title="Delete"
                       >
                         <Trash2 size={18} />
@@ -446,7 +446,7 @@ const ViewQuotations: React.FC = () => {
               ))}
               {quotations.length === 0 && (
                 <tr>
-                  <td colSpan={6} className="p-20 text-center text-[#64748B] font-bold italic">
+                  <td colSpan={6} className="p-20 text-center text-muted font-bold italic">
                     No quotations found matching your criteria.
                   </td>
                 </tr>
@@ -466,19 +466,19 @@ const ViewQuotations: React.FC = () => {
 
       {/* Detail View Modal */}
       {viewingQuotation && (
-        <div className="fixed inset-0 bg-[#001F54]/40 backdrop-blur-sm flex items-center justify-center z-[100] p-4">
-          <div className="bg-white rounded-[40px] shadow-2xl w-full max-w-4xl max-h-[90vh] overflow-hidden flex flex-col">
-            <div className="p-8 border-b border-slate-100 flex justify-between items-center bg-[#F8FAFC]">
+        <div className="fixed inset-0 bg-primary/40 backdrop-blur-sm flex items-center justify-center z-[100] p-4">
+          <div className="bg-surface rounded-[40px] shadow-elevated w-full max-w-4xl max-h-[90vh] overflow-hidden flex flex-col">
+            <div className="p-8 border-b border-line flex justify-between items-center bg-surface-raised">
               <div>
                 <div className="flex items-center gap-4 mb-1">
-                  <h2 className="text-2xl font-black text-[#001F54] uppercase tracking-tight">{viewingQuotation.quotationId}</h2>
+                  <h2 className="text-2xl font-black text-foreground uppercase tracking-tight">{viewingQuotation.quotationId}</h2>
                   <span className={`px-4 py-1 rounded-full text-[10px] font-black uppercase tracking-widest ${getStatusColor(viewingQuotation.status)}`}>
                     {viewingQuotation.status}
                   </span>
                 </div>
-                <p className="text-[#64748B] font-bold">Created on {formatDate(viewingQuotation.date)}</p>
+                <p className="text-muted font-bold">Created on {formatDate(viewingQuotation.date)}</p>
               </div>
-              <button onClick={() => setViewingQuotation(null)} className="p-3 bg-white text-[#64748B] rounded-2xl hover:bg-slate-50 border border-slate-200 transition-all">
+              <button onClick={() => setViewingQuotation(null)} className="p-3 bg-surface text-muted rounded-2xl hover:bg-surface-raised border border-line transition-all">
                 <X size={24} />
               </button>
             </div>
@@ -486,28 +486,28 @@ const ViewQuotations: React.FC = () => {
             <div className="flex-1 overflow-y-auto p-8 space-y-8">
               {/* Info Cards */}
               <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                <div className="p-6 bg-slate-50 rounded-3xl border border-slate-100">
-                  <p className="text-[10px] font-black text-[#64748B] uppercase tracking-widest mb-2">Customer</p>
-                  <p className="font-black text-[#1A3E73] text-lg">{viewingQuotation.customerName || viewingQuotation.customerId}</p>
-                  <p className="text-xs text-[#64748B] font-bold mt-1">Ref: {viewingQuotation.referenceNumber || 'N/A'}</p>
+                <div className="p-6 bg-surface-raised rounded-3xl border border-line">
+                  <p className="text-[10px] font-black text-muted uppercase tracking-widest mb-2">Customer</p>
+                  <p className="font-black text-foreground text-lg">{viewingQuotation.customerName || viewingQuotation.customerId}</p>
+                  <p className="text-xs text-muted font-bold mt-1">Ref: {viewingQuotation.referenceNumber || 'N/A'}</p>
                 </div>
-                <div className="p-6 bg-slate-50 rounded-3xl border border-slate-100">
-                  <p className="text-[10px] font-black text-[#64748B] uppercase tracking-widest mb-2">Validity</p>
-                  <p className="font-black text-[#1A3E73] text-lg">{formatDate(viewingQuotation.validUntil)}</p>
-                  <p className="text-xs text-[#64748B] font-bold mt-1">Expires in {Math.ceil((new Date(viewingQuotation.validUntil).getTime() - new Date().getTime()) / (1000 * 3600 * 24))} days</p>
+                <div className="p-6 bg-surface-raised rounded-3xl border border-line">
+                  <p className="text-[10px] font-black text-muted uppercase tracking-widest mb-2">Validity</p>
+                  <p className="font-black text-foreground text-lg">{formatDate(viewingQuotation.validUntil)}</p>
+                  <p className="text-xs text-muted font-bold mt-1">Expires in {Math.ceil((new Date(viewingQuotation.validUntil).getTime() - new Date().getTime()) / (1000 * 3600 * 24))} days</p>
                 </div>
-                <div className="p-6 bg-slate-50 rounded-3xl border border-slate-100">
-                  <p className="text-[10px] font-black text-[#64748B] uppercase tracking-widest mb-2">Warehouse</p>
-                  <p className="font-black text-[#1A3E73] text-lg">{viewingQuotation.warehouseName || viewingQuotation.warehouseId}</p>
+                <div className="p-6 bg-surface-raised rounded-3xl border border-line">
+                  <p className="text-[10px] font-black text-muted uppercase tracking-widest mb-2">Warehouse</p>
+                  <p className="font-black text-foreground text-lg">{viewingQuotation.warehouseName || viewingQuotation.warehouseId}</p>
                 </div>
               </div>
 
               {/* Items List */}
               <div className="space-y-4">
-                <h3 className="text-sm font-black text-[#001F54] uppercase tracking-widest">Quoted Items</h3>
-                <div className="border border-slate-100 rounded-[32px] overflow-hidden">
+                <h3 className="text-sm font-black text-foreground uppercase tracking-widest">Quoted Items</h3>
+                <div className="border border-line rounded-2xl overflow-hidden">
                   <table className="w-full text-left">
-                    <thead className="bg-[#F8FAFC] text-[#64748B] text-[10px] font-black uppercase tracking-widest">
+                    <thead className="bg-surface-raised text-muted text-[10px] font-black uppercase tracking-widest">
                       <tr>
                         <th className="p-6">Product</th>
                         <th className="p-6 text-center">Qty</th>
@@ -515,27 +515,27 @@ const ViewQuotations: React.FC = () => {
                         <th className="p-6 text-right">Subtotal</th>
                       </tr>
                     </thead>
-                    <tbody className="divide-y divide-slate-50">
+                    <tbody className="divide-y divide-line">
                       {viewingQuotation.items.map((item: any, idx: number) => (
                         <tr key={idx}>
-                          <td className="p-6 font-bold text-[#1A3E73]">
+                          <td className="p-6 font-bold text-foreground">
                             <div className="flex items-center gap-3">
-                              <div className="w-12 h-12 rounded-xl overflow-hidden bg-slate-100 border border-slate-200 flex items-center justify-center">
+                              <div className="w-12 h-12 rounded-xl overflow-hidden bg-surface-muted border border-line flex items-center justify-center">
                                 {item.image ? (
                                   <img src={item.image} alt={item.productName} className="w-full h-full object-cover" />
                                 ) : (
-                                  <span className="text-[10px] font-black uppercase text-slate-500">No Image</span>
+                                  <span className="text-[10px] font-black uppercase text-muted">No Image</span>
                                 )}
                               </div>
                               <div>
                                 <div>{item.productName}</div>
-                                <div className="text-[11px] font-bold text-[#64748B]">{item.productCode || 'N/A'}</div>
+                                <div className="text-[11px] font-bold text-muted">{item.productCode || 'N/A'}</div>
                               </div>
                             </div>
                           </td>
-                          <td className="p-6 text-center font-bold text-[#64748B]">{item.qty}</td>
-                          <td className="p-6 text-center font-bold text-[#64748B]">{currencyCode} {item.price.toLocaleString()}</td>
-                          <td className="p-6 text-right font-black text-[#001F54]">{currencyCode} {item.subtotal.toLocaleString()}</td>
+                          <td className="p-6 text-center font-bold text-muted">{item.qty}</td>
+                          <td className="p-6 text-center font-bold text-muted">{currencyCode} {item.price.toLocaleString()}</td>
+                          <td className="p-6 text-right font-black text-foreground">{currencyCode} {item.subtotal.toLocaleString()}</td>
                         </tr>
                       ))}
                     </tbody>
@@ -544,44 +544,44 @@ const ViewQuotations: React.FC = () => {
               </div>
 
               {/* Footer Calculations */}
-              <div className="flex flex-col md:flex-row justify-between gap-8 pt-8 border-t border-slate-100">
+              <div className="flex flex-col md:flex-row justify-between gap-8 pt-8 border-t border-line">
                 <div className="flex-1 space-y-4">
-                  <h3 className="text-sm font-black text-[#001F54] uppercase tracking-widest">Notes</h3>
-                  <p className="text-sm text-[#64748B] leading-relaxed bg-slate-50 p-6 rounded-3xl border border-slate-100">
+                  <h3 className="text-sm font-black text-foreground uppercase tracking-widest">Notes</h3>
+                  <p className="text-sm text-muted leading-relaxed bg-surface-raised p-6 rounded-3xl border border-line">
                     {viewingQuotation.notes || 'No notes provided for this quotation.'}
                   </p>
                 </div>
                 <div className="w-full md:w-80 space-y-4">
-                  <div className="flex justify-between items-center text-sm font-bold text-[#64748B]">
+                  <div className="flex justify-between items-center text-sm font-bold text-muted">
                     <span>Subtotal</span>
                     <span>{currencyCode} {viewingQuotation.items.reduce((sum: number, i: any) => sum + i.subtotal, 0).toLocaleString()}</span>
                   </div>
                   {viewingQuotation.discountValue > 0 && (
-                    <div className="flex justify-between items-center text-sm font-bold text-red-500">
+                    <div className="flex justify-between items-center text-sm font-bold text-danger">
                       <span>Discount</span>
                       <span>- {currencyCode} {viewingQuotation.discountValue.toLocaleString()}</span>
                     </div>
                   )}
                   {viewingQuotation.taxValue > 0 && (
-                    <div className="flex justify-between items-center text-sm font-bold text-[#1A3E73]">
+                    <div className="flex justify-between items-center text-sm font-bold text-foreground">
                       <span>Tax</span>
                       <span>+ {currencyCode} {viewingQuotation.taxValue.toLocaleString()}</span>
                     </div>
                   )}
-                  <div className="flex justify-between items-center pt-4 border-t border-slate-100">
-                    <span className="text-lg font-black text-[#001F54] uppercase tracking-tight">Total</span>
-                    <span className="text-2xl font-black text-[#3B82F6]">{currencyCode} {viewingQuotation.total.toLocaleString()}</span>
+                  <div className="flex justify-between items-center pt-4 border-t border-line">
+                    <span className="text-lg font-black text-primary uppercase tracking-tight">Total</span>
+                    <span className="text-2xl font-black text-primary">{currencyCode} {viewingQuotation.total.toLocaleString()}</span>
                   </div>
                 </div>
               </div>
             </div>
 
-            <div className="p-8 bg-[#F8FAFC] border-t border-slate-100 flex flex-wrap gap-4">
+            <div className="p-8 bg-surface-raised border-t border-line flex flex-wrap gap-4">
               <div className="flex-1 flex gap-2">
                 {viewingQuotation.status === 'Draft' && (
                   <button 
                     onClick={() => handleStatusUpdate(viewingQuotation._id, 'Sent')}
-                    className="px-6 py-3 bg-blue-600 text-white font-black rounded-2xl hover:bg-blue-700 transition-all flex items-center gap-2"
+                    className="px-6 py-3 bg-primary text-on-primary font-black rounded-2xl hover:bg-primary-hover transition-all flex items-center gap-2"
                   >
                     MARK AS SENT
                   </button>
@@ -590,13 +590,13 @@ const ViewQuotations: React.FC = () => {
                   <>
                     <button 
                       onClick={() => handleStatusUpdate(viewingQuotation._id, 'Approved')}
-                      className="px-6 py-3 bg-green-600 text-white font-black rounded-2xl hover:bg-green-700 transition-all flex items-center gap-2"
+                      className="px-6 py-3 bg-secondary text-on-secondary font-black rounded-2xl hover:bg-secondary-hover transition-all flex items-center gap-2"
                     >
                       APPROVE
                     </button>
                     <button 
                       onClick={() => handleStatusUpdate(viewingQuotation._id, 'Rejected')}
-                      className="px-6 py-3 bg-red-600 text-white font-black rounded-2xl hover:bg-red-700 transition-all flex items-center gap-2"
+                      className="px-6 py-3 bg-danger text-on-danger font-black rounded-2xl hover:bg-danger-hover transition-all flex items-center gap-2"
                     >
                       REJECT
                     </button>
@@ -605,7 +605,7 @@ const ViewQuotations: React.FC = () => {
                 {viewingQuotation.status === 'Approved' && (
                   <button 
                     onClick={() => navigate(`/createSale?quotationId=${viewingQuotation._id}`)}
-                    className="px-6 py-3 bg-purple-600 text-white font-black rounded-2xl hover:bg-purple-700 transition-all flex items-center gap-2"
+                    className="px-6 py-3 bg-violet-status text-on-violet font-black rounded-2xl hover:bg-violet-status transition-all flex items-center gap-2"
                   >
                     CONVERT TO SALE <ArrowRight size={18} />
                   </button>
@@ -613,7 +613,7 @@ const ViewQuotations: React.FC = () => {
               </div>
               <button 
                 onClick={() => viewingQuotation && printQuotation(viewingQuotation)}
-                className="px-6 py-3 bg-white text-[#001F54] font-black rounded-2xl border border-slate-200 hover:bg-slate-50 transition-all flex items-center gap-2"
+                className="px-6 py-3 bg-surface text-primary font-black rounded-2xl border border-line hover:bg-surface-raised transition-all flex items-center gap-2"
               >
                 <Download size={20} /> PRINT / PDF
               </button>

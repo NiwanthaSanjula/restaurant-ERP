@@ -3,11 +3,12 @@ import { toast } from 'react-toastify';
 const isMobileViewport = () =>
   typeof window !== 'undefined' && window.matchMedia('(max-width: 639px)').matches;
 
-const baseToastStyle = (backgroundColor: string) => {
+const baseToastStyle = (accentColor: string) => {
   const isMobile = isMobileViewport();
   return {
-    backgroundColor,
-    color: 'white',
+    backgroundColor: 'var(--ss-surface)',
+    color: 'var(--ss-foreground)',
+    borderInlineStart: `4px solid ${accentColor}`,
     width: isMobile ? 'calc(100vw - 1.25rem)' : undefined,
     maxWidth: isMobile ? '21rem' : '28rem',
     margin: isMobile ? '0 auto' : undefined,
@@ -28,7 +29,7 @@ export const showSuccessToast = (message: string) => {
     closeOnClick: true,
     pauseOnHover: true,
     draggable: true,
-    style: baseToastStyle('#10B981')
+    style: baseToastStyle('var(--ss-secondary)')
   });
 };
 
@@ -41,7 +42,7 @@ export const showErrorToast = (message: string) => {
     closeOnClick: true,
     pauseOnHover: true,
     draggable: true,
-    style: baseToastStyle('#EF4444')
+    style: baseToastStyle('var(--ss-danger)')
   });
 };
 
@@ -54,7 +55,7 @@ export const showInfoToast = (message: string) => {
     closeOnClick: true,
     pauseOnHover: true,
     draggable: true,
-    style: baseToastStyle('#3B82F6')
+    style: baseToastStyle('var(--ss-primary)')
   });
 };
 
@@ -67,6 +68,6 @@ export const showWarningToast = (message: string) => {
     closeOnClick: true,
     pauseOnHover: true,
     draggable: true,
-    style: baseToastStyle('#F59E0B')
+    style: baseToastStyle('var(--ss-warning)')
   });
 };

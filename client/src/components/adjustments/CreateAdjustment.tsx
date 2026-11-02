@@ -830,62 +830,62 @@ const CreateAdjustment: React.FC = () => {
   // Render success screen
   if (submittedAdjustment) {
     return (
-      <div className="fixed inset-0 bg-black/50 flex items-start justify-center z-50 p-4 overflow-y-auto pt-8">
-        <div className="bg-white rounded-[32px] shadow-2xl max-w-2xl w-full p-8">
+      <div className="fixed inset-0 bg-overlay flex items-start justify-center z-50 p-4 overflow-y-auto pt-8">
+        <div className="bg-surface rounded-2xl shadow-elevated max-w-2xl w-full p-8">
           <div className="text-center mb-8">
-            <div className="w-16 h-16 mx-auto bg-green-100 rounded-full flex items-center justify-center mb-4">
-              <svg className="w-8 h-8 text-green-600" fill="currentColor" viewBox="0 0 20 20">
+            <div className="w-16 h-16 mx-auto bg-secondary-soft rounded-full flex items-center justify-center mb-4">
+              <svg className="w-8 h-8 text-secondary" fill="currentColor" viewBox="0 0 20 20">
                 <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
               </svg>
             </div>
-            <h2 className="text-2xl font-black text-[#1A3E73] mb-2">Adjustment Created Successfully!</h2>
-            <p className="text-[#64748B] font-bold">Your stock adjustment has been saved to the system</p>
+            <h2 className="text-2xl font-black text-foreground mb-2">Adjustment Created Successfully!</h2>
+            <p className="text-muted font-bold">Your stock adjustment has been saved to the system</p>
           </div>
 
           {/* Adjustment Details */}
-          <div className="space-y-4 mb-8 bg-[#F8FAFC] p-6 rounded-2xl border border-slate-100">
+          <div className="space-y-4 mb-8 bg-surface-raised p-6 rounded-2xl border border-line">
             <div className="grid grid-cols-2 gap-4">
               <div>
-                <p className="text-xs font-black text-[#64748B] uppercase tracking-widest">Adjustment ID</p>
-                <p className="text-lg font-black text-[#1A3E73]">{submittedAdjustment.referenceNumber?.trim() || submittedAdjustment.adjustmentId}</p>
+                <p className="text-xs font-black text-muted uppercase tracking-widest">Adjustment ID</p>
+                <p className="text-lg font-black text-foreground">{submittedAdjustment.referenceNumber?.trim() || submittedAdjustment.adjustmentId}</p>
               </div>
               <div>
-                <p className="text-xs font-black text-[#64748B] uppercase tracking-widest">Date</p>
-                <p className="text-lg font-black text-[#1A3E73]">{submittedAdjustment.adjustmentDate}</p>
+                <p className="text-xs font-black text-muted uppercase tracking-widest">Date</p>
+                <p className="text-lg font-black text-foreground">{submittedAdjustment.adjustmentDate}</p>
               </div>
               <div>
-                <p className="text-xs font-black text-[#64748B] uppercase tracking-widest">Type</p>
-                <p className="text-lg font-black text-[#1A3E73]">{submittedAdjustment.adjustmentType}</p>
+                <p className="text-xs font-black text-muted uppercase tracking-widest">Type</p>
+                <p className="text-lg font-black text-foreground">{submittedAdjustment.adjustmentType}</p>
               </div>
               <div>
-                <p className="text-xs font-black text-[#64748B] uppercase tracking-widest">Warehouse</p>
-                <p className="text-lg font-black text-[#1A3E73]">{submittedAdjustment.warehouseName}</p>
+                <p className="text-xs font-black text-muted uppercase tracking-widest">Warehouse</p>
+                <p className="text-lg font-black text-foreground">{submittedAdjustment.warehouseName}</p>
               </div>
               <div>
-                <p className="text-xs font-black text-[#64748B] uppercase tracking-widest">Reason</p>
-                <p className="text-lg font-black text-[#1A3E73]">
+                <p className="text-xs font-black text-muted uppercase tracking-widest">Reason</p>
+                <p className="text-lg font-black text-foreground">
                   {getReasonLabel(submittedAdjustment.reason)}
                 </p>
               </div>
               <div>
-                <p className="text-xs font-black text-[#64748B] uppercase tracking-widest">Total Value</p>
-                <p className="text-lg font-black text-[#1A3E73]">{currencyCode} {submittedAdjustment.grandTotal.toFixed(2)}</p>
+                <p className="text-xs font-black text-muted uppercase tracking-widest">Total Value</p>
+                <p className="text-lg font-black text-foreground">{currencyCode} {submittedAdjustment.grandTotal.toFixed(2)}</p>
               </div>
             </div>
 
             {/* Items Summary */}
             <div className="mt-6">
-              <p className="text-xs font-black text-[#64748B] uppercase tracking-widest mb-4">Items Adjusted</p>
+              <p className="text-xs font-black text-muted uppercase tracking-widest mb-4">Items Adjusted</p>
               <div className="space-y-2 max-h-64 overflow-y-auto">
                 {submittedAdjustment.items.map((item: any, idx: number) => (
-                  <div key={idx} className="flex justify-between items-center bg-white p-3 rounded-lg border border-slate-100">
+                  <div key={idx} className="flex justify-between items-center bg-surface p-3 rounded-lg border border-line">
                     <div>
-                      <p className="font-bold text-[#1A3E73]">{item.productName}</p>
-                      <p className="text-xs text-[#64748B]">Current: {item.currentStock} → New: {item.newStock}</p>
+                      <p className="font-bold text-foreground">{item.productName}</p>
+                      <p className="text-xs text-muted">Current: {item.currentStock} → New: {item.newStock}</p>
                     </div>
                     <div className="text-right">
-                      <p className="font-bold text-[#1A3E73]">Qty: {item.adjustmentQuantity ?? item.quantity}</p>
-                      <p className="text-xs text-[#64748B]">{currencyCode} {(item.subTotal ?? 0).toFixed(2)}</p>
+                      <p className="font-bold text-foreground">Qty: {item.adjustmentQuantity ?? item.quantity}</p>
+                      <p className="text-xs text-muted">{currencyCode} {(item.subTotal ?? 0).toFixed(2)}</p>
                     </div>
                   </div>
                 ))}
@@ -893,10 +893,10 @@ const CreateAdjustment: React.FC = () => {
             </div>
 
             {/* Grand Total */}
-            <div className="mt-6 pt-6 border-t border-slate-200">
+            <div className="mt-6 pt-6 border-t border-line">
               <div className="flex justify-between items-center">
-                <p className="text-sm font-black text-[#64748B] uppercase">Total Adjustment Value</p>
-                <p className="text-2xl font-black text-[#1A3E73]">{currencyCode} {(submittedAdjustment.totalAdjustmentValue ?? submittedAdjustment.grandTotal ?? 0).toFixed(2)}</p>
+                <p className="text-sm font-black text-muted uppercase">Total Adjustment Value</p>
+                <p className="text-2xl font-black text-foreground">{currencyCode} {(submittedAdjustment.totalAdjustmentValue ?? submittedAdjustment.grandTotal ?? 0).toFixed(2)}</p>
               </div>
             </div>
           </div>
@@ -904,13 +904,13 @@ const CreateAdjustment: React.FC = () => {
           <div className="flex gap-4">
             <button
               onClick={handleNewAdjustment}
-              className="flex-1 bg-[#1A3E73] text-white font-black py-3 rounded-xl hover:bg-[#0F2A55] transition"
+              className="flex-1 bg-primary text-on-primary font-black py-3 rounded-xl hover:bg-primary-hover transition"
             >
               Create New Adjustment
             </button>
             <button
               onClick={() => navigate(`/viewAdjustments?refresh=${Date.now()}`)}
-              className="flex-1 bg-slate-200 text-[#1A3E73] font-black py-3 rounded-xl hover:bg-slate-300 transition"
+              className="flex-1 bg-surface-muted text-primary font-black py-3 rounded-xl hover:bg-surface-muted transition"
             >
               View All Adjustments
             </button>
@@ -921,21 +921,21 @@ const CreateAdjustment: React.FC = () => {
   }
 
   return (
-    <div className="p-8 bg-[#F8FAFC] min-h-screen">
+    <div className="p-8 bg-canvas min-h-screen">
       <div className="max-w-7xl mx-auto">
         {/* Header */}
         <div className="mb-8 flex items-center gap-4">
           <button
             type="button"
             onClick={() => navigate(`/viewAdjustments?refresh=${Date.now()}`)}
-            className="text-[#1A3E73] hover:text-[#0F2A55] transition p-1 rounded-lg hover:bg-slate-100"
+            className="text-primary hover:text-primary transition p-1 rounded-lg hover:bg-surface-muted"
             title="Back to Stock Adjustments"
           >
             <ArrowLeft size={24} />
           </button>
           <div>
-            <h1 className="text-4xl font-black text-[#1A3E73] mb-2">Create Stock Adjustment</h1>
-            <p className="text-[#64748B] font-bold">Adjust product stock quantities for your warehouse</p>
+            <h1 className="text-4xl font-black text-foreground mb-2">Create Stock Adjustment</h1>
+            <p className="text-muted font-bold">Adjust product stock quantities for your warehouse</p>
           </div>
         </div>
 
@@ -943,14 +943,14 @@ const CreateAdjustment: React.FC = () => {
         <div className="grid grid-cols-3 gap-6">
           {/* Form Section */}
           <div className="col-span-2">
-            <div className="bg-white rounded-2xl shadow-sm border border-slate-200 p-6 space-y-6">
+            <div className="bg-surface rounded-2xl border border-line p-6 space-y-6">
               {/* Warehouse Selection */}
               <div>
-                <label className="block text-sm font-black text-[#1A3E73] mb-3">Warehouse *</label>
+                <label className="block text-sm font-black text-foreground mb-3">Warehouse *</label>
                 <select
                   value={selectedWarehouseId}
                   onChange={handleWarehouseChange}
-                  className="w-full px-4 py-3 border border-slate-200 rounded-lg focus:outline-none focus:border-[#1A3E73] bg-white"
+                  className="w-full px-4 py-3 border border-line rounded-lg focus:outline-none focus:border-primary bg-surface"
                 >
                   <option value="">Select Warehouse</option>
                   {warehouses.map(w => (
@@ -962,11 +962,11 @@ const CreateAdjustment: React.FC = () => {
               {/* Adjustment Type */}
               <div className="grid grid-cols-2 gap-4">
                 <div>
-                  <label className="block text-sm font-black text-[#1A3E73] mb-3">Adjustment Type *</label>
+                  <label className="block text-sm font-black text-foreground mb-3">Adjustment Type *</label>
                   <select
                     value={adjustmentType}
                     onChange={handleAdjustmentTypeChange}
-                    className="w-full px-4 py-3 border border-slate-200 rounded-lg focus:outline-none focus:border-[#1A3E73] bg-white"
+                    className="w-full px-4 py-3 border border-line rounded-lg focus:outline-none focus:border-primary bg-surface"
                   >
                     <option value="Increase">Increase Stock</option>
                     <option value="Decrease">Decrease Stock</option>
@@ -975,23 +975,23 @@ const CreateAdjustment: React.FC = () => {
 
                 {/* Date */}
                 <div>
-                  <label className="block text-sm font-black text-[#1A3E73] mb-3">Adjustment Date</label>
+                  <label className="block text-sm font-black text-foreground mb-3">Adjustment Date</label>
                   <input
                     type="date"
                     value={adjustmentDate}
                     onChange={(e) => setAdjustmentDate(e.target.value)}
-                    className="w-full px-4 py-3 border border-slate-200 rounded-lg focus:outline-none focus:border-[#1A3E73]"
+                    className="w-full px-4 py-3 border border-line rounded-lg focus:outline-none focus:border-primary"
                   />
                 </div>
               </div>
 
               {/* Reason - native select so selected value is correctly bound and persists */}
               <div>
-                <label className="block text-sm font-black text-[#1A3E73] mb-3">Reason for Adjustment *</label>
+                <label className="block text-sm font-black text-foreground mb-3">Reason for Adjustment *</label>
                 <select
                   value={reason}
                   onChange={(e) => setReason(e.target.value)}
-                  className="w-full px-4 py-3 border border-slate-200 rounded-lg focus:outline-none focus:border-[#1A3E73] bg-white"
+                  className="w-full px-4 py-3 border border-line rounded-lg focus:outline-none focus:border-primary bg-surface"
                   aria-label="Reason for Adjustment"
                 >
                   <option value="">Select a reason...</option>
@@ -1003,11 +1003,11 @@ const CreateAdjustment: React.FC = () => {
 
               {/* Status */}
               <div>
-                <label className="block text-sm font-black text-[#1A3E73] mb-3">Status</label>
+                <label className="block text-sm font-black text-foreground mb-3">Status</label>
                 <select
                   value={status}
                   onChange={(e) => setStatus(e.target.value as 'Pending' | 'Approved' | 'Completed' | 'Cancelled')}
-                  className="w-full px-4 py-3 border border-slate-200 rounded-lg focus:outline-none focus:border-[#1A3E73] bg-white"
+                  className="w-full px-4 py-3 border border-line rounded-lg focus:outline-none focus:border-primary bg-surface"
                 >
                   <option value="Pending">Pending</option>
                   <option value="Approved">Approved</option>
@@ -1018,7 +1018,7 @@ const CreateAdjustment: React.FC = () => {
 
               {/* Reference Number - shown as ID in the adjustments list; must be unique */}
               <div>
-                <label className="block text-sm font-black text-[#1A3E73] mb-3">Reference Number (ID)</label>
+                <label className="block text-sm font-black text-foreground mb-3">Reference Number (ID)</label>
                 <input
                   type="text"
                   value={referenceNumber}
@@ -1028,22 +1028,22 @@ const CreateAdjustment: React.FC = () => {
                   }}
                   onBlur={(e) => checkReferenceNumberExists(e.target.value)}
                   placeholder="Enter ID"
-                  className={`w-full px-4 py-3 border rounded-lg focus:outline-none focus:border-[#1A3E73] ${referenceNumberExists ? 'border-red-500 bg-red-50' : 'border-slate-200'}`}
+                  className={`w-full px-4 py-3 border rounded-lg focus:outline-none focus:border-primary ${referenceNumberExists ? 'border-danger-line bg-danger-soft' : 'border-line'}`}
                 />
                 {referenceNumberExists && (
-                  <p className="mt-1 text-sm font-bold text-red-600">This reference number already exists.</p>
+                  <p className="mt-1 text-sm font-bold text-danger">This reference number already exists.</p>
                 )}
               </div>
 
               {/* Notes */}
               <div>
-                <label className="block text-sm font-black text-[#1A3E73] mb-3">Notes</label>
+                <label className="block text-sm font-black text-foreground mb-3">Notes</label>
                 <textarea
                   value={notes}
                   onChange={(e) => setNotes(e.target.value)}
                   placeholder="Additional notes about this adjustment..."
                   rows={4}
-                  className="w-full px-4 py-3 border border-slate-200 rounded-lg focus:outline-none focus:border-[#1A3E73] resize-none"
+                  className="w-full px-4 py-3 border border-line rounded-lg focus:outline-none focus:border-primary resize-none"
                 />
               </div>
             </div>
@@ -1051,37 +1051,37 @@ const CreateAdjustment: React.FC = () => {
 
           {/* Summary Card */}
           <div>
-            <div className="bg-white rounded-2xl shadow-sm border border-slate-200 p-6 sticky top-8">
-              <h3 className="text-lg font-black text-[#1A3E73] mb-6">Summary</h3>
+            <div className="bg-surface rounded-2xl border border-line p-6 sticky top-8">
+              <h3 className="text-lg font-black text-foreground mb-6">Summary</h3>
 
               <div className="space-y-4 mb-6">
                 <div>
-                  <p className="text-xs font-black text-[#64748B] uppercase mb-1">Warehouse</p>
-                  <p className="font-bold text-[#1A3E73]">{selectedWarehouseName || 'Not selected'}</p>
+                  <p className="text-xs font-black text-muted uppercase mb-1">Warehouse</p>
+                  <p className="font-bold text-foreground">{selectedWarehouseName || 'Not selected'}</p>
                 </div>
 
                 <div>
-                  <p className="text-xs font-black text-[#64748B] uppercase mb-1">Type</p>
-                  <p className={`font-bold ${adjustmentType === 'Increase' ? 'text-green-600' : 'text-red-600'}`}>
+                  <p className="text-xs font-black text-muted uppercase mb-1">Type</p>
+                  <p className={`font-bold ${adjustmentType === 'Increase' ? 'text-secondary' : 'text-danger'}`}>
                     {adjustmentType === 'Increase' ? '↑ Increase' : '↓ Decrease'}
                   </p>
                 </div>
 
                 <div>
-                  <p className="text-xs font-black text-[#64748B] uppercase mb-1">Total Items</p>
-                  <p className="font-bold text-[#1A3E73]">{items.length}</p>
+                  <p className="text-xs font-black text-muted uppercase mb-1">Total Items</p>
+                  <p className="font-bold text-foreground">{items.length}</p>
                 </div>
 
-                <div className="pt-4 border-t border-slate-200">
-                  <p className="text-xs font-black text-[#64748B] uppercase mb-2">Total Value</p>
-                  <p className="text-2xl font-black text-[#1A3E73]">{currencyCode} {grandTotal.toFixed(2)}</p>
+                <div className="pt-4 border-t border-line">
+                  <p className="text-xs font-black text-muted uppercase mb-2">Total Value</p>
+                  <p className="text-2xl font-black text-foreground">{currencyCode} {grandTotal.toFixed(2)}</p>
                 </div>
               </div>
 
               <button
                 onClick={handleSubmit}
                 disabled={isLoading || items.length === 0 || !selectedWarehouseId}
-                className="w-full bg-[#1A3E73] text-white font-black py-3 rounded-lg hover:bg-[#0F2A55] disabled:bg-slate-300 disabled:cursor-not-allowed transition flex items-center justify-center gap-2"
+                className="w-full bg-primary text-on-primary font-black py-3 rounded-lg hover:bg-primary-hover disabled:bg-surface-muted disabled:cursor-not-allowed transition flex items-center justify-center gap-2"
               >
                 {isLoading ? <Loader2 size={20} className="animate-spin" /> : <Save size={20} />}
                 {isLoading ? 'Processing...' : 'Create Adjustment'}
@@ -1091,13 +1091,13 @@ const CreateAdjustment: React.FC = () => {
         </div>
 
         {/* Items Table */}
-        <div className="mt-8 bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden">
-          <div className="p-6 border-b border-slate-200">
+        <div className="mt-8 bg-surface rounded-2xl border border-line overflow-hidden">
+          <div className="p-6 border-b border-line">
             <div className="flex justify-between items-center">
-              <h3 className="text-lg font-black text-[#1A3E73]">Adjustment Items</h3>
+              <h3 className="text-lg font-black text-foreground">Adjustment Items</h3>
               <button
                 onClick={addItemRow}
-                className="flex items-center gap-2 bg-[#1A3E73] text-white px-4 py-2 rounded-lg hover:bg-[#0F2A55] font-bold"
+                className="flex items-center gap-2 bg-primary text-on-primary px-4 py-2 rounded-lg hover:bg-primary-hover font-bold"
               >
                 <Plus size={20} /> Add Item
               </button>
@@ -1105,25 +1105,25 @@ const CreateAdjustment: React.FC = () => {
           </div>
 
           {items.length === 0 ? (
-            <div className="p-6 text-center text-[#64748B]">
+            <div className="p-6 text-center text-muted">
               <p>No items added. Click "Add Item" to start adding products to adjust.</p>
             </div>
           ) : (
             <div className="overflow-x-auto">
               <table className="w-full">
-                <thead className="bg-[#F8FAFC] border-b border-slate-200">
+                <thead className="bg-surface-raised border-b border-line">
                   <tr>
-                    <th className="px-6 py-3 text-left text-xs font-black text-[#64748B] uppercase">Product</th>
-                    <th className="px-6 py-3 text-left text-xs font-black text-[#64748B] uppercase">Current Stock</th>
-                    <th className="px-6 py-3 text-left text-xs font-black text-[#64748B] uppercase">Adjustment Qty</th>
-                    <th className="px-6 py-3 text-left text-xs font-black text-[#64748B] uppercase">Cost</th>
-                    <th className="px-6 py-3 text-left text-xs font-black text-[#64748B] uppercase">Subtotal</th>
-                    <th className="px-6 py-3 text-center text-xs font-black text-[#64748B] uppercase">Action</th>
+                    <th className="px-6 py-3 text-left text-xs font-black text-muted uppercase">Product</th>
+                    <th className="px-6 py-3 text-left text-xs font-black text-muted uppercase">Current Stock</th>
+                    <th className="px-6 py-3 text-left text-xs font-black text-muted uppercase">Adjustment Qty</th>
+                    <th className="px-6 py-3 text-left text-xs font-black text-muted uppercase">Cost</th>
+                    <th className="px-6 py-3 text-left text-xs font-black text-muted uppercase">Subtotal</th>
+                    <th className="px-6 py-3 text-center text-xs font-black text-muted uppercase">Action</th>
                   </tr>
                 </thead>
                 <tbody>
                   {items.map((item, idx) => (
-                    <tr key={item.id} className="border-b border-slate-200 hover:bg-[#F8FAFC]">
+                    <tr key={item.id} className="border-b border-line hover:bg-surface-raised">
                       <td className="px-6 py-4">
                         <div className="space-y-2">
                           <SearchableDropdown
@@ -1137,7 +1137,7 @@ const CreateAdjustment: React.FC = () => {
                             <select
                               value={item.batchNumber || ''}
                               onChange={(e) => handleBatchSelect(idx, e.target.value)}
-                              className="w-full px-3 py-2 border border-slate-200 rounded-lg focus:outline-none focus:border-[#1A3E73] text-sm"
+                              className="w-full px-3 py-2 border border-line rounded-lg focus:outline-none focus:border-primary text-sm"
                             >
                               <option value="">Select batch...</option>
                               {item.availableBatches.map((b) => {
@@ -1155,7 +1155,7 @@ const CreateAdjustment: React.FC = () => {
                             <select
                               value={item.variationName || ''}
                               onChange={(e) => handleVariationSelect(idx, e.target.value)}
-                              className="w-full px-3 py-2 border border-slate-200 rounded-lg focus:outline-none focus:border-[#1A3E73] text-sm"
+                              className="w-full px-3 py-2 border border-line rounded-lg focus:outline-none focus:border-primary text-sm"
                               disabled={item.hasBatches && !item.batchNumber}
                             >
                               <option value="">Select variation...</option>
@@ -1169,7 +1169,7 @@ const CreateAdjustment: React.FC = () => {
                         </div>
                       </td>
                       <td className="px-6 py-4">
-                        <p className="font-bold text-[#1A3E73]">{item.currentStock}{displayUnit(item) ? ` ${displayUnit(item)}` : ''}</p>
+                        <p className="font-bold text-foreground">{item.currentStock}{displayUnit(item) ? ` ${displayUnit(item)}` : ''}</p>
                       </td>
                       <td className="px-6 py-4">
                         <input
@@ -1177,21 +1177,21 @@ const CreateAdjustment: React.FC = () => {
                           value={item.adjustmentQty}
                           onChange={(e) => handleAdjustmentQtyChange(idx, e.target.value)}
                           placeholder="0"
-                          className="w-24 px-3 py-2 border border-slate-200 rounded-lg focus:outline-none focus:border-[#1A3E73]"
+                          className="w-24 px-3 py-2 border border-line rounded-lg focus:outline-none focus:border-primary"
                           step="0.01"
                           min="0"
                         />
                       </td>
                       <td className="px-6 py-4">
-                        <p className="font-bold text-[#1A3E73]">{currencyCode} {item.cost.toFixed(2)}</p>
+                        <p className="font-bold text-foreground">{currencyCode} {item.cost.toFixed(2)}</p>
                       </td>
                       <td className="px-6 py-4">
-                        <p className="font-bold text-[#1A3E73]">{currencyCode} {item.subTotal.toFixed(2)}</p>
+                        <p className="font-bold text-foreground">{currencyCode} {item.subTotal.toFixed(2)}</p>
                       </td>
                       <td className="px-6 py-4 text-center">
                         <button
                           onClick={() => removeItem(idx)}
-                          className="text-red-600 hover:text-red-800 font-bold"
+                          className="text-danger hover:text-danger font-bold"
                         >
                           <Trash2 size={20} />
                         </button>

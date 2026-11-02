@@ -2,14 +2,12 @@ import fs from 'fs';
 import path from 'path';
 import { Request, Response } from 'express';
 import ReceiptSetting from '../models/ReceiptSetting';
+import { pickSettingsFields, RECEIPT_FIELDS } from '../utils/settingsFields';
 
 export const getReceiptSettings = async (req: Request, res: Response) => {
   try {
-    let settings = await ReceiptSetting.findOne();
-    if (!settings) {
-      settings = await ReceiptSetting.create({});
-    }
-    return res.status(200).json({ status: 'success', data: settings });
+    const settings = await ReceiptSetting.findOne();
+    return res.status(200).json({ status: 'success', data: pickSettingsFields(settings || { logoUrl: '' }, RECEIPT_FIELDS) });
   } catch (err) {
     return res.status(500).json({ status: 'error', message: "Error fetching receipt settings" });
   }
@@ -17,10 +15,28 @@ export const getReceiptSettings = async (req: Request, res: Response) => {
 
 export const updateReceiptSettings = async (req: Request, res: Response) => {
   try {
-    // Validation
-    const userPayload = req.body;
-    if (userPayload.showNote && !userPayload.note) {
-      return res.status(400).json({ message: "Note text is required" });
+    if (!req.body || typeof req.body !== 'object' || Array.isArray(req.body) ||
+      Object.keys(req.body).some((field) => !(RECEIPT_FIELDS as readonly string[]).includes(field))) {
+      return res.status(400).json({ message: 'Unsupported receipt settings fields.' });
+    }
+    for (const [field, value] of Object.entries(req.body)) {
+      if (value === undefined) continue;
+      const expected = field === 'note' || field === 'logoUrl' ? 'string' : 'boolean';
+      if (typeof value !== expected) {
+        return res.status(400).json({ message: 'Invalid receipt settings field type.' });
+      }
+    }
+    const userPayload = pickSettingsFields(req.body, RECEIPT_FIELDS);
+    if (!Object.keys(userPayload).length) {
+      return res.status(400).json({ message: 'No supported receipt settings provided.' });
+    }
+    if ('showNote' in userPayload || 'note' in userPayload) {
+      const existing = await ReceiptSetting.findOne();
+      const showNote = userPayload.showNote ?? existing?.showNote;
+      const note = userPayload.note ?? existing?.note;
+      if (showNote && (typeof note !== 'string' || !note.trim())) {
+        return res.status(400).json({ message: 'Note text is required' });
+      }
     }
 
     const settings = await ReceiptSetting.findOneAndUpdate(
@@ -29,9 +45,9 @@ export const updateReceiptSettings = async (req: Request, res: Response) => {
       { upsert: true, new: true, runValidators: true }
     );
 
-    return res.json({ success: true, data: settings });
+    return res.json({ success: true, data: pickSettingsFields(settings, RECEIPT_FIELDS) });
   } catch (err: any) {
-    return res.status(500).json({ message: err.message || "Error updating settings" });
+    return res.status(500).json({ message: 'Error updating receipt settings' });
   }
 };
 
@@ -49,9 +65,9 @@ export const uploadReceiptLogo = async (req: Request, res: Response) => {
       { upsert: true, new: true, runValidators: true }
     );
 
-    return res.json({ status: 'success', logoUrl, data: settings });
+    return res.json({ status: 'success', logoUrl, data: pickSettingsFields(settings, RECEIPT_FIELDS) });
   } catch (err: any) {
-    return res.status(500).json({ status: 'error', message: err.message || 'Error uploading receipt logo' });
+    return res.status(500).json({ status: 'error', message: 'Error uploading receipt logo' });
   }
 };
 
@@ -76,8 +92,8 @@ export const deleteReceiptLogo = async (req: Request, res: Response) => {
       { upsert: true, new: true, runValidators: true }
     );
 
-    return res.json({ status: 'success', data: settings });
+    return res.json({ status: 'success', data: pickSettingsFields(settings, RECEIPT_FIELDS) });
   } catch (err: any) {
-    return res.status(500).json({ status: 'error', message: err.message || 'Error deleting receipt logo' });
+    return res.status(500).json({ status: 'error', message: 'Error deleting receipt logo' });
   }
 };

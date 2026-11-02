@@ -102,8 +102,8 @@ const confirmDelete = async () => {
     <div>
       {loading && <Loader text="Loading" />}
       <div className="flex items-center justify-between mb-4">
-        <div className="text-2xl font-semibold text-[#001F54]">Users</div>
-        <Link to="/createUser" className="px-4 py-2 rounded bg-[#003366] text-white hover:bg-[#004080]">
+        <div className="text-2xl font-semibold text-foreground">Users</div>
+        <Link to="/createUser" className="px-4 py-2 rounded bg-primary text-on-primary hover:bg-primary-hover">
           Create User
         </Link>
       </div>
@@ -114,9 +114,9 @@ const confirmDelete = async () => {
           className="max-w-md"
         />
       </div>
-      <div className="bg-white border border-gray-200 rounded overflow-auto">
-        <table className="min-w-full divide-y divide-gray-200">
-          <thead className="bg-[#001F54] text-white">
+      <div className="bg-surface border border-line rounded overflow-auto">
+        <table className="min-w-full divide-y divide-line">
+          <thead className="bg-primary text-on-primary">
             <tr>
               <th className="text-left px-6 py-4 text-sm font-semibold">Name</th>
               <th className="text-left px-6 py-4 text-sm font-semibold">Email</th>
@@ -125,20 +125,20 @@ const confirmDelete = async () => {
               <th className="text-right px-6 py-4 text-sm font-semibold">Action</th>
             </tr>
           </thead>
-          <tbody className="bg-white divide-y divide-gray-200">
+          <tbody className="bg-surface divide-y divide-line">
             {users.map(u => (
-              <tr key={u.id} className="hover:bg-gray-50 transition-colors duration-150">
-                <td className="px-6 py-5 text-base font-semibold text-gray-900">{u.name}</td>
-                <td className="px-6 py-5 text-base text-gray-900">{u.email}</td>
-<td className="px-6 py-5 text-base text-gray-900">
+              <tr key={u.id} className="hover:bg-surface-raised transition-colors duration-150">
+                <td className="px-6 py-5 text-base font-semibold text-foreground">{u.name}</td>
+                <td className="px-6 py-5 text-base text-foreground">{u.email}</td>
+<td className="px-6 py-5 text-base text-foreground">
   {toTitleCase(u.roleId?.name || u.role || '')}
 </td>
-                <td className="px-6 py-5 text-base text-gray-900">{u.isActive ? 'Active' : 'Inactive'}</td>
+                <td className="px-6 py-5 text-base text-foreground">{u.isActive ? 'Active' : 'Inactive'}</td>
                 <td className="px-6 py-5 text-right space-x-3">
                   <PermissionGate component="manageUsers" action="update">
                     <button
                       onClick={() => navigate(`/editUser/${u.id}`)}
-                      className="inline-flex items-center justify-center p-2.5 rounded-lg border border-gray-300 text-[#001F54] hover:bg-gray-100 transition-colors duration-200"
+                      className="inline-flex items-center justify-center p-2.5 rounded-lg border border-line-strong text-primary hover:bg-surface-muted transition-colors duration-200"
                       title="Edit"
                       aria-label="Edit"
                     >
@@ -151,7 +151,7 @@ const confirmDelete = async () => {
                   <PermissionGate component="manageUsers" action="delete">
                     <button
                       onClick={() => setToDelete(u.id)}
-                      className="inline-flex items-center justify-center p-2.5 rounded-lg border border-gray-300 text-red-600 hover:bg-gray-100 transition-colors duration-200"
+                      className="inline-flex items-center justify-center p-2.5 rounded-lg border border-line-strong text-danger hover:bg-surface-muted transition-colors duration-200"
                       title="Delete"
                       aria-label="Delete"
                     >
@@ -169,7 +169,7 @@ const confirmDelete = async () => {
             ))}
             {users.length === 0 && (
               <tr>
-                <td colSpan={5} className="px-6 py-12 text-center text-base text-gray-500">No users found</td>
+                <td colSpan={5} className="px-6 py-12 text-center text-base text-muted">No users found</td>
               </tr>
             )}
           </tbody>

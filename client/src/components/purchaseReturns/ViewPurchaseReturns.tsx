@@ -164,11 +164,11 @@ const ViewPurchaseReturns: React.FC = () => {
 
   const getStatusClassName = (status: string) => {
     const normalizedStatus = status.toLowerCase();
-    if (normalizedStatus.includes('complete') || normalizedStatus.includes('receive')) return 'text-green-600 font-bold';
-    if (normalizedStatus.includes('pend')) return 'text-amber-600 font-bold';
-    if (normalizedStatus.includes('cancel')) return 'text-red-600 font-bold';
-    if (normalizedStatus.includes('order')) return 'text-blue-600 font-bold';
-    return 'text-[#003366] font-bold';
+    if (normalizedStatus.includes('complete') || normalizedStatus.includes('receive')) return 'text-secondary font-bold';
+    if (normalizedStatus.includes('pend')) return 'text-warning font-bold';
+    if (normalizedStatus.includes('cancel')) return 'text-danger font-bold';
+    if (normalizedStatus.includes('order')) return 'text-primary font-bold';
+    return 'text-foreground font-bold';
   };
 
   const toggleSelect = (id: string) => {
@@ -292,16 +292,16 @@ const ViewPurchaseReturns: React.FC = () => {
   const endRow = Math.min(pagination.page * pagination.limit, pagination.total);
 
   return (
-    <div className="p-8 bg-[#F8FAFC] min-h-screen">
+    <div className="p-8 bg-canvas min-h-screen">
       <div className="max-w-7xl mx-auto">
         <div className="flex justify-between items-center mb-8">
           <div>
-            <h1 className="text-4xl font-black text-[#003366] mb-2">Purchase Returns</h1>
-            <p className="text-[#64748B] font-bold">View all purchase return transactions</p>
+            <h1 className="text-4xl font-black text-foreground mb-2">Purchase Returns</h1>
+            <p className="text-muted font-bold">View all purchase return transactions</p>
           </div>
           <Link
             to="/createPurchaseReturn"
-            className="bg-[#003366] text-white px-6 py-3 rounded-lg hover:bg-[#004080] font-black flex items-center gap-2 transition"
+            className="bg-primary text-on-primary px-6 py-3 rounded-lg hover:bg-primary-hover font-black flex items-center gap-2 transition"
           >
             <Plus size={20} /> Create Purchase Return
           </Link>
@@ -316,19 +316,19 @@ const ViewPurchaseReturns: React.FC = () => {
             <button
               type="button"
               onClick={() => setShowFilterDropdown(!showFilterDropdown)}
-              className="flex items-center gap-2 px-4 py-2.5 bg-[#003366] text-white rounded-lg hover:bg-[#004080] font-bold transition"
+              className="flex items-center gap-2 px-4 py-2.5 bg-primary text-on-primary rounded-lg hover:bg-primary-hover font-bold transition"
             >
               <Filter size={18} />
               {filterStatus !== 'All' && (
-                <span className="text-xs bg-white text-[#003366] px-1.5 py-0.5 rounded">
+                <span className="text-xs bg-surface text-primary px-1.5 py-0.5 rounded">
                   {filterStatus}
                 </span>
               )}
               <ChevronDown size={16} className={showFilterDropdown ? 'rotate-180' : ''} />
             </button>
             {showFilterDropdown && (
-              <div className="absolute top-full left-0 mt-2 z-20 bg-white border border-slate-200 rounded-lg shadow-lg p-4 w-64">
-                <p className="text-sm font-bold text-[#003366] mb-3">Status:</p>
+              <div className="absolute top-full left-0 mt-2 z-20 bg-surface border border-line rounded-lg p-4 w-64">
+                <p className="text-sm font-bold text-foreground mb-3">Status:</p>
                 <div className="space-y-1">
                   {['All', 'Completed', 'Pending', 'Ordered', 'Cancelled'].map((status) => {
                     const isSelected = filterStatus === status;
@@ -344,8 +344,8 @@ const ViewPurchaseReturns: React.FC = () => {
                         }}
                         className={`w-full text-left px-3 py-2 rounded-md transition ${
                           isSelected
-                            ? 'bg-[#003366] text-white font-bold'
-                            : 'text-[#64748B] hover:bg-slate-100'
+                            ? 'bg-primary text-on-primary font-bold'
+                            : 'text-muted hover:bg-surface-muted'
                         }`}
                       >
                         {displayLabel}
@@ -361,28 +361,28 @@ const ViewPurchaseReturns: React.FC = () => {
               type="date"
               value={filterDate}
               onChange={e => { setFilterDate(e.target.value); setPagination(p => ({ ...p, page: 1 })); }}
-              className="px-4 py-2.5 pl-10 border border-slate-200 rounded-lg focus:outline-none focus:border-[#003366] bg-white"
+              className="px-4 py-2.5 pl-10 border border-line rounded-lg focus:outline-none focus:border-primary bg-surface"
             />
-            <Calendar size={18} className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none" />
+            <Calendar size={18} className="absolute left-3 top-1/2 -translate-y-1/2 text-subtle pointer-events-none" />
           </div>
           {returns.length > 0 && selectedIds.length > 0 && (
             <button
               type="button"
               onClick={() => setShowBulkDeleteConfirm(true)}
-              className="px-4 py-2.5 rounded-lg font-bold transition bg-red-600 text-white hover:bg-red-700"
+              className="px-4 py-2.5 rounded-lg font-bold transition bg-danger text-on-danger hover:bg-danger-hover"
             >
               Delete Multiples
             </button>
           )}
         </div>
 
-        <div className="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden">
+        <div className="bg-surface rounded-2xl border border-line overflow-hidden">
           {loading ? (
             <Loader />
           ) : returns.length === 0 ? (
             <div className="p-12 text-center">
-              <p className="text-[#64748B] font-bold mb-4">No purchase returns found</p>
-              <Link to="/createPurchaseReturn" className="bg-[#003366] text-white px-6 py-2 rounded-lg hover:bg-[#004080] font-bold inline-block">
+              <p className="text-muted font-bold mb-4">No purchase returns found</p>
+              <Link to="/createPurchaseReturn" className="bg-primary text-on-primary px-6 py-2 rounded-lg hover:bg-primary-hover font-bold inline-block">
                 Create Purchase Return
               </Link>
             </div>
@@ -390,12 +390,12 @@ const ViewPurchaseReturns: React.FC = () => {
             <>
               <div className="overflow-x-auto">
                 <table className="w-full text-left">
-                  <thead className="bg-[#F1F5F9] text-[#64748B] text-[10px] uppercase tracking-[0.2em] font-black">
+                  <thead className="bg-surface-muted text-muted text-[10px] uppercase tracking-[0.2em] font-black">
                     <tr>
                       <th className="p-6">
                         <input
                           type="checkbox"
-                          className="w-4 h-4 rounded border-slate-300 text-[#003366] focus:ring-[#003366] focus:ring-2 cursor-pointer accent-[#003366]"
+                          className="w-4 h-4 rounded border-line-strong text-foreground focus:ring-primary focus:ring-2 cursor-pointer accent-primary"
                           checked={returns.length > 0 && selectedIds.length === returns.length}
                           onChange={toggleSelectAll}
                         />
@@ -405,38 +405,38 @@ const ViewPurchaseReturns: React.FC = () => {
                       <th className="p-6">Warehouse</th>
                       <th className="p-6 text-center">Status</th>
                       <th 
-                        className="p-6 text-right cursor-pointer hover:bg-slate-200 select-none"
+                        className="p-6 text-right cursor-pointer hover:bg-surface-muted select-none"
                         onClick={() => handleSort('grandTotal')}
                       >
                         <div className="flex items-center justify-end gap-1">
                           <span>Grand Total</span>
                           {sortBy === 'grandTotal' ? (
                             sortOrder === 'asc' ? (
-                              <ChevronUp size={16} className="text-[#003366]" />
+                              <ChevronUp size={16} className="text-foreground" />
                             ) : (
-                              <ChevronDown size={16} className="text-[#003366]" />
+                              <ChevronDown size={16} className="text-foreground" />
                             )
                           ) : (
-                            <ChevronDown size={16} className="text-slate-400 opacity-50" />
+                            <ChevronDown size={16} className="text-subtle opacity-50" />
                           )}
                         </div>
                       </th>
                       <th 
-                        className="p-6 cursor-pointer hover:bg-slate-200 select-none"
+                        className="p-6 cursor-pointer hover:bg-surface-muted select-none"
                         onClick={() => handleSort('createdAt')}
                       >
                         <div className="flex items-center gap-1">
                           <span>Created On</span>
                           {sortBy === 'createdAt' ? (
                             sortOrder === 'asc' ? (
-                              <ChevronUp size={16} className="text-[#003366]" />
+                              <ChevronUp size={16} className="text-foreground" />
                             ) : (
-                              <ChevronDown size={16} className="text-[#003366]" />
+                              <ChevronDown size={16} className="text-foreground" />
                             )
                           ) : (
                             <div className="flex flex-col">
-                              <ChevronUp size={12} className="text-slate-400 opacity-50 -mb-1" />
-                              <ChevronDown size={12} className="text-slate-400 opacity-50" />
+                              <ChevronUp size={12} className="text-subtle opacity-50 -mb-1" />
+                              <ChevronDown size={12} className="text-subtle opacity-50" />
                             </div>
                           )}
                         </div>
@@ -444,33 +444,33 @@ const ViewPurchaseReturns: React.FC = () => {
                       <th className="p-6 text-center">Action</th>
                     </tr>
                   </thead>
-                  <tbody className="divide-y divide-slate-50">
+                  <tbody className="divide-y divide-line">
                     {returns.map(r => (
-                      <tr key={r.id} className="hover:bg-slate-50/50 transition-colors">
+                      <tr key={r.id} className="hover:bg-surface-raised/50 transition-colors">
                         <td className="p-6">
                           <input
                             type="checkbox"
-                            className="w-4 h-4 rounded border-slate-300 text-[#003366] focus:ring-[#003366] focus:ring-2 cursor-pointer accent-[#003366]"
+                            className="w-4 h-4 rounded border-line-strong text-foreground focus:ring-primary focus:ring-2 cursor-pointer accent-primary"
                             checked={selectedIds.includes(r.id)}
                             onChange={() => toggleSelect(r.id)}
                           />
                         </td>
                         <td className="p-6">
-                          <span className="inline-flex px-3 py-1 rounded-full text-xs font-bold border border-red-300 bg-red-50 text-red-700">
+                          <span className="inline-flex px-3 py-1 rounded-full text-xs font-bold border border-danger-line bg-danger-soft text-danger">
                             {r.returnId}
                           </span>
                         </td>
-                        <td className="p-6 font-semibold text-[#003366]">{r.supplierName}</td>
-                        <td className="p-6 font-semibold text-[#003366]">{r.warehouseName}</td>
+                        <td className="p-6 font-semibold text-foreground">{r.supplierName}</td>
+                        <td className="p-6 font-semibold text-foreground">{r.warehouseName}</td>
                         <td className="p-6 text-center">
                           <span className={`inline-flex px-3 py-1 text-xs font-bold rounded-full ${getStatusClassName(r.status)}`}>
                             {getStatusDisplay(r.status)}
                           </span>
                         </td>
-                        <td className="p-6 text-right font-black text-[#003366]">
+                        <td className="p-6 text-right font-black text-foreground">
                           {currencyCode} {(r.totalReturnAmount ?? 0).toFixed(2)}
                         </td>
-                        <td className="p-6 text-[#64748B] font-medium">
+                        <td className="p-6 text-muted font-medium">
                           <span className="block">{new Date(r.createdAt).toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit', hour12: true })}</span>
                           <span className="block">{toBusinessDateInputValue(r.createdAt)}</span>
                         </td>
@@ -483,38 +483,38 @@ const ViewPurchaseReturns: React.FC = () => {
                               <button
                                 type="button"
                                 onClick={() => setOpenActionId(prev => prev === r.id ? null : r.id)}
-                                className="p-2 rounded-lg text-[#003366] hover:bg-slate-100 font-bold"
+                                className="p-2 rounded-lg text-primary hover:bg-surface-muted font-bold"
                                 title="Actions"
                               >
                                 <MoreVertical size={20} />
                               </button>
                               {openActionId === r.id && (
-                                <div className="absolute right-0 top-full mt-1 z-30 min-w-[200px] bg-white border border-slate-200 rounded-lg shadow-lg py-1">
+                                <div className="absolute right-0 top-full mt-1 z-30 min-w-[200px] bg-surface border border-line rounded-lg py-1">
                                   <button
                                     type="button"
                                     onClick={() => { navigate(`/purchaseReturnDetails/${r.id}`); setOpenActionId(null); }}
-                                    className="w-full flex items-center gap-2 px-4 py-2 text-left text-sm text-[#003366] hover:bg-slate-50"
+                                    className="w-full flex items-center gap-2 px-4 py-2 text-left text-sm text-primary hover:bg-surface-raised"
                                   >
                                     <Eye size={16} /> View Purchase Return
                                   </button>
                                   <button
                                     type="button"
                                     onClick={() => handleDownloadPDF(r.id)}
-                                    className="w-full flex items-center gap-2 px-4 py-2 text-left text-sm text-[#003366] hover:bg-slate-50"
+                                    className="w-full flex items-center gap-2 px-4 py-2 text-left text-sm text-primary hover:bg-surface-raised"
                                   >
                                     <FileDown size={16} /> Download PDF
                                   </button>
                                   <button
                                     type="button"
                                     onClick={() => { navigate(`/editPurchaseReturn/${r.id}`); setOpenActionId(null); }}
-                                    className="w-full flex items-center gap-2 px-4 py-2 text-left text-sm text-[#003366] hover:bg-slate-50"
+                                    className="w-full flex items-center gap-2 px-4 py-2 text-left text-sm text-primary hover:bg-surface-raised"
                                   >
                                     <Pencil size={16} /> Edit Purchase Return
                                   </button>
                                   <button
                                     type="button"
                                     onClick={() => { setToDelete(r.id); setOpenActionId(null); }}
-                                    className="w-full flex items-center gap-2 px-4 py-2 text-left text-sm text-red-600 hover:bg-red-50"
+                                    className="w-full flex items-center gap-2 px-4 py-2 text-left text-sm text-danger hover:bg-danger-soft"
                                   >
                                     <Trash2 size={16} /> Delete Purchase Return
                                   </button>
@@ -531,13 +531,13 @@ const ViewPurchaseReturns: React.FC = () => {
 
               {/* Pagination */}
               {pagination.total > 0 && (
-                <div className="flex items-center justify-between px-6 py-4 border-t border-slate-200 bg-[#F8FAFC]">
+                <div className="flex items-center justify-between px-6 py-4 border-t border-line bg-surface-raised">
                   <div className="flex items-center gap-2">
-                    <span className="text-sm text-[#64748B] font-bold">Records per page:</span>
+                    <span className="text-sm text-muted font-bold">Records per page:</span>
                     <select
                       value={pagination.limit}
                       onChange={e => setPagination(prev => ({ ...prev, limit: Number(e.target.value), page: 1 }))}
-                      className="px-3 py-1 border border-slate-200 rounded-lg focus:outline-none focus:border-[#003366] bg-white"
+                      className="px-3 py-1 border border-line rounded-lg focus:outline-none focus:border-primary bg-surface"
                     >
                       <option value={10}>10</option>
                       <option value={25}>25</option>
@@ -546,34 +546,34 @@ const ViewPurchaseReturns: React.FC = () => {
                     </select>
                   </div>
                   <div className="flex items-center gap-2">
-                    <span className="text-sm text-[#64748B] font-bold">
+                    <span className="text-sm text-muted font-bold">
                       {startRow}-{endRow} of {pagination.total}
                     </span>
                     <button
                       onClick={() => setPagination(prev => ({ ...prev, page: 1 }))}
                       disabled={pagination.page === 1}
-                      className="px-3 py-1 border border-slate-200 rounded-lg disabled:opacity-50 disabled:cursor-not-allowed hover:bg-slate-50 bg-white"
+                      className="px-3 py-1 border border-line rounded-lg disabled:opacity-50 disabled:cursor-not-allowed hover:bg-surface-raised bg-surface"
                     >
                       |&lt;
                     </button>
                     <button
                       onClick={() => setPagination(prev => ({ ...prev, page: prev.page - 1 }))}
                       disabled={pagination.page === 1}
-                      className="px-3 py-1 border border-slate-200 rounded-lg disabled:opacity-50 disabled:cursor-not-allowed hover:bg-slate-50 bg-white"
+                      className="px-3 py-1 border border-line rounded-lg disabled:opacity-50 disabled:cursor-not-allowed hover:bg-surface-raised bg-surface"
                     >
                       &lt;
                     </button>
                     <button
                       onClick={() => setPagination(prev => ({ ...prev, page: prev.page + 1 }))}
                       disabled={pagination.page >= totalPages}
-                      className="px-3 py-1 border border-slate-200 rounded-lg disabled:opacity-50 disabled:cursor-not-allowed hover:bg-slate-50 bg-white"
+                      className="px-3 py-1 border border-line rounded-lg disabled:opacity-50 disabled:cursor-not-allowed hover:bg-surface-raised bg-surface"
                     >
                       &gt;
                     </button>
                     <button
                       onClick={() => setPagination(prev => ({ ...prev, page: totalPages }))}
                       disabled={pagination.page >= totalPages}
-                      className="px-3 py-1 border border-slate-200 rounded-lg disabled:opacity-50 disabled:cursor-not-allowed hover:bg-slate-50 bg-white"
+                      className="px-3 py-1 border border-line rounded-lg disabled:opacity-50 disabled:cursor-not-allowed hover:bg-surface-raised bg-surface"
                     >
                       &gt;|
                     </button>

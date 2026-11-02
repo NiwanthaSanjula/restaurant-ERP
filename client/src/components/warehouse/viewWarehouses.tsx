@@ -128,31 +128,31 @@ const ViewWarehouses: React.FC = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-canvas">
       {loading && <Loader text="Loading" />}
       
       {/* Header Section */}
-      <div className="bg-white shadow-sm border-b">
+      <div className="bg-surface border-b">
         <div className="px-6 py-4">
           <div className="flex items-center justify-between">
             <div>
-              <h1 className="text-2xl font-bold text-gray-900">Warehouses</h1>
-              <p className="text-sm text-gray-600 mt-1">Manage your warehouse locations</p>
+              <h1 className="text-2xl font-bold text-foreground">Warehouses</h1>
+              <p className="text-sm text-muted mt-1">Manage your warehouse locations</p>
               {defaultWarehouse ? (
-                <div className="mt-2 flex items-center text-sm text-[#003366]">
+                <div className="mt-2 flex items-center text-sm text-foreground">
                   <svg className="w-4 h-4 mr-1" fill="currentColor" viewBox="0 0 20 20">
                     <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
                   </svg>
                   Default: {warehouses.find(w => w.id === defaultWarehouse)?.name || 'Warehouse not found'}
                 </div>
               ) : (
-                <p className="text-sm text-gray-500 mt-2">No default warehouse set</p>
+                <p className="text-sm text-muted mt-2">No default warehouse set</p>
               )}
             </div>
             <PermissionGate component="manageWarehouses" action="create">
             <Link 
               to="/createWarehouse" 
-              className="inline-flex items-center px-4 py-2 bg-[#003366] text-white rounded-lg hover:bg-[#004080] transition-colors duration-200 font-medium"
+              className="inline-flex items-center px-4 py-2 bg-primary text-on-primary rounded-lg hover:bg-primary-hover transition-colors duration-200 font-medium"
             >
               <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
@@ -174,44 +174,44 @@ const ViewWarehouses: React.FC = () => {
             className="w-full max-w-md"
           />
         </div>
-        <div className="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden">
+        <div className="bg-surface rounded-lg border border-line overflow-hidden">
           <div className="overflow-x-auto">
-            <table className="min-w-full divide-y divide-gray-200">
-              <thead className="bg-gray-50">
+            <table className="min-w-full divide-y divide-line">
+              <thead className="bg-surface-raised">
                 <tr>
-                  <th className="px-6 py-4 text-left text-sm font-semibold text-gray-700 tracking-wider">Warehouse</th>
-                  <th className="px-6 py-4 text-left text-sm font-semibold text-gray-700 tracking-wider">Location</th>
-                  <th className="px-6 py-4 text-left text-sm font-semibold text-gray-700 tracking-wider">Status</th>
-                  <th className="px-6 py-4 text-left text-sm font-semibold text-gray-700 tracking-wider">
+                  <th className="px-6 py-4 text-left text-sm font-semibold text-foreground tracking-wider">Warehouse</th>
+                  <th className="px-6 py-4 text-left text-sm font-semibold text-foreground tracking-wider">Location</th>
+                  <th className="px-6 py-4 text-left text-sm font-semibold text-foreground tracking-wider">Status</th>
+                  <th className="px-6 py-4 text-left text-sm font-semibold text-foreground tracking-wider">
                     <div className="flex items-center">
                       <span>Default</span>
-                      <span className="ml-1 text-xs text-gray-400">(One only)</span>
+                      <span className="ml-1 text-xs text-subtle">(One only)</span>
                     </div>
                   </th>
-                  <th className="px-6 py-4 text-right text-sm font-semibold text-gray-700 tracking-wider">Actions</th>
+                  <th className="px-6 py-4 text-right text-sm font-semibold text-foreground tracking-wider">Actions</th>
                 </tr>
               </thead>
-              <tbody className="bg-white divide-y divide-gray-200">
+              <tbody className="bg-surface divide-y divide-line">
                 {warehouses.map(warehouse => (
-                  <tr key={warehouse.id} className={`hover:bg-gray-50 transition-colors duration-150 ${
-                    defaultWarehouse === warehouse.id ? 'bg-blue-50' : ''
+                  <tr key={warehouse.id} className={`hover:bg-surface-raised transition-colors duration-150 ${
+                    defaultWarehouse === warehouse.id ? 'bg-primary-soft' : ''
                   }`}>
                     <td className="px-6 py-5 whitespace-nowrap">
                       <div className="flex items-center">
                         <div className="flex-shrink-0 h-14 w-14">
-                          <div className="h-14 w-14 rounded-full bg-[#003366] flex items-center justify-center">
-                            <svg className="h-8 w-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <div className="h-14 w-14 rounded-full bg-primary flex items-center justify-center">
+                            <svg className="h-8 w-8 text-on-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
                             </svg>
                           </div>
                         </div>
                         <div className="ml-4">
-                          <div className="text-base font-semibold text-gray-900">{warehouse.name}</div>
+                          <div className="text-base font-semibold text-foreground">{warehouse.name}</div>
                         </div>
                       </div>
                     </td>
                     <td className="px-6 py-5 whitespace-nowrap">
-                      <div className="text-base text-gray-900">
+                      <div className="text-base text-foreground">
                         {warehouse.country && warehouse.location 
                           ? `${warehouse.location}, ${warehouse.country}`
                           : warehouse.country || warehouse.location || 'Not specified'
@@ -221,8 +221,8 @@ const ViewWarehouses: React.FC = () => {
                     <td className="px-6 py-5 whitespace-nowrap">
                       <span className={`inline-flex px-2 py-1 text-sm font-semibold rounded-full ${
                         warehouse.isActive 
-                          ? 'bg-green-100 text-green-800' 
-                          : 'bg-red-100 text-red-800'
+                          ? 'bg-secondary-soft text-secondary'
+                          : 'bg-danger-soft text-danger'
                       }`}>
                         {warehouse.isActive ? 'Active' : 'Inactive'}
                       </span>
@@ -232,8 +232,8 @@ const ViewWarehouses: React.FC = () => {
                         onClick={() => setDefaultWarehouseHandler(warehouse.id)}
                         className={`inline-flex items-center px-3 py-1.5 rounded-full text-sm font-medium transition-colors duration-200 ${
                           defaultWarehouse === warehouse.id
-                            ? 'bg-[#003366] text-white hover:bg-[#004080]'
-                            : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                            ? 'bg-primary text-on-primary hover:bg-primary-hover'
+                            : 'bg-surface-muted text-foreground hover:bg-surface-muted'
                         }`}
                         title={defaultWarehouse === warehouse.id ? 'Click to remove default status' : 'Click to set as default warehouse'}
                       >
@@ -259,7 +259,7 @@ const ViewWarehouses: React.FC = () => {
                         <PermissionGate component="manageWarehouses" action="update">
                                   <button
                                     onClick={() => navigate(`/editWarehouse/${warehouse.id}`)}
-                                    className="inline-flex items-center p-2.5 text-[#003366] hover:text-[#003366] hover:bg-gray-100 rounded-lg transition-colors duration-200"
+                                    className="inline-flex items-center p-2.5 text-primary hover:text-primary hover:bg-surface-muted rounded-lg transition-colors duration-200"
                                     title="Edit warehouse"
                                   >
                             <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -270,7 +270,7 @@ const ViewWarehouses: React.FC = () => {
                         <PermissionGate component="manageWarehouses" action="delete">
                                   <button
                                     onClick={() => setToDelete(warehouse.id)}
-                                    className="inline-flex items-center p-2.5 text-red-600 hover:text-red-700 hover:bg-red-50 rounded-lg transition-colors duration-200"
+                                    className="inline-flex items-center p-2.5 text-danger hover:text-danger hover:bg-danger-soft rounded-lg transition-colors duration-200"
                                     title="Delete warehouse"
                                   >
                             <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -286,15 +286,15 @@ const ViewWarehouses: React.FC = () => {
                   <tr>
                     <td colSpan={5} className="px-6 py-12 text-center">
                       <div className="flex flex-col items-center">
-                        <svg className="w-12 h-12 text-gray-400 mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <svg className="w-12 h-12 text-subtle mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
                         </svg>
-                        <h3 className="text-lg font-medium text-gray-900 mb-2">No warehouses found</h3>
-                        <p className="text-gray-500 mb-4">Get started by creating your first warehouse.</p>
+                        <h3 className="text-lg font-medium text-foreground mb-2">No warehouses found</h3>
+                        <p className="text-muted mb-4">Get started by creating your first warehouse.</p>
                         <PermissionGate component="manageWarehouses" action="create">
                           <Link 
                             to="/createWarehouse" 
-                            className="inline-flex items-center px-4 py-2 bg-[#003366] text-white rounded-lg hover:bg-[#004080] transition-colors duration-200"
+                            className="inline-flex items-center px-4 py-2 bg-primary text-on-primary rounded-lg hover:bg-primary-hover transition-colors duration-200"
                           >
                             <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
@@ -312,14 +312,14 @@ const ViewWarehouses: React.FC = () => {
         </div>
         
         {/* Help Text */}
-        <div className="mt-4 p-4 sm:p-6 bg-blue-50 border border-blue-200 rounded-lg">
+        <div className="mt-4 p-4 sm:p-6 bg-primary-soft border border-primary-line rounded-lg">
           <div className="flex items-start gap-3">
-            <svg className="w-5 h-5 text-blue-400 flex-shrink-0 mt-0.5" fill="currentColor" viewBox="0 0 20 20">
+            <svg className="w-5 h-5 text-primary flex-shrink-0 mt-0.5" fill="currentColor" viewBox="0 0 20 20">
               <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clipRule="evenodd" />
             </svg>
             <div className="min-w-0">
-              <h4 className="text-sm font-medium text-blue-800">Default Warehouse</h4>
-              <p className="text-sm text-blue-700 mt-1">
+              <h4 className="text-sm font-medium text-primary">Default Warehouse</h4>
+              <p className="text-sm text-primary mt-1">
                 Only one warehouse can be set as default at a time. Click on a warehouse's "Set Default" button to make it the default, or click on the current default warehouse to remove its default status.
               </p>
             </div>

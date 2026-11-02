@@ -438,24 +438,24 @@ const EditPurchaseReturn: React.FC = () => {
   if (loading) return <Loader />;
   if (!returnData) {
     return (
-      <div className="p-8 bg-[#F8FAFC] min-h-screen">
+      <div className="p-8 bg-canvas min-h-screen">
         <div className="max-w-2xl mx-auto text-center">
-          <p className="text-[#64748B] font-bold mb-4">Purchase return not found</p>
-          <Link to="/viewPurchaseReturns" className="text-[#003366] font-bold hover:underline">Back to list</Link>
+          <p className="text-muted font-bold mb-4">Purchase return not found</p>
+          <Link to="/viewPurchaseReturns" className="text-foreground font-bold hover:underline">Back to list</Link>
         </div>
       </div>
     );
   }
 
   return (
-    <div className="p-8 bg-[#F8FAFC] min-h-screen">
+    <div className="p-8 bg-canvas min-h-screen">
       <div className="max-w-7xl mx-auto">
         <div className="flex justify-between items-center mb-6">
-          <h1 className="text-4xl font-black text-[#003366] mb-0">Edit Purchase Return</h1>
+          <h1 className="text-4xl font-black text-foreground mb-0">Edit Purchase Return</h1>
           <div className="flex items-center gap-2">
             <Link
               to="/viewPurchaseReturns"
-              className="px-4 py-2 text-[#003366] font-bold border border-slate-300 rounded-lg hover:bg-slate-100"
+              className="px-4 py-2 text-foreground font-bold border border-line-strong rounded-lg hover:bg-surface-muted"
             >
               Back
             </Link>
@@ -464,68 +464,68 @@ const EditPurchaseReturn: React.FC = () => {
 
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
           <div className="lg:col-span-2 space-y-6">
-            <div className="bg-white rounded-2xl shadow-sm border border-slate-200 p-6">
+            <div className="bg-surface rounded-2xl border border-line p-6">
               <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                 <div>
-                  <label className="block text-sm font-black text-[#003366] mb-2">Date *</label>
+                  <label className="block text-sm font-black text-foreground mb-2">Date *</label>
                   <input
                     type="date"
                     value={returnDate}
                     onChange={e => setReturnDate(e.target.value)}
-                    className="w-full px-4 py-3 border border-slate-200 rounded-lg focus:outline-none focus:border-[#003366] bg-white"
+                    className="w-full px-4 py-3 border border-line rounded-lg focus:outline-none focus:border-primary bg-surface"
                   />
                 </div>
                 <div>
-                  <label className="block text-sm font-black text-[#003366] mb-2">Warehouse *</label>
+                  <label className="block text-sm font-black text-foreground mb-2">Warehouse *</label>
                   <input
                     type="text"
                     readOnly
                     value={returnData.warehouseName || returnData.warehouseId?.name || ''}
-                    className="w-full px-4 py-3 border border-slate-200 rounded-lg bg-slate-50 text-[#003366]"
+                    className="w-full px-4 py-3 border border-line rounded-lg bg-surface-raised text-foreground"
                   />
                 </div>
                 <div>
-                  <label className="block text-sm font-black text-[#003366] mb-2">Supplier *</label>
+                  <label className="block text-sm font-black text-foreground mb-2">Supplier *</label>
                   <input
                     type="text"
                     readOnly
                     value={returnData.supplierName || returnData.supplierId?.name || ''}
-                    className="w-full px-4 py-3 border border-slate-200 rounded-lg bg-slate-50 text-[#003366]"
+                    className="w-full px-4 py-3 border border-line rounded-lg bg-surface-raised text-foreground"
                   />
                 </div>
               </div>
             </div>
 
-            <div className="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden">
-              <div className="px-6 py-4 border-b border-slate-200">
-                <h3 className="text-lg font-black text-[#003366]">Order Items *</h3>
+            <div className="bg-surface rounded-2xl border border-line overflow-hidden">
+              <div className="px-6 py-4 border-b border-line">
+                <h3 className="text-lg font-black text-foreground">Order Items *</h3>
               </div>
               <div className="overflow-x-auto">
                 <table className="w-full">
-                  <thead className="bg-[#F8FAFC] border-b border-slate-200">
+                  <thead className="bg-surface-raised border-b border-line">
                     <tr>
-                      <th className="px-6 py-3 text-left text-xs font-black text-[#64748B] uppercase">Product</th>
-                      <th className="px-6 py-3 text-left text-xs font-black text-[#64748B] uppercase">Net Unit Cost</th>
-                      <th className="px-6 py-3 text-left text-xs font-black text-[#64748B] uppercase">Stock</th>
-                      <th className="px-6 py-3 text-left text-xs font-black text-[#64748B] uppercase">Qty</th>
-                      <th className="px-6 py-3 text-left text-xs font-black text-[#64748B] uppercase">Discount</th>
-                      <th className="px-6 py-3 text-left text-xs font-black text-[#64748B] uppercase">Tax</th>
-                      <th className="px-6 py-3 text-left text-xs font-black text-[#64748B] uppercase">Subtotal</th>
-                      <th className="px-6 py-3 text-center text-xs font-black text-[#64748B] uppercase">Action</th>
+                      <th className="px-6 py-3 text-left text-xs font-black text-muted uppercase">Product</th>
+                      <th className="px-6 py-3 text-left text-xs font-black text-muted uppercase">Net Unit Cost</th>
+                      <th className="px-6 py-3 text-left text-xs font-black text-muted uppercase">Stock</th>
+                      <th className="px-6 py-3 text-left text-xs font-black text-muted uppercase">Qty</th>
+                      <th className="px-6 py-3 text-left text-xs font-black text-muted uppercase">Discount</th>
+                      <th className="px-6 py-3 text-left text-xs font-black text-muted uppercase">Tax</th>
+                      <th className="px-6 py-3 text-left text-xs font-black text-muted uppercase">Subtotal</th>
+                      <th className="px-6 py-3 text-center text-xs font-black text-muted uppercase">Action</th>
                     </tr>
                   </thead>
                   <tbody>
                     {items.length === 0 ? (
                       <tr>
-                        <td colSpan={8} className="px-6 py-12 text-center text-[#64748B] font-medium">No Data Available</td>
+                        <td colSpan={8} className="px-6 py-12 text-center text-muted font-medium">No Data Available</td>
                       </tr>
                     ) : (
                       items.map((item, idx) => (
-                        <tr key={item.id} className="border-b border-slate-200 hover:bg-[#F8FAFC]">
+                        <tr key={item.id} className="border-b border-line hover:bg-surface-raised">
                           <td className="px-6 py-4">
                             {editingProductIndex === idx ? (
                               <div className="relative">
-                                <div className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none z-10">
+                                <div className="absolute left-3 top-1/2 -translate-y-1/2 text-subtle pointer-events-none z-10">
                                   <Search size={16} />
                                 </div>
                                 <div className="pl-8">
@@ -541,7 +541,7 @@ const EditPurchaseReturn: React.FC = () => {
                                 <button
                                   type="button"
                                   onClick={() => setEditingProductIndex(null)}
-                                  className="absolute right-2 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600"
+                                  className="absolute right-2 top-1/2 -translate-y-1/2 text-subtle hover:text-muted"
                                 >
                                   ×
                                 </button>
@@ -549,9 +549,9 @@ const EditPurchaseReturn: React.FC = () => {
                             ) : (
                               <div className="flex items-start gap-2">
                                 <div className="flex-1">
-                                  <div className="font-bold text-[#003366]">{item.productName}</div>
+                                  <div className="font-bold text-foreground">{item.productName}</div>
                                   {item.productCode && (
-                                    <div className="text-xs text-[#64748B] mt-1">
+                                    <div className="text-xs text-muted mt-1">
                                       {item.productCode}
                                     </div>
                                   )}
@@ -566,7 +566,7 @@ const EditPurchaseReturn: React.FC = () => {
                               <button
                                 type="button"
                                 onClick={() => updateItemQty(idx, -1)}
-                                className="p-1.5 rounded border border-slate-200 hover:bg-slate-100 text-[#003366]"
+                                className="p-1.5 rounded border border-line hover:bg-surface-muted text-primary"
                               >
                                 <Minus size={16} />
                               </button>
@@ -594,12 +594,12 @@ const EditPurchaseReturn: React.FC = () => {
                                     setItemQty(idx, 0);
                                   }
                                 }}
-                                className="w-14 px-2 py-1.5 border border-slate-200 rounded text-center focus:outline-none focus:border-[#003366]"
+                                className="w-14 px-2 py-1.5 border border-line rounded text-center focus:outline-none focus:border-primary"
                               />
                               <button
                                 type="button"
                                 onClick={() => updateItemQty(idx, 1)}
-                                className="p-1.5 rounded border border-slate-200 hover:bg-slate-100 text-[#003366]"
+                                className="p-1.5 rounded border border-line hover:bg-surface-muted text-primary"
                               >
                                 <Plus size={16} />
                               </button>
@@ -607,18 +607,18 @@ const EditPurchaseReturn: React.FC = () => {
                           </td>
                           <td className="px-6 py-4">{currencyCode} {calculateItemDiscountAmount(item).toFixed(2)}</td>
                           <td className="px-6 py-4">{currencyCode} {calculateItemTaxAmount(item).toFixed(2)}</td>
-                          <td className="px-6 py-4 font-bold text-[#003366]">{currencyCode} {item.subTotal.toFixed(2)}</td>
+                          <td className="px-6 py-4 font-bold text-foreground">{currencyCode} {item.subTotal.toFixed(2)}</td>
                           <td className="px-6 py-4 text-center">
                             <div className="flex items-center justify-center gap-2">
                               <button 
                                 type="button" 
                                 onClick={() => openEditModal(idx)} 
-                                className="text-[#003366] hover:text-[#004488] font-bold" 
+                                className="text-primary hover:text-primary font-bold"
                                 title="Edit"
                               >
                                 <Pencil size={18} />
                               </button>
-                              <button type="button" onClick={() => removeItem(idx)} className="text-red-600 hover:text-red-800 font-bold" title="Remove">
+                              <button type="button" onClick={() => removeItem(idx)} className="text-danger hover:text-danger font-bold" title="Remove">
                                 <Trash2 size={20} />
                               </button>
                             </div>
@@ -631,53 +631,53 @@ const EditPurchaseReturn: React.FC = () => {
               </div>
             </div>
 
-            <div className="bg-white rounded-2xl shadow-sm border border-slate-200 p-6">
+            <div className="bg-surface rounded-2xl border border-line p-6">
               <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-4">
                 <div>
-                  <label className="block text-sm font-black text-[#003366] mb-2">Order Tax:</label>
+                  <label className="block text-sm font-black text-foreground mb-2">Order Tax:</label>
                   <div className="flex items-center">
                     <input
                       type="text"
                       step="0.01"
                       value={orderTaxInput}
                       onChange={handleOrderTaxChange}
-                      className="w-full px-4 py-3 border border-slate-200 rounded-l-lg focus:outline-none focus:border-[#003366] bg-white"
+                      className="w-full px-4 py-3 border border-line rounded-l-lg focus:outline-none focus:border-primary bg-surface"
                     />
-                    <span className="px-3 py-3 bg-slate-100 border border-l-0 border-slate-200 rounded-r-lg text-[#64748B] font-bold">%</span>
+                    <span className="px-3 py-3 bg-surface-muted border border-l-0 border-line rounded-r-lg text-muted font-bold">%</span>
                   </div>
                 </div>
                 <div>
-                  <label className="block text-sm font-black text-[#003366] mb-2">Discount:</label>
+                  <label className="block text-sm font-black text-foreground mb-2">Discount:</label>
                   <div className="flex items-center">
-                    <span className="px-3 py-3 bg-slate-100 border border-r-0 border-slate-200 rounded-l-lg text-[#64748B] font-bold">{currencySymbol}</span>
+                    <span className="px-3 py-3 bg-surface-muted border border-r-0 border-line rounded-l-lg text-muted font-bold">{currencySymbol}</span>
                     <input
                       type="text"
                       step="0.01"
                       value={discountInput}
                       onChange={handleDiscountChange}
-                      className="w-full px-4 py-3 border border-slate-200 rounded-r-lg focus:outline-none focus:border-[#003366] bg-white"
+                      className="w-full px-4 py-3 border border-line rounded-r-lg focus:outline-none focus:border-primary bg-surface"
                     />
                   </div>
                 </div>
                 <div>
-                  <label className="block text-sm font-black text-[#003366] mb-2">Shipping:</label>
+                  <label className="block text-sm font-black text-foreground mb-2">Shipping:</label>
                   <div className="flex items-center">
-                    <span className="px-3 py-3 bg-slate-100 border border-r-0 border-slate-200 rounded-l-lg text-[#64748B] font-bold">{currencySymbol}</span>
+                    <span className="px-3 py-3 bg-surface-muted border border-r-0 border-line rounded-l-lg text-muted font-bold">{currencySymbol}</span>
                     <input
                       type="text"
                       step="0.01"
                       value={shippingInput}
                       onChange={handleShippingChange}
-                      className="w-full px-4 py-3 border border-slate-200 rounded-r-lg focus:outline-none focus:border-[#003366] bg-white"
+                      className="w-full px-4 py-3 border border-line rounded-r-lg focus:outline-none focus:border-primary bg-surface"
                     />
                   </div>
                 </div>
                 <div>
-                  <label className="block text-sm font-black text-[#003366] mb-2">Status *</label>
+                  <label className="block text-sm font-black text-foreground mb-2">Status *</label>
                   <select
                     value={status}
                     onChange={e => setStatus(e.target.value)}
-                    className="w-full px-4 py-3 border border-slate-200 rounded-lg focus:outline-none focus:border-[#003366] bg-white"
+                    className="w-full px-4 py-3 border border-line rounded-lg focus:outline-none focus:border-primary bg-surface"
                   >
                     <option value="Completed">Received</option>
                     <option value="Pending">Pending</option>
@@ -687,13 +687,13 @@ const EditPurchaseReturn: React.FC = () => {
                 </div>
               </div>
               <div>
-                <label className="block text-sm font-black text-[#003366] mb-2">Note:</label>
+                <label className="block text-sm font-black text-foreground mb-2">Note:</label>
                 <textarea
                   value={notes}
                   onChange={e => setNotes(e.target.value)}
                   placeholder="Enter Note"
                   rows={3}
-                  className="w-full px-4 py-3 border border-slate-200 rounded-lg focus:outline-none focus:border-[#003366] bg-white resize-none"
+                  className="w-full px-4 py-3 border border-line rounded-lg focus:outline-none focus:border-primary bg-surface resize-none"
                 />
               </div>
               <div className="flex gap-4 mt-6">
@@ -701,14 +701,14 @@ const EditPurchaseReturn: React.FC = () => {
                   type="button"
                   onClick={handleSave}
                   disabled={saving || items.length === 0}
-                  className="bg-[#003366] text-white font-black py-3 px-8 rounded-lg hover:bg-[#004080] disabled:bg-slate-300 disabled:cursor-not-allowed transition flex items-center justify-center gap-2"
+                  className="bg-primary text-on-primary font-black py-3 px-8 rounded-lg hover:bg-primary-hover disabled:bg-surface-muted disabled:cursor-not-allowed transition flex items-center justify-center gap-2"
                 >
                   {saving ? <Loader2 size={20} className="animate-spin" /> : <Save size={20} />}
                   {saving ? 'Saving...' : 'Save'}
                 </button>
                 <Link
                   to="/viewPurchaseReturns"
-                  className="bg-slate-200 text-slate-700 font-black py-3 px-8 rounded-lg hover:bg-slate-300 transition inline-flex items-center"
+                  className="bg-surface-muted text-foreground font-black py-3 px-8 rounded-lg hover:bg-surface-muted transition inline-flex items-center"
                 >
                   Cancel
                 </Link>
@@ -717,26 +717,26 @@ const EditPurchaseReturn: React.FC = () => {
           </div>
 
           <div>
-            <div className="bg-white rounded-2xl shadow-sm border border-slate-200 p-6 sticky top-8">
-              <h3 className="text-lg font-black text-[#003366] mb-4">Summary</h3>
+            <div className="bg-surface rounded-2xl border border-line p-6 sticky top-8">
+              <h3 className="text-lg font-black text-foreground mb-4">Summary</h3>
               <div className="space-y-3 mb-4">
                 <div className="flex justify-between text-sm">
-                  <span className="text-[#64748B] font-bold">Order Tax</span>
-                  <span className="font-bold text-[#003366]">{currencyCode} {(subtotalBeforeOrderLevel * (orderTax / 100)).toFixed(2)} ({orderTax.toFixed(2)}) %</span>
+                  <span className="text-muted font-bold">Order Tax</span>
+                  <span className="font-bold text-primary">{currencyCode} {(subtotalBeforeOrderLevel * (orderTax / 100)).toFixed(2)} ({orderTax.toFixed(2)}) %</span>
                 </div>
                 <div className="flex justify-between text-sm">
-                  <span className="text-[#64748B] font-bold">Discount</span>
-                  <span className="font-bold text-[#003366]">{currencyCode} {discount.toFixed(2)}</span>
+                  <span className="text-muted font-bold">Discount</span>
+                  <span className="font-bold text-primary">{currencyCode} {discount.toFixed(2)}</span>
                 </div>
                 <div className="flex justify-between text-sm">
-                  <span className="text-[#64748B] font-bold">Shipping</span>
-                  <span className="font-bold text-[#003366]">{currencyCode} {shipping.toFixed(2)}</span>
+                  <span className="text-muted font-bold">Shipping</span>
+                  <span className="font-bold text-primary">{currencyCode} {shipping.toFixed(2)}</span>
                 </div>
               </div>
-              <div className="pt-4 border-t border-slate-200">
+              <div className="pt-4 border-t border-line">
                 <div className="flex justify-between items-center">
-                  <span className="text-[#64748B] font-black">Grand Total</span>
-                  <span className="text-xl font-black text-[#2563EB]">{currencyCode} {grandTotal.toFixed(2)}</span>
+                  <span className="text-muted font-black">Grand Total</span>
+                  <span className="text-xl font-black text-primary">{currencyCode} {grandTotal.toFixed(2)}</span>
                 </div>
               </div>
             </div>
@@ -746,27 +746,27 @@ const EditPurchaseReturn: React.FC = () => {
 
       {/* Edit Item Modal */}
       {editingItemIndex !== null && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-          <div className="bg-white rounded-lg shadow-xl w-full max-w-md mx-4">
-            <div className="flex items-center justify-between p-6 border-b border-slate-200">
-              <h2 className="text-xl font-black text-[#003366]">
+        <div className="fixed inset-0 bg-overlay flex items-center justify-center z-50">
+          <div className="bg-surface rounded-lg w-full max-w-md mx-4">
+            <div className="flex items-center justify-between p-6 border-b border-line">
+              <h2 className="text-xl font-black text-foreground">
                 {items[editingItemIndex]?.productName || 'Edit Item'}
               </h2>
               <button
                 type="button"
                 onClick={closeEditModal}
-                className="text-slate-400 hover:text-slate-600 text-2xl font-bold"
+                className="text-subtle hover:text-muted text-2xl font-bold"
               >
                 ×
               </button>
             </div>
             <div className="p-6 space-y-4">
               <div>
-                <label className="block text-sm font-black text-[#003366] mb-2">
+                <label className="block text-sm font-black text-foreground mb-2">
                   Product Cost: *
                 </label>
                 <div className="relative">
-                  <span className="absolute left-3 top-1/2 -translate-y-1/2 text-[#64748B]">{currencySymbol}</span>
+                  <span className="absolute left-3 top-1/2 -translate-y-1/2 text-muted">{currencySymbol}</span>
                   <input
                     type="text"
                     value={editFormData.productCost}
@@ -779,20 +779,20 @@ const EditPurchaseReturn: React.FC = () => {
                         handleEditFormChange('productCost', '0');
                       }
                     }}
-                    className="w-full pl-16 pr-4 py-3 border border-slate-200 rounded-lg focus:outline-none focus:border-[#003366]"
+                    className="w-full pl-16 pr-4 py-3 border border-line rounded-lg focus:outline-none focus:border-primary"
                     required
                   />
                 </div>
               </div>
 
               <div>
-                <label className="block text-sm font-black text-[#003366] mb-2">
+                <label className="block text-sm font-black text-foreground mb-2">
                   Tax Type: *
                 </label>
                 <select
                   value={editFormData.taxType}
                   onChange={(e) => handleEditFormChange('taxType', e.target.value)}
-                  className="w-full px-4 py-3 border border-slate-200 rounded-lg focus:outline-none focus:border-[#003366]"
+                  className="w-full px-4 py-3 border border-line rounded-lg focus:outline-none focus:border-primary"
                   required
                 >
                   <option value="Exclusive">Exclusive</option>
@@ -801,7 +801,7 @@ const EditPurchaseReturn: React.FC = () => {
               </div>
 
               <div>
-                <label className="block text-sm font-black text-[#003366] mb-2">
+                <label className="block text-sm font-black text-foreground mb-2">
                   Order Tax:
                 </label>
                 <div className="relative">
@@ -817,20 +817,20 @@ const EditPurchaseReturn: React.FC = () => {
                         handleEditFormChange('orderTax', '0');
                       }
                     }}
-                    className="w-full px-4 py-3 pr-8 border border-slate-200 rounded-lg focus:outline-none focus:border-[#003366]"
+                    className="w-full px-4 py-3 pr-8 border border-line rounded-lg focus:outline-none focus:border-primary"
                   />
-                  <span className="absolute right-3 top-1/2 -translate-y-1/2 text-[#64748B]">%</span>
+                  <span className="absolute right-3 top-1/2 -translate-y-1/2 text-muted">%</span>
                 </div>
               </div>
 
               <div>
-                <label className="block text-sm font-black text-[#003366] mb-2">
+                <label className="block text-sm font-black text-foreground mb-2">
                   Discount Type: *
                 </label>
                 <select
                   value={editFormData.discountType}
                   onChange={(e) => handleEditFormChange('discountType', e.target.value)}
-                  className="w-full px-4 py-3 border border-slate-200 rounded-lg focus:outline-none focus:border-[#003366]"
+                  className="w-full px-4 py-3 border border-line rounded-lg focus:outline-none focus:border-primary"
                   required
                 >
                   <option value="Percentage">Percentage</option>
@@ -839,7 +839,7 @@ const EditPurchaseReturn: React.FC = () => {
               </div>
 
               <div>
-                <label className="block text-sm font-black text-[#003366] mb-2">
+                <label className="block text-sm font-black text-foreground mb-2">
                   Discount: *
                 </label>
                 <div className="relative">
@@ -855,27 +855,27 @@ const EditPurchaseReturn: React.FC = () => {
                         handleEditFormChange('discount', '0');
                       }
                     }}
-                    className="w-full px-4 py-3 border border-slate-200 rounded-lg focus:outline-none focus:border-[#003366]"
+                    className="w-full px-4 py-3 border border-line rounded-lg focus:outline-none focus:border-primary"
                     required
                   />
                   {editFormData.discountType === 'Percentage' && (
-                    <span className="absolute right-3 top-1/2 -translate-y-1/2 text-[#64748B]">%</span>
+                    <span className="absolute right-3 top-1/2 -translate-y-1/2 text-muted">%</span>
                   )}
                 </div>
               </div>
             </div>
-            <div className="flex items-center justify-end gap-4 p-6 border-t border-slate-200">
+            <div className="flex items-center justify-end gap-4 p-6 border-t border-line">
               <button
                 type="button"
                 onClick={closeEditModal}
-                className="px-6 py-2 text-slate-700 bg-slate-200 rounded-lg hover:bg-slate-300 font-black transition"
+                className="px-6 py-2 text-foreground bg-surface-muted rounded-lg hover:bg-surface-muted font-black transition"
               >
                 Cancel
               </button>
               <button
                 type="button"
                 onClick={handleSaveEditModal}
-                className="px-6 py-2 bg-[#003366] text-white rounded-lg hover:bg-[#004488] font-black transition"
+                className="px-6 py-2 bg-primary text-on-primary rounded-lg hover:bg-primary-hover font-black transition"
               >
                 Save
               </button>

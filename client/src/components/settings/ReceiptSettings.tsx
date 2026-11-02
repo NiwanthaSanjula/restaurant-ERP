@@ -17,6 +17,8 @@ import {
 import React, { useEffect, useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { toast } from 'react-toastify';
+import { usePermissions } from '../../contexts/PermissionContext';
+import { readReceiptResult, receiptEditorPatch, receiptToEditor, type ReceiptConfig } from './receiptSettingsContract';
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -59,6 +61,7 @@ interface ReceiptSettingsData {
     columns: ProductColumns;
   };
   summary: {
+    showDiscountShipping: boolean;
     enabled: boolean;
     showDiscount: boolean;
     showSpecialDiscount: boolean;
@@ -70,6 +73,8 @@ interface ReceiptSettingsData {
     showPaymentMethods: boolean;
   };
   footer: {
+    showNote: boolean;
+    note: string;
     enabled: boolean;
     showBarcode: boolean;
     showSystemCredit: boolean;
@@ -111,6 +116,7 @@ const DEFAULT_SETTINGS: ReceiptSettingsData = {
     },
   },
   summary: {
+    showDiscountShipping: true,
     enabled: true,
     showDiscount: true,
     showSpecialDiscount: true,
@@ -122,6 +128,8 @@ const DEFAULT_SETTINGS: ReceiptSettingsData = {
     showPaymentMethods: true,
   },
   footer: {
+    showNote: false,
+    note: '',
     enabled: true,
     showBarcode: true,
     showSystemCredit: true,
@@ -139,14 +147,15 @@ const Toggle: React.FC<{
 }> = ({ value, onChange, disabled = false, label }) => (
   <button
     type="button"
+    disabled={disabled}
     onClick={() => !disabled && onChange(!value)}
     className={`relative inline-flex h-6 w-11 shrink-0 items-center rounded-full transition-colors focus:outline-none ${
       disabled ? 'opacity-40 cursor-not-allowed' : 'cursor-pointer'
-    } ${value && !disabled ? 'bg-[#1A3E73]' : value && disabled ? 'bg-[#1A3E73]' : 'bg-slate-300'}`}
+    } ${value && !disabled ? 'bg-primary' : value && disabled ? 'bg-primary' : 'bg-surface-muted'}`}
     title={label}
   >
     <span
-      className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${
+      className={`inline-block h-4 w-4 transform rounded-full bg-surface transition-transform ${
         value ? 'translate-x-6' : 'translate-x-1'
       }`}
     />
@@ -162,10 +171,10 @@ const ToggleRow: React.FC<{
   onChange: (val: boolean) => void;
   disabled?: boolean;
 }> = ({ label, sublabel, value, onChange, disabled }) => (
-  <div className="flex items-center justify-between py-3 px-1 border-b border-slate-100 last:border-0">
+  <div className="flex items-center justify-between py-3 px-1 border-b border-line last:border-0">
     <div>
-      <span className="text-sm font-medium text-slate-700">{label}</span>
-      {sublabel && <p className="text-xs text-slate-400 mt-0.5">{sublabel}</p>}
+      <span className="text-sm font-medium text-foreground">{label}</span>
+      {sublabel && <p className="text-xs text-subtle mt-0.5">{sublabel}</p>}
     </div>
     <Toggle value={value} onChange={onChange} disabled={disabled} />
   </div>
@@ -179,23 +188,24 @@ const SectionCard: React.FC<{
   enabled?: boolean;
   onToggleEnabled?: (val: boolean) => void;
   children: React.ReactNode;
-}> = ({ title, icon, enabled, onToggleEnabled, children }) => (
-  <div className="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
-    <div className="flex items-center justify-between px-5 py-4 border-b border-slate-100">
+  unavailable?: boolean;
+}> = ({ title, icon, enabled, onToggleEnabled, children, unavailable = false }) => (
+  <div className="bg-surface rounded-2xl border border-line overflow-hidden">
+    <div className="flex items-center justify-between px-5 py-4 border-b border-line">
       <div className="flex items-center gap-3">
-        <span className="text-[#004080]">{icon}</span>
-        <h3 className="font-semibold text-slate-800 text-sm">{title}</h3>
+        <span className="text-primary">{icon}</span>
+        <h3 className="font-semibold text-foreground text-sm">{title}</h3>
       </div>
       {onToggleEnabled !== undefined && (
         <div className="flex items-center gap-2">
-          <span className="text-xs text-slate-500">{enabled ? 'Enabled' : 'Disabled'}</span>
-          <Toggle value={enabled ?? true} onChange={onToggleEnabled} />
+          <span className="text-xs text-muted">Section visibility unavailable</span>
+          <Toggle value={enabled ?? true} onChange={onToggleEnabled} disabled />
         </div>
       )}
     </div>
-    <div className={`px-5 py-4 ${enabled === false ? 'opacity-50 pointer-events-none' : ''}`}>
+    <fieldset disabled={unavailable} className={`px-5 py-4 ${unavailable || enabled === false ? 'opacity-50' : ''}`}>
       {children}
-    </div>
+    </fieldset>
   </div>
 );
 
@@ -215,9 +225,13 @@ type TabId = (typeof TABS)[number]['id'];
 
 const ReceiptSettings: React.FC = () => {
   const navigate = useNavigate();
+  const { hasPermission } = usePermissions();
+  const canEdit = hasPermission('manageSettings', 'edit_restaurant_settings');
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [activeTab, setActiveTab] = useState<TabId>('general');
   const [settings, setSettings] = useState<ReceiptSettingsData>(DEFAULT_SETTINGS);
+  const [savedSettings, setSavedSettings] = useState<ReceiptConfig>({});
+  const [isLoaded, setIsLoaded] = useState(false);
   const [loading, setLoading] = useState(false);
   const [uploading, setUploading] = useState(false);
   const [colWarning, setColWarning] = useState(false);
@@ -236,11 +250,11 @@ const ReceiptSettings: React.FC = () => {
     fetch(`${apiBase}/settings/receipt-config`, {
       headers: { Authorization: `Bearer ${token}` },
     })
-      .then((r) => r.json())
-      .then((res) => {
-        if (res?.data) {
-          setSettings({ ...DEFAULT_SETTINGS, ...res.data });
-        }
+      .then((r) => readReceiptResult(r, 'load'))
+      .then((saved) => {
+        setSavedSettings(saved);
+        setSettings(receiptToEditor(saved, DEFAULT_SETTINGS));
+        setIsLoaded(true);
       })
       .catch(() => toast.error('Failed to load receipt settings'));
   }, []);
@@ -296,6 +310,7 @@ const ReceiptSettings: React.FC = () => {
       const data = await res.json();
       if (data.status === 'success') {
         updateHeader({ logoUrl: data.logoUrl });
+        setSavedSettings((previous) => ({ ...previous, logoUrl: data.logoUrl }));
         toast.success('Logo uploaded successfully');
       } else {
         toast.error(data.message || 'Upload failed');
@@ -310,11 +325,13 @@ const ReceiptSettings: React.FC = () => {
 
   const handleRemoveLogo = async () => {
     try {
-      await fetch(`${apiBase}/settings/receipt-logo`, {
+      const response = await fetch(`${apiBase}/settings/receipt-logo`, {
         method: 'DELETE',
         headers: authHeaders,
       });
+      if (!response.ok) throw new Error('Error removing logo');
       updateHeader({ logoUrl: '' });
+      setSavedSettings((previous) => ({ ...previous, logoUrl: '' }));
       toast.success('Logo removed');
     } catch {
       toast.error('Error removing logo');
@@ -344,76 +361,80 @@ const ReceiptSettings: React.FC = () => {
   // ── Save ───────────────────────────────────────────────────────────────────
 
   const handleSave = async () => {
+    if (!isLoaded) return;
     setLoading(true);
     try {
+      const patch = receiptEditorPatch(settings, receiptToEditor(savedSettings, DEFAULT_SETTINGS));
+      if (!Object.keys(patch).length) {
+        toast.info('No supported settings have changed');
+        return;
+      }
       const res = await fetch(`${apiBase}/settings/receipt-config`, {
         method: 'PUT',
         headers: authHeaders,
-        body: JSON.stringify(settings),
+        body: JSON.stringify(patch),
       });
-      const data = await res.json();
-      if (data.status === 'success') {
-        toast.success('Receipt settings saved successfully');
-      } else {
-        toast.error(data.message || 'Failed to save settings');
-      }
-    } catch {
-      toast.error('An error occurred while saving');
+      const saved = await readReceiptResult(res, 'save');
+      setSavedSettings(saved);
+      setSettings(receiptToEditor(saved, DEFAULT_SETTINGS));
+      toast.success('Receipt settings saved successfully');
+    } catch (error) {
+      toast.error(error instanceof Error ? error.message : 'An error occurred while saving');
     } finally {
       setLoading(false);
     }
   };
 
   const handleReset = () => {
-    setSettings(DEFAULT_SETTINGS);
-    toast.info('Settings reset to defaults');
+    setSettings({ ...structuredClone(DEFAULT_SETTINGS), header: { ...DEFAULT_SETTINGS.header, logoUrl: settings.header.logoUrl }, footer: { ...DEFAULT_SETTINGS.footer, note: settings.footer.note } });
+    toast.info('Supported options reset; save to apply');
   };
 
   // ─── Tab Panels ────────────────────────────────────────────────────────────
 
   const renderGeneral = () => (
     <div className="space-y-5">
-      <SectionCard title="Page Layout" icon={<Settings2 size={18} />}>
+      <SectionCard title="Page Layout" icon={<Settings2 size={18} />} unavailable>
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
           <div>
-            <label className="block text-xs font-semibold text-slate-500 mb-1.5 uppercase tracking-wide">
+            <label className="block text-xs font-semibold text-muted mb-1.5 uppercase tracking-wide">
               Paper Size
             </label>
             <div className="relative">
               <select
                 value={settings.general.paperSize}
                 onChange={(e) => updateGeneral({ paperSize: e.target.value as any })}
-                className="w-full appearance-none border border-slate-200 rounded-xl px-3 py-2.5 text-sm text-slate-700 focus:outline-none focus:ring-2 focus:ring-[#004080]/20 pr-9"
+                className="w-full appearance-none border border-line rounded-xl px-3 py-2.5 text-sm text-foreground focus:outline-none focus:ring-2 focus:ring-primary/20 pr-9"
               >
                 <option value="80mm">80mm (Thermal)</option>
                 <option value="A4">A4</option>
                 <option value="A5">A5</option>
                 <option value="Letter">Letter</option>
               </select>
-              <ChevronDown size={14} className="absolute right-3 top-3.5 text-slate-400 pointer-events-none" />
+              <ChevronDown size={14} className="absolute right-3 top-3.5 text-subtle pointer-events-none" />
             </div>
           </div>
           <div>
-            <label className="block text-xs font-semibold text-slate-500 mb-1.5 uppercase tracking-wide">
+            <label className="block text-xs font-semibold text-muted mb-1.5 uppercase tracking-wide">
               Font Size
             </label>
             <div className="relative">
               <select
                 value={settings.general.fontSize}
                 onChange={(e) => updateGeneral({ fontSize: e.target.value as any })}
-                className="w-full appearance-none border border-slate-200 rounded-xl px-3 py-2.5 text-sm text-slate-700 focus:outline-none focus:ring-2 focus:ring-[#004080]/20 pr-9"
+                className="w-full appearance-none border border-line rounded-xl px-3 py-2.5 text-sm text-foreground focus:outline-none focus:ring-2 focus:ring-primary/20 pr-9"
               >
                 <option value="12px">12px (Small)</option>
                 <option value="13px">13px (Medium)</option>
                 <option value="14px">14px (Large)</option>
               </select>
-              <ChevronDown size={14} className="absolute right-3 top-3.5 text-slate-400 pointer-events-none" />
+              <ChevronDown size={14} className="absolute right-3 top-3.5 text-subtle pointer-events-none" />
             </div>
           </div>
         </div>
       </SectionCard>
 
-      <SectionCard title="Display Options" icon={<Eye size={18} />}>
+      <SectionCard title="Display Options" icon={<Eye size={18} />} unavailable>
         <ToggleRow
           label="Show Section Headers"
           sublabel="Display bold section labels (ITEMS, PAYMENT) on the receipt"
@@ -439,11 +460,11 @@ const ReceiptSettings: React.FC = () => {
         onToggleEnabled={(v) => updateHeader({ enabled: v })}
       >
         <div className="mb-4">
-          <p className="text-xs font-semibold text-slate-500 uppercase tracking-wide mb-3">Company Logo</p>
+          <p className="text-xs font-semibold text-muted uppercase tracking-wide mb-3">Company Logo</p>
           <div className="flex items-center gap-3">
             {settings.header.logoUrl ? (
               <div className="relative shrink-0">
-                <div className="h-16 w-16 rounded-full border-2 border-slate-200 overflow-hidden bg-white shadow-sm flex items-center justify-center">
+                <div className="h-16 w-16 rounded-full border-2 border-line overflow-hidden bg-surface flex items-center justify-center">
                   <img
                     src={settings.header.logoUrl}
                     alt="Receipt logo"
@@ -456,13 +477,13 @@ const ReceiptSettings: React.FC = () => {
                 </div>
                 <button
                   onClick={handleRemoveLogo}
-                  className="absolute -top-1 -right-1 bg-red-500 text-white rounded-full p-0.5 hover:bg-red-600 transition shadow"
+                  className="absolute -top-1 -right-1 bg-danger text-on-danger rounded-full p-0.5 hover:bg-danger-hover transition shadow"
                 >
                   <X size={11} />
                 </button>
               </div>
             ) : (
-              <div className="h-16 w-16 rounded-full border-2 border-dashed border-slate-300 flex items-center justify-center text-slate-400 bg-slate-50 shrink-0">
+              <div className="h-16 w-16 rounded-full border-2 border-dashed border-line-strong flex items-center justify-center text-subtle bg-surface-raised shrink-0">
                 <Upload size={20} />
               </div>
             )}
@@ -471,7 +492,7 @@ const ReceiptSettings: React.FC = () => {
               <button
                 onClick={() => fileInputRef.current?.click()}
                 disabled={uploading}
-                className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium border border-slate-300 rounded-lg hover:bg-slate-50 transition text-slate-600 disabled:opacity-50"
+                className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium border border-line-strong rounded-lg hover:bg-surface-raised transition text-muted disabled:opacity-50"
               >
                 <Upload size={13} />
                 {uploading ? 'Uploading...' : 'Upload Logo'}
@@ -479,7 +500,7 @@ const ReceiptSettings: React.FC = () => {
               {settings.header.logoUrl && (
                 <button
                   onClick={handleRemoveLogo}
-                  className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium border border-red-200 rounded-lg hover:bg-red-50 transition text-red-500"
+                  className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium border border-danger-line rounded-lg hover:bg-danger-soft transition text-danger"
                 >
                   <Trash2 size={13} /> Remove
                 </button>
@@ -488,20 +509,20 @@ const ReceiptSettings: React.FC = () => {
           </div>
         </div>
 
-        <div className="border-t border-slate-100 pt-3">
-          <p className="text-xs font-semibold text-slate-500 uppercase tracking-wide mb-2">Company Information</p>
+        <div className="border-t border-line pt-3">
+          <p className="text-xs font-semibold text-muted uppercase tracking-wide mb-2">Company Information</p>
           <ToggleRow label="Show Logo" value={settings.header.showLogo} onChange={(v) => updateHeader({ showLogo: v })} />
-          <ToggleRow label="Company Name" value={settings.header.showCompanyName} onChange={(v) => updateHeader({ showCompanyName: v })} />
+          <ToggleRow label="Company Name" value={settings.header.showCompanyName} onChange={(v) => updateHeader({ showCompanyName: v })} disabled />
           <ToggleRow label="Company Address" value={settings.header.showAddress} onChange={(v) => updateHeader({ showAddress: v })} />
           <ToggleRow label="Phone Number" value={settings.header.showPhone} onChange={(v) => updateHeader({ showPhone: v })} />
           <ToggleRow label="Email Address" value={settings.header.showEmail} onChange={(v) => updateHeader({ showEmail: v })} />
         </div>
 
-        <div className="border-t border-slate-100 pt-3 mt-3">
-          <p className="text-xs font-semibold text-slate-500 uppercase tracking-wide mb-2">Sale Information</p>
-          <ToggleRow label="Salesman" value={settings.header.showSalesman} onChange={(v) => updateHeader({ showSalesman: v })} />
-          <ToggleRow label="Invoice Number" value={settings.header.showInvoiceNumber} onChange={(v) => updateHeader({ showInvoiceNumber: v })} />
-          <ToggleRow label="Date & Time" value={settings.header.showDateTime} onChange={(v) => updateHeader({ showDateTime: v })} />
+        <div className="border-t border-line pt-3 mt-3">
+          <p className="text-xs font-semibold text-muted uppercase tracking-wide mb-2">Sale Information</p>
+          <ToggleRow label="Salesman" value={settings.header.showSalesman} onChange={(v) => updateHeader({ showSalesman: v })} disabled />
+          <ToggleRow label="Invoice Number" value={settings.header.showInvoiceNumber} onChange={(v) => updateHeader({ showInvoiceNumber: v })} disabled />
+          <ToggleRow label="Date & Time" value={settings.header.showDateTime} onChange={(v) => updateHeader({ showDateTime: v })} disabled />
           <ToggleRow label="Customer Name" value={settings.header.showCustomer} onChange={(v) => updateHeader({ showCustomer: v })} />
         </div>
       </SectionCard>
@@ -530,19 +551,19 @@ const ReceiptSettings: React.FC = () => {
           }
         >
           <div className="flex items-center justify-between mb-3">
-            <p className="text-xs font-semibold text-slate-500 uppercase tracking-wide">Columns</p>
+            <p className="text-xs font-semibold text-muted uppercase tracking-wide">Columns</p>
             <div className="flex items-center gap-1.5">
               <span
-                className={`text-sm font-bold ${enabled >= 5 ? 'text-amber-600' : 'text-[#004080]'}`}
+                className={`text-sm font-bold ${enabled >= 5 ? 'text-warning' : 'text-primary'}`}
               >
                 {enabled}
               </span>
-              <span className="text-sm text-slate-400">/ 5 enabled</span>
+              <span className="text-sm text-subtle">/ 5 enabled</span>
             </div>
           </div>
 
           {colWarning && (
-            <div className="mb-3 px-3 py-2 bg-amber-50 border border-amber-200 rounded-lg text-amber-700 text-xs font-medium">
+            <div className="mb-3 px-3 py-2 bg-warning-soft border border-warning-line rounded-lg text-warning text-xs font-medium">
               Maximum 5 columns allowed. Disable a column before enabling another.
             </div>
           )}
@@ -555,7 +576,7 @@ const ReceiptSettings: React.FC = () => {
                 sublabel={desc}
                 value={settings.productsTable.columns[key]}
                 onChange={(v) => toggleColumn(key, v)}
-                disabled={!settings.productsTable.columns[key] && enabled >= 5}
+                disabled={key !== 'productCode' || (!settings.productsTable.columns[key] && enabled >= 5)}
               />
             ))}
           </div>
@@ -572,14 +593,15 @@ const ReceiptSettings: React.FC = () => {
         enabled={settings.summary.enabled}
         onToggleEnabled={(v) => updateSummary({ enabled: v })}
       >
-        <ToggleRow label="Subtotal" value={settings.summary.showSubtotal} onChange={(v) => updateSummary({ showSubtotal: v })} />
-        <ToggleRow label="Discount" value={settings.summary.showDiscount} onChange={(v) => updateSummary({ showDiscount: v })} />
-        <ToggleRow label="Special Discount" sublabel="Product-level discounts" value={settings.summary.showSpecialDiscount} onChange={(v) => updateSummary({ showSpecialDiscount: v })} />
+        <ToggleRow label="Subtotal" value={settings.summary.showSubtotal} onChange={(v) => updateSummary({ showSubtotal: v })} disabled />
+        <ToggleRow label="Discount and Shipping" value={settings.summary.showDiscountShipping} onChange={(v) => updateSummary({ showDiscountShipping: v })} />
+        <ToggleRow label="Discount (separate)" value={settings.summary.showDiscount} onChange={(v) => updateSummary({ showDiscount: v })} disabled />
+        <ToggleRow label="Special Discount" sublabel="Product-level discounts" value={settings.summary.showSpecialDiscount} onChange={(v) => updateSummary({ showSpecialDiscount: v })} disabled />
         <ToggleRow label="Tax" value={settings.summary.showTax} onChange={(v) => updateSummary({ showTax: v })} />
-        <ToggleRow label="Shipping" value={settings.summary.showShipping} onChange={(v) => updateSummary({ showShipping: v })} />
-        <ToggleRow label="Paid Amount" value={settings.summary.showPaidAmount} onChange={(v) => updateSummary({ showPaidAmount: v })} />
-        <ToggleRow label="Balance" value={settings.summary.showBalance} onChange={(v) => updateSummary({ showBalance: v })} />
-        <ToggleRow label="Payment Methods" sublabel="Cash / Card / Bank Transfer breakdown" value={settings.summary.showPaymentMethods} onChange={(v) => updateSummary({ showPaymentMethods: v })} />
+        <ToggleRow label="Shipping (separate)" value={settings.summary.showShipping} onChange={(v) => updateSummary({ showShipping: v })} disabled />
+        <ToggleRow label="Paid Amount" value={settings.summary.showPaidAmount} onChange={(v) => updateSummary({ showPaidAmount: v })} disabled />
+        <ToggleRow label="Balance" value={settings.summary.showBalance} onChange={(v) => updateSummary({ showBalance: v })} disabled />
+        <ToggleRow label="Payment Methods" sublabel="Cash / Card / Bank Transfer breakdown" value={settings.summary.showPaymentMethods} onChange={(v) => updateSummary({ showPaymentMethods: v })} disabled />
       </SectionCard>
     </div>
   );
@@ -593,22 +615,28 @@ const ReceiptSettings: React.FC = () => {
         onToggleEnabled={(v) => updateFooter({ enabled: v })}
       >
         <ToggleRow label="Barcode" sublabel="Print invoice barcode at the bottom" value={settings.footer.showBarcode} onChange={(v) => updateFooter({ showBarcode: v })} />
-        <ToggleRow label="System Credit Line" sublabel='"System by QDESK AI"' value={settings.footer.showSystemCredit} onChange={(v) => updateFooter({ showSystemCredit: v })} />
+        <ToggleRow label="System Credit Line" sublabel='"System by QDESK AI"' value={settings.footer.showSystemCredit} onChange={(v) => updateFooter({ showSystemCredit: v })} disabled />
+        <ToggleRow label="Show Receipt Note" value={settings.footer.showNote} onChange={(v) => updateFooter({ showNote: v })} />
+        <label className="block mt-3 text-sm font-medium text-foreground">
+          Receipt Note
+          <textarea value={settings.footer.note} onChange={(e) => updateFooter({ note: e.target.value })} className="mt-2 w-full rounded-lg border border-line p-3" />
+        </label>
+        <p className="mt-3 text-xs text-muted">One receipt note is supported. Multiple custom messages are not available yet.</p>
 
-        <div className="mt-4 pt-4 border-t border-slate-100">
+        <fieldset disabled className="mt-4 pt-4 border-t border-line opacity-50">
           <div className="flex items-center justify-between mb-3">
-            <p className="text-xs font-semibold text-slate-500 uppercase tracking-wide">Custom Messages</p>
+            <p className="text-xs font-semibold text-muted uppercase tracking-wide">Custom Messages</p>
             <button
               onClick={addCustomMessage}
-              className="flex items-center gap-1 text-xs font-medium text-[#004080] hover:text-[#002147] transition"
+              className="flex items-center gap-1 text-xs font-medium text-primary hover:text-primary transition"
             >
               <Plus size={14} /> Add Message
             </button>
           </div>
 
           {settings.footer.customMessages.length === 0 && (
-            <p className="text-xs text-slate-400 italic text-center py-3">
-              No custom messages yet. Click "Add Message" to add one.
+            <p className="text-xs text-subtle italic text-center py-3">
+              Custom messages are unavailable. Use the receipt note above.
             </p>
           )}
 
@@ -616,7 +644,7 @@ const ReceiptSettings: React.FC = () => {
             {settings.footer.customMessages.map((msg, idx) => (
               <div
                 key={idx}
-                className="flex items-start gap-2 bg-slate-50 rounded-xl p-3 border border-slate-200"
+                className="flex items-start gap-2 bg-surface-raised rounded-xl p-3 border border-line"
               >
                 <Toggle
                   value={msg.enabled}
@@ -627,18 +655,18 @@ const ReceiptSettings: React.FC = () => {
                   value={msg.text}
                   onChange={(e) => updateCustomMessage(idx, { text: e.target.value })}
                   placeholder="Enter message text..."
-                  className="flex-1 text-sm bg-transparent border-none outline-none text-slate-700 placeholder-slate-400"
+                  className="flex-1 text-sm bg-transparent border-none outline-none text-foreground placeholder-subtle"
                 />
                 <button
                   onClick={() => removeCustomMessage(idx)}
-                  className="text-slate-400 hover:text-red-500 transition mt-0.5"
+                  className="text-subtle hover:text-danger transition mt-0.5"
                 >
                   <X size={15} />
                 </button>
               </div>
             ))}
           </div>
-        </div>
+        </fieldset>
       </SectionCard>
     </div>
   );
@@ -650,17 +678,17 @@ const ReceiptSettings: React.FC = () => {
       {/* Page Header */}
       <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
         <div className="flex items-center gap-3">
-          <div className="p-2 bg-[#004080] rounded-lg text-white shrink-0">
+          <div className="p-2 bg-primary rounded-lg text-on-primary shrink-0">
             <FileText size={22} />
           </div>
           <div>
-            <h1 className="text-xl font-bold text-slate-800">Receipt Settings</h1>
-            <p className="text-slate-500 text-xs">Configure how your printed receipts look</p>
+            <h1 className="text-xl font-bold text-foreground">Receipt Settings</h1>
+            <p className="text-muted text-xs">Configure how your printed receipts look</p>
           </div>
         </div>
         <button
           onClick={() => navigate('/SystemSettings')}
-          className="inline-flex items-center gap-1 px-0 py-2 text-slate-500 hover:text-[#004080] transition"
+          className="inline-flex items-center gap-1 px-0 py-2 text-muted hover:text-primary transition"
         >
           <ArrowLeft size={18} />
           <span className="text-sm font-semibold">Back</span>
@@ -668,15 +696,16 @@ const ReceiptSettings: React.FC = () => {
       </div>
 
       {/* Tab Bar */}
-      <div className="flex gap-1 bg-slate-100 p-1 rounded-xl overflow-x-auto">
+      <p className="rounded-lg bg-warning-soft p-3 text-sm text-warning">Disabled options are not supported yet and cannot be saved. Supported options below retain your saved values.</p>
+      <div className="flex gap-1 bg-surface-muted p-1 rounded-xl overflow-x-auto">
         {TABS.map((tab) => (
           <button
             key={tab.id}
             onClick={() => setActiveTab(tab.id)}
             className={`flex items-center gap-1.5 px-3 py-2 rounded-lg text-sm font-medium whitespace-nowrap transition-all flex-1 justify-center ${
               activeTab === tab.id
-                ? 'bg-white text-[#004080] shadow-sm'
-                : 'text-slate-500 hover:text-slate-700'
+                ? 'bg-surface text-primary'
+                : 'text-muted hover:text-foreground'
             }`}
           >
             {tab.icon}
@@ -686,27 +715,28 @@ const ReceiptSettings: React.FC = () => {
       </div>
 
       {/* Tab Content */}
-      <div>
+      <fieldset disabled={!canEdit || !isLoaded || loading || uploading}>
         {activeTab === 'general' && renderGeneral()}
         {activeTab === 'header' && renderHeader()}
         {activeTab === 'products' && renderProducts()}
         {activeTab === 'summary' && renderSummary()}
         {activeTab === 'footer' && renderFooter()}
-      </div>
+      </fieldset>
 
       {/* Action Bar */}
-      <div className="flex flex-col-reverse sm:flex-row justify-end items-center gap-3 pt-4 border-t border-slate-200">
+      <div className="flex flex-col-reverse sm:flex-row justify-end items-center gap-3 pt-4 border-t border-line">
         <button
           onClick={handleReset}
-          className="w-full sm:w-auto flex items-center justify-center gap-2 px-5 py-2.5 rounded-xl text-slate-500 font-semibold hover:bg-slate-100 transition"
+          disabled={!canEdit || loading || uploading || !isLoaded}
+          className="w-full sm:w-auto flex items-center justify-center gap-2 px-5 py-2.5 rounded-xl text-muted font-semibold hover:bg-surface-muted transition"
         >
           <RotateCcw size={16} />
-          Reset Defaults
+          Reset Supported Options
         </button>
         <button
           onClick={handleSave}
-          disabled={loading}
-          className="w-full sm:w-auto flex items-center justify-center gap-2 bg-[#004080] text-white px-8 py-2.5 rounded-xl font-bold hover:bg-[#002147] transition-all shadow-lg shadow-blue-900/10 disabled:opacity-50"
+          disabled={!canEdit || loading || uploading || !isLoaded}
+          className="w-full sm:w-auto flex items-center justify-center gap-2 bg-primary text-on-primary px-8 py-2.5 rounded-xl font-bold hover:bg-primary-hover transition-all disabled:opacity-50"
         >
           <Save size={16} />
           {loading ? 'Saving...' : 'Save Settings'}

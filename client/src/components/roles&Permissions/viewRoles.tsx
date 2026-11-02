@@ -190,7 +190,7 @@ const ViewRoles: React.FC = () => {
         .join(', ');
 
       return (
-        <div key={index} className="text-sm font-semibold bg-blue-100 text-blue-800 px-2 py-1 rounded mr-1 mb-1 inline-block">
+        <div key={index} className="text-sm font-semibold bg-primary-soft text-primary px-2 py-1 rounded mr-1 mb-1 inline-block">
           {formatComponentLabel(permission.component)}: {actions}
         </div>
       );
@@ -201,17 +201,17 @@ const ViewRoles: React.FC = () => {
     <div>
       {loading && <Loader text="Loading" />}
       <div className="flex items-center justify-between mb-4">
-        <div className="text-2xl font-semibold text-[#001F54]">Roles & Permissions</div>
+        <div className="text-2xl font-semibold text-foreground">Roles & Permissions</div>
         <div className="space-x-2">
           {activeTab === 'roles' ? (
             <PermissionGate component="manageRoles" action="create">
-              <Link to="/createRole" className="px-4 py-2 rounded bg-[#003366] text-white hover:bg-[#004080]">
+              <Link to="/createRole" className="px-4 py-2 rounded bg-primary text-on-primary hover:bg-primary-hover">
                 Create Role
               </Link>
             </PermissionGate>
           ) : (
             <PermissionGate component="manageRoles" action="create">
-              <Link to="/createPermission" className="px-4 py-2 rounded bg-[#28a745] text-white hover:bg-[#218838]">
+              <Link to="/createPermission" className="px-4 py-2 rounded bg-secondary text-on-secondary hover:bg-secondary-hover">
                 Create Permission
               </Link>
             </PermissionGate>
@@ -221,14 +221,14 @@ const ViewRoles: React.FC = () => {
 
       {/* Tab Navigation */}
       <div className="mb-6">
-        <div className="border-b border-gray-200">
+        <div className="border-b border-line">
           <nav className="-mb-px flex space-x-8">
             <button
               onClick={() => setActiveTab('roles')}
               className={`py-2 px-1 border-b-2 font-medium text-sm ${
                 activeTab === 'roles'
-                  ? 'border-[#001F54] text-[#001F54]'
-                  : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+                  ? 'border-primary text-primary'
+                  : 'border-transparent text-muted hover:text-foreground hover:border-line-strong'
               }`}
             >
               Roles
@@ -237,8 +237,8 @@ const ViewRoles: React.FC = () => {
               onClick={() => setActiveTab('permissions')}
               className={`py-2 px-1 border-b-2 font-medium text-sm ${
                 activeTab === 'permissions'
-                  ? 'border-[#001F54] text-[#001F54]'
-                  : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+                  ? 'border-primary text-primary'
+                  : 'border-transparent text-muted hover:text-foreground hover:border-line-strong'
               }`}
             >
               Permissions
@@ -257,9 +257,9 @@ const ViewRoles: React.FC = () => {
       </div>
       
       {activeTab === 'roles' ? (
-        <div className="bg-white border border-gray-200 rounded overflow-auto">
-          <table className="min-w-full divide-y divide-gray-200">
-            <thead className="bg-[#001F54] text-white">
+        <div className="bg-surface border border-line rounded overflow-auto">
+          <table className="min-w-full divide-y divide-line">
+            <thead className="bg-primary text-on-primary">
               <tr>
                 <th className="text-left px-6 py-4 text-sm font-semibold">Role Name</th>
                 <th className="text-left px-6 py-4 text-sm font-semibold">Description</th>
@@ -269,11 +269,11 @@ const ViewRoles: React.FC = () => {
                 <th className="text-right px-6 py-4 text-sm font-semibold">Action</th>
               </tr>
             </thead>
-            <tbody className="bg-white divide-y divide-gray-200">
+            <tbody className="bg-surface divide-y divide-line">
               {roles.map(role => (
-                <tr key={role._id} className="hover:bg-gray-50 transition-colors duration-150">
-                  <td className="px-6 py-5 text-base font-semibold text-gray-900">{role.name}</td>
-                  <td className="px-6 py-5 text-base text-gray-600">{role.description}</td>
+                <tr key={role._id} className="hover:bg-surface-raised transition-colors duration-150">
+                  <td className="px-6 py-5 text-base font-semibold text-foreground">{role.name}</td>
+                  <td className="px-6 py-5 text-base text-muted">{role.description}</td>
                   <td className="px-6 py-5">
                     <div className="flex flex-wrap">
                       {getPermissionBadges(role.permissions)}
@@ -282,20 +282,20 @@ const ViewRoles: React.FC = () => {
                   <td className="px-6 py-5">
                     <span className={`px-2 py-1 rounded text-sm font-semibold ${
                       role.isActive 
-                        ? 'bg-green-100 text-green-800' 
-                        : 'bg-red-100 text-red-800'
+                        ? 'bg-secondary-soft text-secondary'
+                        : 'bg-danger-soft text-danger'
                     }`}>
                       {role.isActive ? 'Active' : 'Inactive'}
                     </span>
                   </td>
-                  <td className="px-6 py-5 text-base text-gray-500">
+                  <td className="px-6 py-5 text-base text-muted">
                     {formatDate(role.createdAt)}
                   </td>
                   <td className="px-6 py-5 text-right space-x-3">
                     <PermissionGate component="manageRoles" action="update">
                       <button
                         onClick={() => navigate(`/editRole/${role._id}`)}
-                        className="inline-flex items-center justify-center p-2.5 rounded-lg border border-gray-300 text-[#001F54] hover:bg-gray-100 transition-colors duration-200"
+                        className="inline-flex items-center justify-center p-2.5 rounded-lg border border-line-strong text-primary hover:bg-surface-muted transition-colors duration-200"
                         title="Edit"
                         aria-label="Edit"
                       >
@@ -308,7 +308,7 @@ const ViewRoles: React.FC = () => {
                     <PermissionGate component="manageRoles" action="delete">
                       <button
                         onClick={() => setToDelete(role._id)}
-                        className="inline-flex items-center justify-center p-2.5 rounded-lg border border-gray-300 text-red-600 hover:bg-gray-100 transition-colors duration-200"
+                        className="inline-flex items-center justify-center p-2.5 rounded-lg border border-line-strong text-danger hover:bg-surface-muted transition-colors duration-200"
                         title="Delete"
                         aria-label="Delete"
                       >
@@ -326,7 +326,7 @@ const ViewRoles: React.FC = () => {
               ))}
               {roles.length === 0 && (
                 <tr>
-                  <td colSpan={6} className="px-6 py-12 text-center text-base text-gray-500">No roles found</td>
+                  <td colSpan={6} className="px-6 py-12 text-center text-base text-muted">No roles found</td>
                 </tr>
               )}
             </tbody>
@@ -336,11 +336,11 @@ const ViewRoles: React.FC = () => {
         <div>
           {/* Component Filter */}
           <div className="mb-4">
-            <label className="block text-sm font-medium text-[#001F54] mb-2">Filter by Component:</label>
+            <label className="block text-sm font-medium text-foreground mb-2">Filter by Component:</label>
             <select
               value={componentFilter}
               onChange={e => setComponentFilter(e.target.value)}
-              className="border border-gray-200 rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-[#001F54] focus:border-transparent"
+              className="border border-line rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
             >
               {components.map(comp => (
                 <option key={comp.key} value={comp.key}>{comp.label}</option>
@@ -348,9 +348,9 @@ const ViewRoles: React.FC = () => {
             </select>
           </div>
           
-          <div className="bg-white border border-gray-200 rounded overflow-auto">
-            <table className="min-w-full divide-y divide-gray-200">
-            <thead className="bg-[#001F54] text-white">
+          <div className="bg-surface border border-line rounded overflow-auto">
+            <table className="min-w-full divide-y divide-line">
+            <thead className="bg-primary text-on-primary">
               <tr>
                 <th className="text-left px-6 py-4 text-sm font-semibold">Permission Name</th>
                 <th className="text-left px-6 py-4 text-sm font-semibold">Component</th>
@@ -360,26 +360,26 @@ const ViewRoles: React.FC = () => {
                 <th className="text-right px-6 py-4 text-sm font-semibold">Action</th>
               </tr>
             </thead>
-            <tbody className="bg-white divide-y divide-gray-200">
+            <tbody className="bg-surface divide-y divide-line">
               {filteredPermissions.map(permission => (
-                <tr key={permission._id} className="hover:bg-gray-50 transition-colors duration-150">
-                  <td className="px-6 py-5 text-base font-semibold text-gray-900">{permission.name}</td>
+                <tr key={permission._id} className="hover:bg-surface-raised transition-colors duration-150">
+                  <td className="px-6 py-5 text-base font-semibold text-foreground">{permission.name}</td>
                   <td className="px-6 py-5">
-                    <span className="px-2 py-1 rounded text-sm font-semibold bg-purple-100 text-purple-800">
+                    <span className="px-2 py-1 rounded text-sm font-semibold bg-violet-soft text-violet-status">
                       {permission.component.replace('manage', '').replace(/([A-Z])/g, ' $1').trim()}
                     </span>
                   </td>
                   <td className="px-6 py-5">
-                    <span className="px-2 py-1 rounded text-sm font-semibold bg-blue-100 text-blue-800">
+                    <span className="px-2 py-1 rounded text-sm font-semibold bg-primary-soft text-primary">
                       {permission.action.charAt(0).toUpperCase() + permission.action.slice(1)}
                     </span>
                   </td>
-                  <td className="px-6 py-5 text-base text-gray-600">{permission.description}</td>
+                  <td className="px-6 py-5 text-base text-muted">{permission.description}</td>
                   <td className="px-6 py-5">
                     <span className={`px-2 py-1 rounded text-sm font-semibold ${
                       permission.isActive 
-                        ? 'bg-green-100 text-green-800' 
-                        : 'bg-red-100 text-red-800'
+                        ? 'bg-secondary-soft text-secondary'
+                        : 'bg-danger-soft text-danger'
                     }`}>
                       {permission.isActive ? 'Active' : 'Inactive'}
                     </span>
@@ -388,7 +388,7 @@ const ViewRoles: React.FC = () => {
                     <PermissionGate component="manageRoles" action="update">
                       <button
                         onClick={() => navigate(`/editPermission/${permission._id}`)}
-                        className="inline-flex items-center justify-center p-2.5 rounded-lg border border-gray-300 text-[#001F54] hover:bg-gray-100 transition-colors duration-200"
+                        className="inline-flex items-center justify-center p-2.5 rounded-lg border border-line-strong text-primary hover:bg-surface-muted transition-colors duration-200"
                         title="Edit"
                         aria-label="Edit"
                       >
@@ -401,7 +401,7 @@ const ViewRoles: React.FC = () => {
                     <PermissionGate component="manageRoles" action="delete">
                       <button
                         onClick={() => setToDelete(permission._id)}
-                        className="inline-flex items-center justify-center p-2.5 rounded-lg border border-gray-300 text-red-600 hover:bg-gray-100 transition-colors duration-200"
+                        className="inline-flex items-center justify-center p-2.5 rounded-lg border border-line-strong text-danger hover:bg-surface-muted transition-colors duration-200"
                         title="Delete"
                         aria-label="Delete"
                       >
@@ -419,7 +419,7 @@ const ViewRoles: React.FC = () => {
               ))}
               {filteredPermissions.length === 0 && (
                 <tr>
-                  <td colSpan={6} className="px-6 py-12 text-center text-base text-gray-500">
+                  <td colSpan={6} className="px-6 py-12 text-center text-base text-muted">
                     {permissions.length === 0 ? 'No permissions found' : 'No permissions match the selected filter'}
                   </td>
                 </tr>

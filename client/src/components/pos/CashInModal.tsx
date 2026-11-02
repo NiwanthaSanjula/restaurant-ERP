@@ -1,4 +1,5 @@
 import React, { useMemo, useState } from 'react';
+import ThemeToggle from '../common/ThemeToggle';
 
 type DenominationKey = '20' | '50' | '100' | '500' | '1000' | '5000' | '1' | '2' | '5' | '10';
 
@@ -75,19 +76,19 @@ const CashInModal: React.FC<Props> = ({ onSubmit, onCancel, onUseExistingSession
 
   const renderRow = (value: DenominationKey) => (
     <div key={value} className="flex items-center justify-between mb-2.5">
-      <label className="text-sm font-medium text-[#374151] leading-none w-14">{value} x</label>
+      <label className="text-sm font-medium text-foreground leading-none w-14">{value} x</label>
       <div className="flex items-center gap-1.5">
         <input
           type="number"
           min="0"
           value={denominations[value]}
           onChange={(e) => setQty(value, parseNumericInput(e.target.value))}
-          className="w-20 h-8 border border-[#d1d5db] rounded-md text-center text-sm text-[#111827] bg-white focus:ring-2 focus:ring-[#818cf8]/40 focus:border-[#818cf8] outline-none"
+          className="w-20 h-8 border border-line-strong rounded-md text-center text-sm text-foreground bg-surface focus:ring-2 focus:ring-primary/40 focus:border-primary outline-none"
         />
         <button
           type="button"
           onClick={() => updateQty(value, -1)}
-          className="w-8 h-8 rounded-md bg-[#f3f4f6] text-[#6b7280] border border-[#e5e7eb] hover:bg-[#e5e7eb] active:scale-95 transition"
+          className="w-8 h-8 rounded-md bg-surface-muted text-muted border border-line hover:bg-surface-muted active:scale-95 transition"
           aria-label={`Decrease ${value}`}
         >
           <svg viewBox="0 0 24 24" className="w-4 h-4 mx-auto" fill="none" stroke="currentColor" strokeWidth="2">
@@ -97,7 +98,7 @@ const CashInModal: React.FC<Props> = ({ onSubmit, onCancel, onUseExistingSession
         <button
           type="button"
           onClick={() => updateQty(value, 1)}
-          className="w-8 h-8 rounded-md bg-[#f3f4f6] text-[#6b7280] border border-[#e5e7eb] hover:bg-[#e5e7eb] active:scale-95 transition"
+          className="w-8 h-8 rounded-md bg-surface-muted text-muted border border-line hover:bg-surface-muted active:scale-95 transition"
           aria-label={`Increase ${value}`}
         >
           <svg viewBox="0 0 24 24" className="w-4 h-4 mx-auto" fill="none" stroke="currentColor" strokeWidth="2">
@@ -109,14 +110,15 @@ const CashInModal: React.FC<Props> = ({ onSubmit, onCancel, onUseExistingSession
   );
 
   return (
-    <div className="fixed inset-0 bg-black/45 backdrop-blur-[1px] flex items-center justify-center z-50 p-4">
-      <div className="bg-white w-full max-w-[620px] rounded-2xl border border-[#dbe3ef] shadow-2xl px-6 py-5">
+    <div className="fixed inset-0 bg-overlay backdrop-blur-[1px] flex items-center justify-center z-50 p-4">
+      <div className="bg-surface w-full max-w-[620px] rounded-2xl border border-line-strong shadow-elevated px-6 py-5">
         <div className="flex items-center justify-between mb-3">
-          <h2 className="text-xl font-semibold text-[#111827]">POS Register</h2>
+          <h2 className="text-xl font-semibold text-foreground">POS Register</h2>
+          <ThemeToggle />
           <button
             type="button"
             onClick={onCancel}
-            className="w-8 h-8 rounded-full text-[#9ca3af] hover:bg-[#eef2f7] hover:text-[#1f3b63] transition"
+            className="w-8 h-8 rounded-full text-subtle hover:bg-surface-muted hover:text-primary transition"
             aria-label="Close"
           >
             <svg viewBox="0 0 24 24" className="w-5 h-5 mx-auto" fill="none" stroke="currentColor" strokeWidth="2">
@@ -126,28 +128,28 @@ const CashInModal: React.FC<Props> = ({ onSubmit, onCancel, onUseExistingSession
         </div>
 
         {error ? (
-          <div className="w-full rounded-lg border border-[#f8d5d5] bg-[#fff5f5] text-[#b3261e] text-sm text-center py-2 px-3 mb-4">
+          <div className="w-full rounded-lg border border-danger-line bg-danger-soft text-danger text-sm text-center py-2 px-3 mb-4">
             {error}
           </div>
         ) : null}
 
         <form onSubmit={handleSubmit}>
-          <label className="text-sm font-medium text-[#374151] mb-1.5 block">Cash In Hand</label>
+          <label className="text-sm font-medium text-foreground mb-1.5 block">Cash In Hand</label>
           <input
             type="text"
             value={total}
             readOnly
             aria-readonly="true"
-            className="w-full border border-[#d5dfeb] rounded-lg px-3 py-2 text-base text-[#111827] mb-4 bg-[#f7f9fc]"
+            className="w-full border border-line-strong rounded-lg px-3 py-2 text-base text-foreground mb-4 bg-surface-raised"
           />
 
           <div className="grid grid-cols-2 gap-8 mb-5">
             <div>
-              <div className="text-base font-semibold text-[#111827] mb-2">Notes</div>
+              <div className="text-base font-semibold text-foreground mb-2">Notes</div>
               {noteValues.map(renderRow)}
             </div>
             <div>
-              <div className="text-base font-semibold text-[#111827] mb-2">Coins</div>
+              <div className="text-base font-semibold text-foreground mb-2">Coins</div>
               {coinValues.map(renderRow)}
             </div>
           </div>
@@ -157,18 +159,18 @@ const CashInModal: React.FC<Props> = ({ onSubmit, onCancel, onUseExistingSession
               <button
                 type="button"
                 onClick={onUseExistingSession}
-                className="px-4 py-2 rounded-lg bg-gradient-to-r from-[#1f3b63] to-[#2b4d7a] text-white text-sm font-medium hover:opacity-95 transition"
+                className="px-4 py-2 rounded-lg text-on-primary text-sm font-medium hover:opacity-95 transition bg-primary"
               >
                 Use Existing
               </button>
             ) : null}
-            <button type="submit" className="px-5 py-2 rounded-lg bg-gradient-to-r from-[#1f3b63] to-[#2b4d7a] text-white text-sm font-semibold hover:opacity-95 transition">
+            <button type="submit" className="px-5 py-2 rounded-lg text-on-primary text-sm font-semibold hover:opacity-95 transition bg-primary">
               Submit
             </button>
             <button
               type="button"
               onClick={onCancel}
-              className="px-5 py-2 rounded-lg bg-[#eef2f7] text-[#1f3b63] text-sm font-medium border border-[#d5dfeb] hover:bg-[#e1e9f5] transition"
+              className="px-5 py-2 rounded-lg bg-surface-muted text-primary text-sm font-medium border border-line-strong hover:bg-surface-muted transition"
             >
               Cancel
             </button>

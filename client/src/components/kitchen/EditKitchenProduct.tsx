@@ -136,54 +136,54 @@ const EditKitchenProduct: React.FC = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-canvas">
       {loading && <Loader text="Loading" />}
-      <div className="bg-white shadow-sm border-b">
+      <div className="bg-surface border-b">
         <div className="px-6 py-4 flex items-center">
           <button
             type="button"
             onClick={() => navigate('/kitchen/inventory')}
-            className="mr-4 p-2 text-gray-400 hover:text-gray-600 hover:bg-gray-100 rounded-lg"
+            className="mr-4 p-2 text-subtle hover:text-muted hover:bg-surface-muted rounded-lg"
           >
             <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
             </svg>
           </button>
           <div>
-            <h1 className="text-2xl font-bold text-gray-900">Edit kitchen ingredient</h1>
-            <p className="text-sm text-gray-600 mt-1">Stock can only change via Stock in / Stock out</p>
+            <h1 className="text-2xl font-bold text-foreground">Edit kitchen ingredient</h1>
+            <p className="text-sm text-muted mt-1">Stock can only change via Stock in / Stock out</p>
           </div>
         </div>
       </div>
       <div className="p-6 max-w-2xl mx-auto">
         {currentStock !== null && (
-          <div className="mb-4 p-4 bg-blue-50 border border-blue-100 rounded-lg text-sm text-blue-900">
+          <div className="mb-4 p-4 bg-primary-soft border border-primary-line rounded-lg text-sm text-primary">
             <span className="font-medium">Current stock (read only):</span>{' '}
             <span className="font-mono tabular-nums">{currentStock}</span>
           </div>
         )}
-        <div className="bg-white rounded-lg border border-gray-200 p-6 shadow-sm">
+        <div className="bg-surface rounded-lg border border-line p-6">
           <form onSubmit={submit} className="space-y-5">
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
-                Product name <span className="text-red-500">*</span>
+              <label className="block text-sm font-medium text-foreground mb-1">
+                Product name <span className="text-danger">*</span>
               </label>
               <input
                 required
                 value={name}
                 onChange={(e) => setName(e.target.value)}
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#003366]"
+                className="w-full px-3 py-2 border border-line-strong rounded-lg focus:ring-2 focus:ring-primary"
               />
             </div>
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
-                Unit <span className="text-red-500">*</span>
+              <label className="block text-sm font-medium text-foreground mb-1">
+                Unit <span className="text-danger">*</span>
               </label>
               <select
                 required
                 value={unitId}
                 onChange={(e) => setUnitId(e.target.value)}
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#003366]"
+                className="w-full px-3 py-2 border border-line-strong rounded-lg focus:ring-2 focus:ring-primary"
               >
                 <option value="">Select unit</option>
                 {units.map((u) => (
@@ -194,13 +194,13 @@ const EditKitchenProduct: React.FC = () => {
               </select>
             </div>
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
+              <label className="block text-sm font-medium text-foreground mb-1">
                 Link inventory product (optional)
               </label>
               <select
                 value={inventoryProductId}
                 onChange={(e) => setInventoryProductId(e.target.value)}
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#003366]"
+                className="w-full px-3 py-2 border border-line-strong rounded-lg focus:ring-2 focus:ring-primary"
               >
                 <option value="">None — use kitchen min only</option>
                 {invProducts.map((p) => (
@@ -209,14 +209,14 @@ const EditKitchenProduct: React.FC = () => {
                   </option>
                 ))}
               </select>
-              <p className="text-xs text-gray-500 mt-1">
+              <p className="text-xs text-muted mt-1">
                 Only <code className="text-[11px]">isInventory: true</code> products appear. Prepared meals are
                 excluded. Alert uses linked product <code className="text-[11px]">stockAlert</code> (warehouse on
                 kitchen list).
               </p>
             </div>
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
+              <label className="block text-sm font-medium text-foreground mb-1">
                 Minimum stock level (optional, kitchen-only)
               </label>
               <input
@@ -225,27 +225,27 @@ const EditKitchenProduct: React.FC = () => {
                 min="0"
                 value={minStockLevel}
                 onChange={(e) => setMinStockLevel(e.target.value)}
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#003366]"
+                className="w-full px-3 py-2 border border-line-strong rounded-lg focus:ring-2 focus:ring-primary"
               />
             </div>
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Description (optional)</label>
+              <label className="block text-sm font-medium text-foreground mb-1">Description (optional)</label>
               <textarea
                 value={description}
                 onChange={(e) => setDescription(e.target.value)}
                 rows={3}
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#003366]"
+                className="w-full px-3 py-2 border border-line-strong rounded-lg focus:ring-2 focus:ring-primary"
               />
             </div>
-            <div className="flex justify-end gap-2 pt-4 border-t border-gray-100">
+            <div className="flex justify-end gap-2 pt-4 border-t border-line">
               <button
                 type="button"
                 onClick={() => navigate('/kitchen/inventory')}
-                className="px-4 py-2 rounded-lg bg-gray-100 text-gray-800 hover:bg-gray-200"
+                className="px-4 py-2 rounded-lg bg-surface-muted text-foreground hover:bg-surface-muted"
               >
                 Cancel
               </button>
-              <button type="submit" className="px-4 py-2 rounded-lg bg-[#003366] text-white hover:bg-[#004080]">
+              <button type="submit" className="px-4 py-2 rounded-lg bg-primary text-on-primary hover:bg-primary-hover">
                 Save
               </button>
             </div>

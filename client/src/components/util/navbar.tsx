@@ -3,8 +3,10 @@ import { Link, useNavigate } from 'react-router-dom';
 import { settingService } from '../../services/settingService';
 import { showErrorToast, showSuccessToast } from '../../utils/toast';
 import CashInModal from '../pos/CashInModal';
+import { Menu, ReceiptText } from 'lucide-react';
+import ThemeToggle from '../common/ThemeToggle';
 
-const Navbar: React.FC = () => {
+const Navbar: React.FC<{ onMenuToggle?: () => void; mobileMenuOpen?: boolean }> = ({ onMenuToggle, mobileMenuOpen = false }) => {
   const navigate = useNavigate();
   const user = React.useMemo(() => {
     if (typeof window === 'undefined') return null;
@@ -150,64 +152,20 @@ const handleOpenSession = async (
 
   return (
     <>
-      <header className="h-16 bg-white border-b border-gray-200 flex items-center justify-between px-4">
-        <div className="flex items-center space-x-3">
-          <button className="md:hidden inline-flex items-center justify-center w-9 h-9 rounded bg-[#001F54] text-white">
-            ☰
-          </button>
-          <Link
-            to="/dashboard"
-            className="flex items-center gap-3"
-          >
-            {companyLogo ? (
-              <img
-                src={companyLogo}
-                className="w-9 h-9 object-contain border rounded"
-                onError={() => setCompanyLogo('')}
-              />
-            ) : (
-              <div className="w-9 h-9 bg-[#001F54] text-white flex items-center justify-center rounded">
-                SS
-              </div>
-            )}
-
-            <div>
-              <div className="text-[#001F54] font-semibold">
-                ServeSmart
-              </div>
-              <div className="text-xs text-gray-500">
-                Restaurant POS
-              </div>
-            </div>
+      <header className="ss-header border-b flex items-center justify-between gap-2 px-3 sm:px-5 lg:px-7">
+        <div className="flex items-center gap-2 sm:gap-3 min-w-0">
+          <button type="button" onClick={onMenuToggle} aria-label="Open navigation" aria-controls="primary-navigation" aria-expanded={mobileMenuOpen} className="ss-icon-button md:hidden"><Menu size={21} aria-hidden="true" /></button>
+          <Link to="/dashboard" className="flex items-center gap-3 min-w-0" aria-label="ServeSmart home">
+            {companyLogo ? <img src={companyLogo} alt="Company logo" className="w-10 h-10 object-contain border border-line rounded-xl" onError={() => setCompanyLogo('')} /> : <div className="ss-brand-mark w-10 h-10 flex items-center justify-center">SS</div>}
+            <div className="hidden min-[480px]:block"><div className="text-foreground font-semibold">ServeSmart</div><div className="text-xs text-muted">Restaurant workspace</div></div>
           </Link>
         </div>
-
-        {/* RIGHT */}
-        <div className="flex items-center space-x-4">
-          <button
-            onClick={handlePosClick}
-            className="px-3 h-10 bg-[#003366] text-white rounded"
-          >
-            POS 🧾
-          </button>
-
-          <div className="w-9 h-9 rounded-full bg-[#4A90E2] text-white flex items-center justify-center">
-            🔔
-          </div>
-
-          <div className="flex items-center space-x-2">
-            <div className="w-9 h-9 rounded-full bg-[#003366] text-white flex items-center justify-center">
-              {user?.name ? user.name[0]?.toUpperCase() : 'U'}
-            </div>
-
-            <div className="hidden sm:block">
-              <div className="text-sm font-medium">
-                {user?.name || 'User'}
-              </div>
-              <div className="text-xs text-gray-500">
-                {user?.role || 'staff'}
-              </div>
-            </div>
+        <div className="flex items-center gap-2 sm:gap-4">
+          <ThemeToggle />
+          <button type="button" onClick={handlePosClick} className="ss-button"><ReceiptText size={18} aria-hidden="true" /><span>POS</span></button>
+          <div className="flex items-center gap-2 border-l border-line pl-2 sm:pl-4">
+            <div className="w-9 h-9 rounded-full bg-secondary-soft text-secondary flex items-center justify-center font-semibold" aria-hidden="true">{user?.name ? user.name[0]?.toUpperCase() : 'U'}</div>
+            <div className="hidden lg:block"><div className="text-sm font-medium text-foreground">{user?.name || 'User'}</div><div className="text-xs text-muted">{user?.role || 'staff'}</div></div>
           </div>
         </div>
       </header>

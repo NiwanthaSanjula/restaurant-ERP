@@ -24,7 +24,7 @@ const SearchableDropdown: React.FC<SearchableDropdownProps> = ({
   id,
   className = '',
   label,
-  labelClassName = 'block text-sm font-medium text-gray-700 mb-2',
+  labelClassName = 'block text-sm font-medium text-foreground mb-2',
   showRequiredIndicator = false,
   clearOnSelect = false
 }) => {
@@ -119,7 +119,7 @@ const SearchableDropdown: React.FC<SearchableDropdownProps> = ({
     <div ref={wrapperRef} className="relative w-full">
       {label && (
         <label className={labelClassName}>
-          {label} {showRequiredIndicator && <span className="text-red-500">*</span>}
+          {label} {showRequiredIndicator && <span className="text-danger">*</span>}
         </label>
       )}
       <input
@@ -130,29 +130,29 @@ const SearchableDropdown: React.FC<SearchableDropdownProps> = ({
         onFocus={handleFocus}
         required={required}
         placeholder={placeholder}
-        className={`w-full px-4 py-3 border-2 border-[#B9D5F2] rounded-xl focus:outline-none focus:ring-2 focus:ring-[#3B82F6] focus:border-transparent font-bold text-[#1A3E73] ${className}`}
+        className={`w-full px-4 py-3 border-2 border-line-strong rounded-xl focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent font-bold text-foreground ${className}`}
       />
       
       {}
       {isOpen && (
-        <div className="absolute z-[9999] w-full mt-1 bg-white border-2 border-[#B9D5F2] rounded-xl shadow-2xl max-h-60 overflow-y-auto">
+        <div className="absolute z-[9999] w-full mt-1 bg-surface border-2 border-line-strong rounded-xl shadow-elevated max-h-60 overflow-y-auto">
           {isLoading ? (
-            <div className="px-4 py-3 text-sm text-[#64748B] font-bold italic animate-pulse">Searching...</div>
+            <div className="px-4 py-3 text-sm text-muted font-bold italic animate-pulse">Searching...</div>
           ) : options.length === 0 ? (
-            <div className="px-4 py-3 text-sm text-[#64748B] font-bold">No results found</div>
+            <div className="px-4 py-3 text-sm text-muted font-bold">No results found</div>
           ) : (
             options.map((option, index) => (
               <div
                 key={index}
                 onClick={() => handleSelect(option)}
-                className="px-4 py-3 text-sm text-[#1A3E73] font-bold hover:bg-[#3B82F6] hover:text-white cursor-pointer transition-colors border-b last:border-0 border-slate-50"
+                className="px-4 py-3 text-sm text-foreground font-bold hover:bg-primary-hover hover:text-on-primary cursor-pointer transition-colors border-b last:border-0 border-line"
               >
                 {typeof option === 'string' ? (
                   option
                 ) : (
                   <div className="flex items-center gap-3">
                     {/* Product Image Placeholder/Thumbnail */}
-                    <div className="w-10 h-10 rounded-lg bg-slate-100 flex items-center justify-center text-[#3B82F6] shrink-0 border border-slate-200">
+                    <div className="w-10 h-10 rounded-lg bg-surface-muted flex items-center justify-center text-primary shrink-0 border border-line">
                       {option.image ? (
                         <img src={option.image} alt={option.name} className="w-full h-full object-cover rounded-lg" />
                       ) : (
@@ -162,19 +162,19 @@ const SearchableDropdown: React.FC<SearchableDropdownProps> = ({
                     
                     <div className="flex-1 min-w-0">
                       <div className="flex justify-between items-start">
-                        <span className="font-black text-[#1A3E73] truncate block">{option.name}</span>
+                        <span className="font-black text-primary truncate block">{option.name}</span>
                         {option.price != null && (
-                          <span className="text-[10px] font-black bg-blue-50 text-[#3B82F6] px-2 py-0.5 rounded-full whitespace-nowrap ml-2">
+                          <span className="text-[10px] font-black bg-primary-soft text-primary px-2 py-0.5 rounded-full whitespace-nowrap ml-2">
                             LKR {Number(option.price).toLocaleString()}
                           </span>
                         )}
                       </div>
                       <div className="flex items-center gap-3 mt-0.5">
-                        <span className="text-[10px] font-bold text-[#64748B] uppercase tracking-tighter">
+                        <span className="text-[10px] font-bold text-muted uppercase tracking-tighter">
                           Code: {option.code || 'N/A'}
                         </span>
                         {option.stock !== undefined && (
-                          <span className={`text-[10px] font-black uppercase tracking-tighter ${Number(option.stock) > 0 ? 'text-green-600' : 'text-red-500'}`}>
+                          <span className={`text-[10px] font-black uppercase tracking-tighter ${Number(option.stock) > 0 ? 'text-secondary' : 'text-danger'}`}>
                             Stock: {Number(option.stock).toFixed(2)}
                           </span>
                         )}

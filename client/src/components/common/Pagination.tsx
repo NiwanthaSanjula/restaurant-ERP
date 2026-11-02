@@ -28,7 +28,7 @@ const Pagination: React.FC<PaginationProps> = ({
 
   return (
     <div className="flex items-center justify-between">
-      <div className="text-sm text-slate-600">
+      <div className="text-sm text-muted">
         {start}-{end} of {totalItems}
       </div>
 

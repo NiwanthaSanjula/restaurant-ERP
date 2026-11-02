@@ -85,22 +85,22 @@ const ViewTransfers: React.FC = () => {
       
       <div className="flex justify-between items-center mb-8">
         <div>
-          <h1 className="text-2xl font-bold text-gray-800">Stock Transfers</h1>
-          <p className="text-gray-500 text-sm">Transfer stock between warehouses</p>
+          <h1 className="text-2xl font-bold text-foreground">Stock Transfers</h1>
+          <p className="text-muted text-sm">Transfer stock between warehouses</p>
         </div>
         <button 
           onClick={() => navigate('/createTransfer')}
-          className="bg-[#001F54] text-white px-6 py-2 rounded-lg font-semibold hover:bg-[#003366] transition-colors"
+          className="bg-primary text-on-primary px-6 py-2 rounded-lg font-semibold hover:bg-primary-hover transition-colors"
         >
           + Add Transfer
         </button>
       </div>
 
       {/* Filters */}
-      <div className="bg-white p-6 rounded-2xl shadow-sm border border-gray-100 mb-8">
+      <div className="bg-surface p-6 rounded-2xl border border-line mb-8">
         <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-6">
           <div className="md:col-span-4">
-            <label className="text-xs font-bold text-gray-400 uppercase block mb-2">Search Transfer</label>
+            <label className="text-xs font-bold text-subtle uppercase block mb-2">Search Transfer</label>
             <SearchBar 
               onSearch={(query) => setSearchQuery(query)}
               placeholder="Search by Reference ID..."
@@ -110,9 +110,9 @@ const ViewTransfers: React.FC = () => {
         </div>
         <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
           <div>
-            <label className="text-xs font-bold text-gray-400 block mb-2">From Warehouse</label>
+            <label className="text-xs font-bold text-subtle block mb-2">From Warehouse</label>
             <select 
-              className="w-full bg-gray-50 border-none rounded-lg px-4 py-2 text-sm focus:ring-2 focus:ring-blue-500"
+              className="w-full bg-surface-raised border-none rounded-lg px-4 py-2 text-sm focus:ring-2 focus:ring-primary"
               value={fromWh}
               onChange={(e) => setFromWh(e.target.value)}
             >
@@ -121,9 +121,9 @@ const ViewTransfers: React.FC = () => {
             </select>
           </div>
           <div>
-            <label className="text-xs font-bold text-gray-400 block mb-2">To Warehouse</label>
+            <label className="text-xs font-bold text-subtle block mb-2">To Warehouse</label>
             <select 
-              className="w-full bg-gray-50 border-none rounded-lg px-4 py-2 text-sm focus:ring-2 focus:ring-blue-500"
+              className="w-full bg-surface-raised border-none rounded-lg px-4 py-2 text-sm focus:ring-2 focus:ring-primary"
               value={toWh}
               onChange={(e) => setToWh(e.target.value)}
             >
@@ -132,9 +132,9 @@ const ViewTransfers: React.FC = () => {
             </select>
           </div>
           <div>
-            <label className="text-xs font-bold text-gray-400 block mb-2">Status</label>
+            <label className="text-xs font-bold text-subtle block mb-2">Status</label>
             <select 
-              className="w-full bg-gray-50 border-none rounded-lg px-4 py-2 text-sm focus:ring-2 focus:ring-blue-500"
+              className="w-full bg-surface-raised border-none rounded-lg px-4 py-2 text-sm focus:ring-2 focus:ring-primary"
               value={status}
               onChange={(e) => setStatus(e.target.value)}
             >
@@ -148,7 +148,7 @@ const ViewTransfers: React.FC = () => {
           <div className="flex items-end justify-start">
             <button 
               onClick={() => { setFromWh(''); setToWh(''); setStatus(''); }}
-              className="px-6 py-2 bg-red-50 text-red-500 rounded-lg font-semibold hover:bg-red-100 transition-colors text-sm whitespace-nowrap"
+              className="px-6 py-2 bg-danger-soft text-danger rounded-lg font-semibold hover:bg-danger-soft transition-colors text-sm whitespace-nowrap"
             >
               Clear Filters
             </button>
@@ -156,42 +156,42 @@ const ViewTransfers: React.FC = () => {
         </div>
       </div>
 
-      <div className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
+      <div className="bg-surface rounded-2xl border border-line overflow-hidden">
         <table className="w-full text-left">
-          <thead className="bg-gray-50 border-b border-gray-100">
+          <thead className="bg-surface-raised border-b border-line">
             <tr>
-              <th className="px-6 py-4 text-[10px] font-bold text-gray-400">Date</th>
-              <th className="px-6 py-4 text-[10px] font-bold text-gray-400">Reference</th>
-              <th className="px-6 py-4 text-[10px] font-bold text-gray-400">From</th>
-              <th className="px-6 py-4 text-[10px] font-bold text-gray-400">To</th>
-              <th className="px-6 py-4 text-[10px] font-bold text-gray-400">Items</th>
-              <th className="px-6 py-4 text-[10px] font-bold text-gray-400 text-center">Status</th>
-              <th className="px-6 py-4 text-[10px] font-bold text-gray-400 text-right">Actions</th>
+              <th className="px-6 py-4 text-[10px] font-bold text-subtle">Date</th>
+              <th className="px-6 py-4 text-[10px] font-bold text-subtle">Reference</th>
+              <th className="px-6 py-4 text-[10px] font-bold text-subtle">From</th>
+              <th className="px-6 py-4 text-[10px] font-bold text-subtle">To</th>
+              <th className="px-6 py-4 text-[10px] font-bold text-subtle">Items</th>
+              <th className="px-6 py-4 text-[10px] font-bold text-subtle text-center">Status</th>
+              <th className="px-6 py-4 text-[10px] font-bold text-subtle text-right">Actions</th>
             </tr>
           </thead>
-          <tbody className="divide-y divide-gray-50">
+          <tbody className="divide-y divide-line">
             {transfers.map((t) => (
-              <tr key={t._id} className="hover:bg-gray-50 transition-colors">
-                <td className="px-6 py-4 text-sm text-gray-600">
+              <tr key={t._id} className="hover:bg-surface-raised transition-colors">
+                <td className="px-6 py-4 text-sm text-muted">
                   {formatDate(t.date)}
                 </td>
                 <td className="px-6 py-4 whitespace-nowrap">
-                  <span className="bg-blue-50 text-blue-600 px-2 py-1 rounded text-[10px] font-bold">
+                  <span className="bg-primary-soft text-primary px-2 py-1 rounded text-[10px] font-bold">
                     {t.reference}
                   </span>
                 </td>
-                <td className="px-6 py-4 text-sm text-gray-800 font-medium">
+                <td className="px-6 py-4 text-sm text-foreground font-medium">
                   {t.fromWarehouse?.name}
                 </td>
-                <td className="px-6 py-4 text-sm text-gray-800 font-medium">
+                <td className="px-6 py-4 text-sm text-foreground font-medium">
                   {t.toWarehouse?.name}
                 </td>
-                <td className="px-6 py-4 text-sm text-gray-500">
+                <td className="px-6 py-4 text-sm text-muted">
                   {t.items.length} Items
                 </td>
                 <td className="px-6 py-4 text-center">
                   <span className={`px-3 py-1 rounded-full text-[10px] font-bold uppercase ${
-                    t.status === 'Completed' ? 'bg-green-50 text-green-600' : 'bg-yellow-50 text-yellow-600'
+                    t.status === 'Completed' ? 'bg-secondary-soft text-secondary' : 'bg-warning-soft text-warning'
                   }`}>
                     {t.status}
                   </span>
@@ -200,7 +200,7 @@ const ViewTransfers: React.FC = () => {
                   <div className="flex justify-end space-x-2">
                     <button 
                       onClick={() => navigate(`/editTransfer/${t._id}`)}
-                      className="text-blue-500 hover:bg-blue-50 p-1.5 rounded-lg transition-colors"
+                      className="text-primary hover:bg-primary-soft p-1.5 rounded-lg transition-colors"
                     >
                       <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" />
@@ -208,7 +208,7 @@ const ViewTransfers: React.FC = () => {
                     </button>
                     <button 
                       onClick={() => setToDelete(t._id)}
-                      className="text-red-500 hover:bg-red-50 p-1.5 rounded-lg transition-colors"
+                      className="text-danger hover:bg-danger-soft p-1.5 rounded-lg transition-colors"
                     >
                       <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
@@ -220,7 +220,7 @@ const ViewTransfers: React.FC = () => {
             ))}
             {transfers.length === 0 && (
               <tr>
-                <td colSpan={7} className="px-6 py-12 text-center text-gray-400">
+                <td colSpan={7} className="px-6 py-12 text-center text-subtle">
                   No transfers found.
                 </td>
               </tr>

@@ -394,28 +394,28 @@ const BarcodePrint: React.FC = () => {
   }, [customBarcode, customCode, customName, customPrice, customQty, selectedProducts]);
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-canvas">
       {loading && <Loader text="Loading" />}
 
-      <div className="bg-white shadow-sm border-b">
+      <div className="bg-surface border-b">
         <div className="px-6 py-4 md:px-4 md:py-3 flex flex-col md:flex-row md:items-center md:justify-between gap-3">
           <div>
-            <h1 className="text-2xl md:text-xl font-bold text-gray-900">Print Barcode</h1>
-            <p className="text-sm text-gray-600 mt-1">
+            <h1 className="text-2xl md:text-xl font-bold text-foreground">Print Barcode</h1>
+            <p className="text-sm text-muted mt-1">
               Generate barcode labels for your products
             </p>
           </div>
           <div className="flex items-center gap-3">
-            <span className="text-sm font-medium text-gray-700">Print Custom Barcode</span>
+            <span className="text-sm font-medium text-foreground">Print Custom Barcode</span>
             <button
               type="button"
               onClick={() => setCustomBarcode((prev) => !prev)}
               className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors ${
-                customBarcode ? 'bg-[#003366]' : 'bg-gray-300'
+                customBarcode ? 'bg-primary' : 'bg-surface-muted'
               }`}
             >
               <span
-                className={`inline-block h-5 w-5 transform rounded-full bg-white shadow transition-transform ${
+                className={`inline-block h-5 w-5 transform rounded-full bg-surface shadow transition-transform ${
                   customBarcode ? 'translate-x-5' : 'translate-x-1'
                 }`}
               />
@@ -425,18 +425,18 @@ const BarcodePrint: React.FC = () => {
       </div>
 
       <div className="p-6 md:p-4 space-y-6">
-        <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-4 md:p-6">
+        <div className="bg-surface rounded-lg border border-line p-4 md:p-6">
           <div className="grid md:grid-cols-2 gap-6">
             <div className="space-y-4">
               {!customBarcode && (
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
-                    Warehouse<span className="text-red-500">*</span>
+                  <label className="block text-sm font-medium text-foreground mb-1">
+                    Warehouse<span className="text-danger">*</span>
                   </label>
                   <select
                     value={warehouseId}
                     onChange={(e) => setWarehouseId(e.target.value)}
-                    className="mt-1 block w-full rounded-md border border-gray-300 bg-white px-3 py-2 text-sm shadow-sm focus:border-[#003366] focus:ring-[#003366]"
+                    className="mt-1 block w-full rounded-md border border-line-strong bg-surface px-3 py-2 text-sm focus:border-primary focus:ring-primary"
                   >
                     <option value="">Choose Warehouse</option>
                     {warehouses.map((w) => (
@@ -451,19 +451,19 @@ const BarcodePrint: React.FC = () => {
               {customBarcode ? (
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">
-                      SKU / Barcode<span className="text-red-500">*</span>
+                    <label className="block text-sm font-medium text-foreground mb-1">
+                      SKU / Barcode<span className="text-danger">*</span>
                     </label>
                     <input
                       type="text"
                       value={customCode}
                       onChange={(e) => setCustomCode(e.target.value)}
                       placeholder="SKU / Barcode"
-                      className="mt-1 block w-full rounded-md border border-gray-300 bg-white px-3 py-2 text-sm shadow-sm focus:border-[#003366] focus:ring-[#003366]"
+                      className="mt-1 block w-full rounded-md border border-line-strong bg-surface px-3 py-2 text-sm focus:border-primary focus:ring-primary"
                     />
                   </div>
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">
+                    <label className="block text-sm font-medium text-foreground mb-1">
                       Name
                     </label>
                     <input
@@ -471,11 +471,11 @@ const BarcodePrint: React.FC = () => {
                       value={customName}
                       onChange={(e) => setCustomName(e.target.value)}
                       placeholder="Name"
-                      className="mt-1 block w-full rounded-md border border-gray-300 bg-white px-3 py-2 text-sm shadow-sm focus:border-[#003366] focus:ring-[#003366]"
+                      className="mt-1 block w-full rounded-md border border-line-strong bg-surface px-3 py-2 text-sm focus:border-primary focus:ring-primary"
                     />
                   </div>
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">
+                    <label className="block text-sm font-medium text-foreground mb-1">
                       Price
                     </label>
                     <input
@@ -484,25 +484,25 @@ const BarcodePrint: React.FC = () => {
                       value={customPrice}
                       onChange={(e) => setCustomPrice(e.target.value)}
                       placeholder="Price"
-                      className="mt-1 block w-full rounded-md border border-gray-300 bg-white px-3 py-2 text-sm shadow-sm focus:border-[#003366] focus:ring-[#003366]"
+                      className="mt-1 block w-full rounded-md border border-line-strong bg-surface px-3 py-2 text-sm focus:border-primary focus:ring-primary"
                     />
                   </div>
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">
-                      Quantity<span className="text-red-500">*</span>
+                    <label className="block text-sm font-medium text-foreground mb-1">
+                      Quantity<span className="text-danger">*</span>
                     </label>
                     <input
                       type="number"
                       min={1}
                       value={customQty}
                       onChange={(e) => setCustomQty(Number(e.target.value) || 0)}
-                      className="mt-1 block w-full rounded-md border border-gray-300 bg-white px-3 py-2 text-sm shadow-sm focus:border-[#003366] focus:ring-[#003366]"
+                      className="mt-1 block w-full rounded-md border border-line-strong bg-surface px-3 py-2 text-sm focus:border-primary focus:ring-primary"
                     />
                   </div>
                 </div>
               ) : (
                 <div className="relative">
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                  <label className="block text-sm font-medium text-foreground mb-1">
                     Product
                   </label>
                   <input
@@ -510,35 +510,35 @@ const BarcodePrint: React.FC = () => {
                     value={searchTerm}
                     onChange={(e) => setSearchTerm(e.target.value)}
                     placeholder="Search product by code or name"
-                    className="mt-1 block w-full rounded-md border border-gray-300 bg-white px-3 py-2 text-sm shadow-sm focus:border-[#003366] focus:ring-[#003366]"
+                    className="mt-1 block w-full rounded-md border border-line-strong bg-surface px-3 py-2 text-sm focus:border-primary focus:ring-primary"
                   />
                   {searchLoading && (
                     <div className="absolute right-3 top-9">
-                      <span className="h-4 w-4 border-2 border-gray-300 border-t-[#003366] rounded-full animate-spin inline-block" />
+                      <span className="h-4 w-4 border-2 border-line-strong border-t-[#003366] rounded-full animate-spin inline-block" />
                     </div>
                   )}
                   {searchResults.length > 0 && (
-                    <div className="absolute z-20 mt-1 w-full rounded-md border border-gray-200 bg-white shadow-lg max-h-64 overflow-y-auto">
+                    <div className="absolute z-20 mt-1 w-full rounded-md border border-line bg-surface max-h-64 overflow-y-auto">
                       {searchResults.map((product) => (
                         <button
                           key={product.id}
                           type="button"
                           onClick={() => handleAddProduct(product)}
-                          className="w-full flex items-center justify-between px-3 py-2 text-sm text-left hover:bg-gray-50"
+                          className="w-full flex items-center justify-between px-3 py-2 text-sm text-left hover:bg-surface-raised"
                         >
                           <div>
-                            <div className="font-medium text-gray-900">{product.name}</div>
-                            <div className="text-xs text-gray-500">{product.code}</div>
+                            <div className="font-medium text-foreground">{product.name}</div>
+                            <div className="text-xs text-muted">{product.code}</div>
                           </div>
                           {typeof product.price === 'number' && (
-                            <div className="text-xs font-semibold text-gray-700">
+                            <div className="text-xs font-semibold text-foreground">
                               {currencyCode} {product.price.toFixed(2)}
                             </div>
                           )}
                         </button>
                       ))}
                       {searchResults.length === 0 && !searchLoading && (
-                        <div className="px-3 py-2 text-xs text-gray-500">No products found</div>
+                        <div className="px-3 py-2 text-xs text-muted">No products found</div>
                       )}
                     </div>
                   )}
@@ -548,8 +548,8 @@ const BarcodePrint: React.FC = () => {
 
             <div className="grid grid-cols-2 gap-4">
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Paper Size<span className="text-red-500">*</span>
+                <label className="block text-sm font-medium text-foreground mb-1">
+                  Paper Size<span className="text-danger">*</span>
                 </label>
                 <select
                   value={paperSize}
@@ -561,7 +561,7 @@ const BarcodePrint: React.FC = () => {
                       setCustomHeightMm('');
                     }
                   }}
-                  className="mt-1 block w-full rounded-md border border-gray-300 bg-white px-3 py-2 text-sm shadow-sm focus:border-[#003366] focus:ring-[#003366]"
+                  className="mt-1 block w-full rounded-md border border-line-strong bg-surface px-3 py-2 text-sm focus:border-primary focus:ring-primary"
                 >
                   <option value="">Choose paper size</option>
                   {PAPER_SIZE_OPTIONS.map((opt) => (
@@ -574,8 +574,8 @@ const BarcodePrint: React.FC = () => {
               {paperSize === 'CUSTOM' && (
                 <div className="grid grid-cols-2 gap-4 mt-2">
                   <div>
-                    <label className="block text-xs font-medium text-gray-700 mb-1">
-                      Width (mm)<span className="text-red-500">*</span>
+                    <label className="block text-xs font-medium text-foreground mb-1">
+                      Width (mm)<span className="text-danger">*</span>
                     </label>
                     <input
                       type="number"
@@ -583,12 +583,12 @@ const BarcodePrint: React.FC = () => {
                       value={customWidthMm}
                       onChange={(e) => setCustomWidthMm(e.target.value)}
                       placeholder="Width"
-                      className="mt-1 block w-full rounded-md border border-gray-300 bg-white px-3 py-2 text-sm shadow-sm focus:border-[#003366] focus:ring-[#003366]"
+                      className="mt-1 block w-full rounded-md border border-line-strong bg-surface px-3 py-2 text-sm focus:border-primary focus:ring-primary"
                     />
                   </div>
                   <div>
-                    <label className="block text-xs font-medium text-gray-700 mb-1">
-                      Height (mm)<span className="text-red-500">*</span>
+                    <label className="block text-xs font-medium text-foreground mb-1">
+                      Height (mm)<span className="text-danger">*</span>
                     </label>
                     <input
                       type="number"
@@ -596,7 +596,7 @@ const BarcodePrint: React.FC = () => {
                       value={customHeightMm}
                       onChange={(e) => setCustomHeightMm(e.target.value)}
                       placeholder="Height"
-                      className="mt-1 block w-full rounded-md border border-gray-300 bg-white px-3 py-2 text-sm shadow-sm focus:border-[#003366] focus:ring-[#003366]"
+                      className="mt-1 block w-full rounded-md border border-line-strong bg-surface px-3 py-2 text-sm focus:border-primary focus:ring-primary"
                     />
                   </div>
                 </div>
@@ -604,7 +604,7 @@ const BarcodePrint: React.FC = () => {
               <div>
                 <label
                   className={`block text-sm font-medium mb-1 ${
-                    showPrice ? 'text-gray-700' : 'text-gray-400'
+                    showPrice ? 'text-foreground' : 'text-subtle'
                   }`}
                 >
                   Price Font Size
@@ -616,74 +616,74 @@ const BarcodePrint: React.FC = () => {
                   value={priceFontSize}
                   onChange={(e) => setPriceFontSize(Number(e.target.value) || 12)}
                   disabled={!showPrice}
-                  className={`mt-1 block w-full rounded-md border px-3 py-2 text-sm shadow-sm focus:border-[#003366] focus:ring-[#003366] ${
+                  className={`mt-1 block w-full rounded-md border px-3 py-2 text-sm focus:border-primary focus:ring-primary ${
                     showPrice
-                      ? 'border-gray-300 bg-white text-gray-900'
-                      : 'border-gray-200 bg-gray-100 text-gray-400 cursor-not-allowed'
+                      ? 'border-line-strong bg-surface text-foreground'
+                      : 'border-line bg-surface-muted text-subtle cursor-not-allowed'
                   }`}
                 />
               </div>
 
               <div className="col-span-2 grid grid-cols-2 gap-4">
-                <label className="flex items-center justify-between rounded-md border border-gray-200 px-3 py-2 text-sm text-gray-700">
+                <label className="flex items-center justify-between rounded-md border border-line px-3 py-2 text-sm text-foreground">
                   <span>Show Store Name</span>
                   <button
                     type="button"
                     onClick={() => setShowStoreName((prev) => !prev)}
                     className={`relative inline-flex h-5 w-9 items-center rounded-full transition-colors ${
-                      showStoreName ? 'bg-[#003366]' : 'bg-gray-300'
+                      showStoreName ? 'bg-primary' : 'bg-surface-muted'
                     }`}
                   >
                     <span
-                      className={`inline-block h-4 w-4 transform rounded-full bg-white shadow transition-transform ${
+                      className={`inline-block h-4 w-4 transform rounded-full bg-surface shadow transition-transform ${
                         showStoreName ? 'translate-x-4' : 'translate-x-1'
                       }`}
                     />
                   </button>
                 </label>
-                <label className="flex items-center justify-between rounded-md border border-gray-200 px-3 py-2 text-sm text-gray-700">
+                <label className="flex items-center justify-between rounded-md border border-line px-3 py-2 text-sm text-foreground">
                   <span>Show Product Name</span>
                   <button
                     type="button"
                     onClick={() => setShowProductName((prev) => !prev)}
                     className={`relative inline-flex h-5 w-9 items-center rounded-full transition-colors ${
-                      showProductName ? 'bg-[#003366]' : 'bg-gray-300'
+                      showProductName ? 'bg-primary' : 'bg-surface-muted'
                     }`}
                   >
                     <span
-                      className={`inline-block h-4 w-4 transform rounded-full bg-white shadow transition-transform ${
+                      className={`inline-block h-4 w-4 transform rounded-full bg-surface shadow transition-transform ${
                         showProductName ? 'translate-x-4' : 'translate-x-1'
                       }`}
                     />
                   </button>
                 </label>
-                <label className="flex items-center justify-between rounded-md border border-gray-200 px-3 py-2 text-sm text-gray-700">
+                <label className="flex items-center justify-between rounded-md border border-line px-3 py-2 text-sm text-foreground">
                   <span>Show Price</span>
                   <button
                     type="button"
                     onClick={() => setShowPrice((prev) => !prev)}
                     className={`relative inline-flex h-5 w-9 items-center rounded-full transition-colors ${
-                      showPrice ? 'bg-[#003366]' : 'bg-gray-300'
+                      showPrice ? 'bg-primary' : 'bg-surface-muted'
                     }`}
                   >
                     <span
-                      className={`inline-block h-4 w-4 transform rounded-full bg-white shadow transition-transform ${
+                      className={`inline-block h-4 w-4 transform rounded-full bg-surface shadow transition-transform ${
                         showPrice ? 'translate-x-4' : 'translate-x-1'
                       }`}
                     />
                   </button>
                 </label>
-                <label className="flex items-center justify-between rounded-md border border-gray-200 px-3 py-2 text-sm text-gray-700">
+                <label className="flex items-center justify-between rounded-md border border-line px-3 py-2 text-sm text-foreground">
                   <span>Show Border</span>
                   <button
                     type="button"
                     onClick={() => setShowBorder((prev) => !prev)}
                     className={`relative inline-flex h-5 w-9 items-center rounded-full transition-colors ${
-                      showBorder ? 'bg-[#003366]' : 'bg-gray-300'
+                      showBorder ? 'bg-primary' : 'bg-surface-muted'
                     }`}
                   >
                     <span
-                      className={`inline-block h-4 w-4 transform rounded-full bg-white shadow transition-transform ${
+                      className={`inline-block h-4 w-4 transform rounded-full bg-surface shadow transition-transform ${
                         showBorder ? 'translate-x-4' : 'translate-x-1'
                       }`}
                     />
@@ -693,31 +693,31 @@ const BarcodePrint: React.FC = () => {
             </div>
           </div>
 
-          <div className="mt-8 border-t border-gray-200 pt-4">
+          <div className="mt-8 border-t border-line pt-4">
             {!customBarcode && (
               <>
-                <h2 className="text-sm font-semibold text-gray-800 mb-3">Products To Print</h2>
-                <div className="overflow-x-auto border border-gray-200 rounded-lg">
-                  <table className="min-w-full divide-y divide-gray-200">
-                    <thead className="bg-gray-50">
+                <h2 className="text-sm font-semibold text-foreground mb-3">Products To Print</h2>
+                <div className="overflow-x-auto border border-line rounded-lg">
+                  <table className="min-w-full divide-y divide-line">
+                    <thead className="bg-surface-raised">
                       <tr>
-                        <th className="px-4 py-3 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">
+                        <th className="px-4 py-3 text-left text-xs font-semibold text-foreground uppercase tracking-wider">
                           Product
                         </th>
-                        <th className="px-4 py-3 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">
+                        <th className="px-4 py-3 text-left text-xs font-semibold text-foreground uppercase tracking-wider">
                           Qty
                         </th>
-                        <th className="px-4 py-3 text-right text-xs font-semibold text-gray-700 uppercase tracking-wider">
+                        <th className="px-4 py-3 text-right text-xs font-semibold text-foreground uppercase tracking-wider">
                           Action
                         </th>
                       </tr>
                     </thead>
-                    <tbody className="bg-white divide-y divide-gray-200">
+                    <tbody className="bg-surface divide-y divide-line">
                       {selectedProducts.map((product) => (
-                        <tr key={product.id} className="hover:bg-gray-50">
+                        <tr key={product.id} className="hover:bg-surface-raised">
                           <td className="px-4 py-3">
-                            <div className="text-sm font-medium text-gray-900">{product.code}</div>
-                            <div className="mt-1 inline-flex items-center rounded-full bg-green-50 px-2.5 py-0.5 text-xs font-medium text-green-700">
+                            <div className="text-sm font-medium text-foreground">{product.code}</div>
+                            <div className="mt-1 inline-flex items-center rounded-full bg-secondary-soft px-2.5 py-0.5 text-xs font-medium text-secondary">
                               {product.name}
                             </div>
                           </td>
@@ -727,14 +727,14 @@ const BarcodePrint: React.FC = () => {
                               min={1}
                               value={product.qty}
                               onChange={(e) => handleQtyChange(product.id, Number(e.target.value))}
-                              className="w-24 rounded-md border border-gray-300 px-3 py-1.5 text-sm text-center focus:border-[#003366] focus:ring-[#003366]"
+                              className="w-24 rounded-md border border-line-strong px-3 py-1.5 text-sm text-center focus:border-primary focus:ring-primary"
                             />
                           </td>
                           <td className="px-4 py-3 text-right align-middle">
                             <button
                               type="button"
                               onClick={() => handleRemoveProduct(product.id)}
-                              className="inline-flex items-center justify-center p-2 rounded-full text-red-600 hover:text-red-700 hover:bg-red-50"
+                              className="inline-flex items-center justify-center p-2 rounded-full text-danger hover:text-danger hover:bg-danger-soft"
                               title="Remove product from list"
                             >
                               <svg
@@ -758,7 +758,7 @@ const BarcodePrint: React.FC = () => {
                         <tr>
                           <td
                             colSpan={3}
-                            className="px-4 py-6 text-center text-sm text-gray-500 bg-white"
+                            className="px-4 py-6 text-center text-sm text-muted bg-surface"
                           >
                             No products added. Search and select a product to start building your
                             barcode list.
@@ -773,7 +773,7 @@ const BarcodePrint: React.FC = () => {
 
             <div className="mt-4 flex flex-wrap items-center justify-between gap-3">
               {!customBarcode && (
-                <div className="text-xs text-gray-500">
+                <div className="text-xs text-muted">
                   {selectedWarehouseName
                     ? `Labels will be printed for products in "${selectedWarehouseName}".`
                     : 'Choose a warehouse to start printing barcodes.'}
@@ -783,21 +783,21 @@ const BarcodePrint: React.FC = () => {
                 <button
                   type="button"
                   onClick={handlePreview}
-                  className="inline-flex items-center px-4 py-2 rounded-md bg-green-600 text-white text-sm font-medium shadow-sm hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-1 focus:ring-green-500"
+                  className="inline-flex items-center px-4 py-2 rounded-md bg-secondary text-on-secondary text-sm font-medium hover:bg-secondary-hover focus:outline-none focus:ring-2 focus:ring-offset-1 focus:ring-secondary-line"
                 >
                   Preview
                 </button>
                 <button
                   type="button"
                   onClick={handleReset}
-                  className="inline-flex items-center px-4 py-2 rounded-md bg-red-600 text-white text-sm font-medium shadow-sm hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-1 focus:ring-red-500"
+                  className="inline-flex items-center px-4 py-2 rounded-md bg-danger text-on-danger text-sm font-medium hover:bg-danger-hover focus:outline-none focus:ring-2 focus:ring-offset-1 focus:ring-danger-line"
                 >
                   Reset
                 </button>
                 <button
                   type="button"
                   onClick={handlePrint}
-                  className="inline-flex items-center px-4 py-2 rounded-md bg-[#003366] text-white text-sm font-medium shadow-sm hover:bg-[#004080] focus:outline-none focus:ring-2 focus:ring-offset-1 focus:ring-[#003366]"
+                  className="inline-flex items-center px-4 py-2 rounded-md bg-primary text-on-primary text-sm font-medium hover:bg-primary-hover focus:outline-none focus:ring-2 focus:ring-offset-1 focus:ring-primary"
                 >
                   Print
                 </button>
@@ -806,10 +806,10 @@ const BarcodePrint: React.FC = () => {
           </div>
 
           <div className="mt-6">
-            <h3 className="text-sm font-semibold text-gray-800 mb-2">Preview</h3>
+            <h3 className="text-sm font-semibold text-foreground mb-2">Preview</h3>
             {!hasPreview || previewLabels.length === 0 ? (
-              <div className="border border-dashed border-gray-300 rounded-lg p-4 bg-gray-50">
-                <p className="text-xs text-gray-500">
+              <div className="border border-dashed border-line-strong rounded-lg p-4 bg-surface-raised">
+                <p className="text-xs text-muted">
                   Add products, choose a paper size and click Preview to see how your barcode
                   labels will look before you print.
                 </p>
@@ -833,17 +833,17 @@ const BarcodePrint: React.FC = () => {
                   pages.push(
                     <div
                       key={`page-${pageIndex}`}
-                      className={`barcode-page ${pageIndex > 0 ? 'mt-4 border-t border-gray-200 pt-4' : ''}`}
+                      className={`barcode-page ${pageIndex > 0 ? 'mt-4 border-t border-line pt-4' : ''}`}
                     >
                       <div
-                        className="grid gap-px bg-gray-300 border border-gray-300 rounded-md overflow-hidden"
+                        className="grid gap-px bg-surface-muted border border-line-strong rounded-md overflow-hidden"
                         style={{ gridTemplateColumns: `repeat(${cfg.columns}, minmax(0, 1fr))` }}
                       >
                         {pageLabels.map((product, idx) => (
                           <div
                             key={`${product.id}-${start + idx}`}
-                            className={`flex flex-col items-center justify-center px-3 py-3 bg-white text-center min-h-[140px] ${
-                              showBorder ? 'border border-gray-300' : ''
+                            className={`flex flex-col items-center justify-center px-3 py-3 bg-surface text-center min-h-[140px] ${
+                              showBorder ? 'border border-line-strong' : ''
                             }`}
                           >
                             {showStoreName && (
@@ -852,13 +852,13 @@ const BarcodePrint: React.FC = () => {
                               </div>
                             )}
                             {showProductName && (
-                              <div className="mt-1 text-[11px] font-medium text-gray-900 break-words">
+                              <div className="mt-1 text-[11px] font-medium text-foreground break-words">
                                 {product.name}
                               </div>
                             )}
                             {showPrice && typeof product.price === 'number' && (
                               <div
-                                className="mt-1 text-gray-800"
+                                className="mt-1 text-foreground"
                                 style={{ fontSize: `${Math.max(priceFontSize, 8)}px` }}
                               >
                                 Price: {currencySymbol} {product.price.toFixed(2)}
@@ -868,13 +868,13 @@ const BarcodePrint: React.FC = () => {
                               className="mt-1.5"
                               dangerouslySetInnerHTML={{ __html: generateBarcodeSvgString(product.code, product.barcodeType) }}
                             />
-                            <div className="mt-1 text-[9px] font-semibold tracking-[0.18em] text-gray-900 font-mono">
+                            <div className="mt-1 text-[9px] font-semibold tracking-[0.18em] text-foreground font-mono">
                               {product.code}
                             </div>
                           </div>
                         ))}
                         {Array.from({ length: placeholders }).map((_, idx) => (
-                          <div key={`placeholder-${pageIndex}-${idx}`} className="bg-gray-100 min-h-[140px]" />
+                          <div key={`placeholder-${pageIndex}-${idx}`} className="bg-surface-muted min-h-[140px]" />
                         ))}
                       </div>
                     </div>

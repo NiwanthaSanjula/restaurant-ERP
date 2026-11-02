@@ -1,5 +1,11 @@
 import { Request, Response } from 'express';
 import MailSetting from '../models/MailSetting';
+import { MAIL_FIELDS, pickSettingsFields } from '../utils/settingsFields';
+
+const mailResponse = (settings: unknown) => ({
+  ...pickSettingsFields(settings, MAIL_FIELDS),
+  hasPassword: !!(settings && typeof settings === 'object' && Reflect.get(settings, 'password'))
+});
 
 export const getMailSettings = async (req: Request, res: Response) => {
   try {
@@ -7,18 +13,19 @@ export const getMailSettings = async (req: Request, res: Response) => {
     if (!settings) {
       return res.status(200).json({ success: true, data: {} });
     }
-    return res.status(200).json({ success: true, data: settings });
+    return res.status(200).json({ success: true, data: mailResponse(settings) });
   } catch (error: any) {
-    return res.status(500).json({ success: false, message: error.message });
+    return res.status(500).json({ success: false, message: 'Unable to load mail settings.' });
   }
 };
 
 export const updateMailSettings = async (req: Request, res: Response) => {
   try {
-    const { mailMailer, mailHost, mailPort, mailSenderName, username, password } = req.body;
+    const { password } = req.body;
 
     const existing = await MailSetting.findOne();
-    const hasPasswordInput = typeof password === 'string' && password.trim().length > 0;
+    const hasPasswordInput = typeof password === 'string' && password.trim().length > 0 &&
+      !/^(?:[*\u2022\u25cf]+|\[?redacted\]?|<redacted>)$/i.test(password.trim());
     if (!existing && !hasPasswordInput) {
       return res.status(400).json({
         success: false,
@@ -26,18 +33,12 @@ export const updateMailSettings = async (req: Request, res: Response) => {
       });
     }
 
-    const finalPassword = hasPasswordInput ? password.trim() : existing?.password;
-
     const settings = await MailSetting.findOneAndUpdate(
       {},
       {
         $set: {
-          mailMailer,
-          mailHost,
-          mailPort,
-          mailSenderName,
-          username,
-          ...(finalPassword && { password: finalPassword }) 
+          ...pickSettingsFields(req.body, MAIL_FIELDS),
+          ...(hasPasswordInput ? { password: password.trim() } : {})
         }
       },
       { 
@@ -50,12 +51,12 @@ export const updateMailSettings = async (req: Request, res: Response) => {
     return res.status(200).json({ 
       success: true, 
       message: 'Mail settings saved successfully', 
-      data: settings 
+      data: mailResponse(settings)
     });
   } catch (error: any) {
     return res.status(400).json({ 
       success: false, 
-      message: error.message 
+      message: 'Unable to save mail settings.'
     });
   }
 };

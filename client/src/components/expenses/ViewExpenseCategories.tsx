@@ -82,12 +82,12 @@ const ViewExpenseCategories: React.FC = () => {
       
       <div className="flex justify-between items-center mb-8">
         <div>
-          <h1 className="text-2xl font-bold text-gray-800">Expense Categories</h1>
-          <p className="text-gray-500 text-sm">Organize your expenses efficiently</p>
+          <h1 className="text-2xl font-bold text-foreground">Expense Categories</h1>
+          <p className="text-muted text-sm">Organize your expenses efficiently</p>
         </div>
         <button 
           onClick={() => navigate('/createExpenseCategory')}
-          className="bg-[#001F54] text-white px-6 py-2 rounded-lg font-semibold hover:bg-[#003366] transition-colors"
+          className="bg-primary text-on-primary px-6 py-2 rounded-lg font-semibold hover:bg-primary-hover transition-colors"
         >
           Create Category
         </button>
@@ -95,33 +95,33 @@ const ViewExpenseCategories: React.FC = () => {
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
         {categories.map((category) => (
-          <div key={category._id} className="bg-white p-6 rounded-2xl shadow-sm border border-gray-100 hover:shadow-md transition-shadow relative group">
+          <div key={category._id} className="bg-surface p-6 rounded-2xl border border-line transition-shadow relative group">
             <div className="flex items-center space-x-4 mb-4">
-              <div className="p-3 bg-gray-50 rounded-xl">
-                <svg className="w-6 h-6 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <div className="p-3 bg-surface-raised rounded-xl">
+                <svg className="w-6 h-6 text-subtle" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z" />
                 </svg>
               </div>
               <div>
-                <h3 className="text-lg font-bold text-gray-800 uppercase">{category.name}</h3>
-                <p className="text-xs text-gray-400 uppercase">{category.name}</p>
+                <h3 className="text-lg font-bold text-foreground uppercase">{category.name}</h3>
+                <p className="text-xs text-subtle uppercase">{category.name}</p>
               </div>
             </div>
             
-            <p className="text-sm text-gray-500 mb-6 min-h-[40px]">{category.description || 'No description'}</p>
+            <p className="text-sm text-muted mb-6 min-h-[40px]">{category.description || 'No description'}</p>
             
-            <div className="flex items-center justify-between pt-4 border-t border-gray-50">
+            <div className="flex items-center justify-between pt-4 border-t border-line">
               <div className="flex items-center space-x-2">
-                <span className="w-2 h-2 rounded-full bg-blue-500"></span>
-                <span className="text-[10px] font-bold text-blue-500 uppercase">Active</span>
+                <span className="w-2 h-2 rounded-full bg-primary"></span>
+                <span className="text-[10px] font-bold text-primary uppercase">Active</span>
               </div>
-              <span className="text-[10px] text-gray-400">{formatDate(category.createdAt)}</span>
+              <span className="text-[10px] text-subtle">{formatDate(category.createdAt)}</span>
             </div>
 
             <div className="absolute top-4 right-4 flex space-x-1 opacity-0 group-hover:opacity-100 transition-opacity">
               <button 
                 onClick={() => navigate(`/editExpenseCategory/${category._id}`)}
-                className="p-1.5 text-blue-500 hover:bg-blue-50 rounded-lg transition-colors"
+                className="p-1.5 text-primary hover:bg-primary-soft rounded-lg transition-colors"
                 title="Edit"
               >
                 <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -130,7 +130,7 @@ const ViewExpenseCategories: React.FC = () => {
               </button>
               <button 
                 onClick={() => handleDeleteRequest(category._id)}
-                className="p-1.5 text-red-500 hover:bg-red-50 rounded-lg transition-colors"
+                className="p-1.5 text-danger hover:bg-danger-soft rounded-lg transition-colors"
                 title="Delete"
                 disabled={checking}
               >
@@ -142,7 +142,7 @@ const ViewExpenseCategories: React.FC = () => {
           </div>
         ))}
         {categories.length === 0 && (
-          <div className="col-span-full py-12 text-center text-gray-400">
+          <div className="col-span-full py-12 text-center text-subtle">
             No expense categories found.
           </div>
         )}

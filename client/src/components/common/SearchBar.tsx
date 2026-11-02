@@ -72,7 +72,7 @@ const SearchBar: React.FC<SearchBarProps> = ({
       <div className="relative">
         <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
           <svg 
-            className="h-5 w-5 text-gray-400" 
+            className="h-5 w-5 text-subtle"
             fill="none" 
             stroke="currentColor" 
             viewBox="0 0 24 24"
@@ -91,13 +91,13 @@ const SearchBar: React.FC<SearchBarProps> = ({
           onChange={(e) => handleChange(e.target.value)}
           placeholder={placeholder}
           title={placeholder}
-          className={`block w-full min-w-0 pl-10 pr-10 py-2.5 border border-gray-300 rounded-lg leading-5 bg-white placeholder-gray-500 focus:outline-none focus:placeholder-gray-400 focus:ring-2 focus:ring-[#003366] focus:border-transparent text-xs sm:text-sm placeholder:text-xs sm:placeholder:text-sm ${inputClassName}`.trim()}
+          className={`block w-full min-w-0 pl-10 pr-10 py-2.5 border border-line-strong rounded-lg leading-5 bg-surface placeholder-subtle focus:outline-none focus:placeholder-subtle focus:ring-2 focus:ring-primary focus:border-transparent text-xs sm:text-sm placeholder:text-xs sm:placeholder:text-sm ${inputClassName}`.trim()}
         />
         {currentQuery && (
           <div className="absolute inset-y-0 right-0 pr-3 flex items-center">
             <button
               onClick={handleClear}
-              className="text-gray-400 hover:text-gray-600 focus:outline-none"
+              className="text-subtle hover:text-muted focus:outline-none"
               aria-label="Clear search"
             >
               <svg 

@@ -5,9 +5,12 @@ import { toast } from 'react-toastify';
 import { useCurrency } from '../../contexts/CurrencyContext';
 import { currencyService } from '../../services/currencyService';
 import { settingService } from '../../services/settingService';
+import { usePermissions } from '../../contexts/PermissionContext';
 
 const SystemSettings: React.FC = () => {
   const navigate = useNavigate();
+  const { hasPermission } = usePermissions();
+  const canEdit = hasPermission('manageSettings', 'edit_restaurant_settings');
   const { currencies, refreshCurrencies, setCurrencyById } = useCurrency();
   const [loading, setLoading] = useState(true);
   const [logoFile, setLogoFile] = useState<File | null>(null);
@@ -206,27 +209,27 @@ const SystemSettings: React.FC = () => {
 
   if (loading && !formData.companyName) {
     return (
-      <div className="flex justify-center items-center h-screen text-[#004080]">
-        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[#004080]"></div>
+      <div className="flex justify-center items-center h-screen text-foreground">
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary"></div>
       </div>
     );
   }
 
   return (
-    <div className="max-w-7xl mx-auto p-4 md:p-6 lg:p-8 bg-slate-50 min-h-screen">
+    <div className="max-w-7xl mx-auto p-4 md:p-6 lg:p-8 bg-canvas min-h-screen">
       {/* Header Section - Responsive Adjustment */}
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-8">
         <div>
-          <h1 className="text-2xl md:text-3xl font-bold text-slate-800">System Configuration</h1>
-          <p className="text-slate-500 text-sm md:text-base">Manage your organization's global settings and brand identity.</p>
+          <h1 className="text-2xl md:text-3xl font-bold text-foreground">System Configuration</h1>
+          <p className="text-muted text-sm md:text-base">Manage your organization's global settings and brand identity.</p>
         </div>
         
         <div className="order-first md:order-last">
           <button 
             onClick={() => navigate(-1)} 
-            className="inline-flex items-center text-slate-500 hover:text-[#004080] transition-all group"
+            className="inline-flex items-center text-muted hover:text-primary transition-all group"
           >
-            <div className="p-1 rounded-lg group-hover:bg-white group-hover:shadow-sm border border-transparent group-hover:border-slate-200 transition-all mr-2">
+            <div className="p-1 rounded-lg group-hover:bg-surface border border-transparent group-hover:border-line transition-all mr-2">
               <ArrowLeft size={18} />
             </div>
             <span className="text-sm font-semibold">Back to Settings</span>
@@ -235,21 +238,22 @@ const SystemSettings: React.FC = () => {
       </div> 
 
       <form onSubmit={handleSubmit} className="space-y-6 md:space-y-8">
+        <fieldset disabled={!canEdit} className="space-y-6">
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 md:gap-8">
 
           
           <div className="lg:col-span-1">
-            <div className="bg-white p-6 rounded-2xl shadow-sm border border-slate-200">
-              <h3 className="text-lg font-semibold text-slate-700 mb-4 flex items-center gap-2">
-                <ShieldCheck size={20} className="text-[#004080]" /> Brand Identity
+            <div className="bg-surface p-6 rounded-2xl border border-line">
+              <h3 className="text-lg font-semibold text-foreground mb-4 flex items-center gap-2">
+                <ShieldCheck size={20} className="text-foreground" /> Brand Identity
               </h3>
               
               <div className="flex flex-col items-center group">
-                <div className="relative w-32 h-32 md:w-40 md:h-40 mb-4 border-2 border-dashed border-slate-200 rounded-2xl flex items-center justify-center bg-slate-50 overflow-hidden transition-all group-hover:border-[#004080]">
+                <div className="relative w-32 h-32 md:w-40 md:h-40 mb-4 border-2 border-dashed border-line rounded-2xl flex items-center justify-center bg-surface-raised overflow-hidden transition-all group-hover:border-primary">
                   {preview ? (
                     <img src={preview} alt="Logo Preview" className="w-full h-full object-contain p-2" />
                   ) : (
-                    <div className="text-center text-slate-400">
+                    <div className="text-center text-subtle">
                       <UploadCloud size={32} className="mx-auto mb-2" />
                       <span className="text-xs">Upload Logo</span>
                     </div>
@@ -261,71 +265,71 @@ const SystemSettings: React.FC = () => {
                     accept="image/*" 
                   />
                 </div>
-                <p className="text-[10px] md:text-xs text-slate-400 text-center px-4">Recommended: Square PNG or SVG (Max 2MB)</p>
+                <p className="text-[10px] md:text-xs text-subtle text-center px-4">Recommended: Square PNG or SVG (Max 2MB)</p>
               </div>
             </div>
           </div>
 
           {/* General Information */}
           <div className="lg:col-span-2">
-            <div className="bg-white p-5 md:p-8 rounded-2xl shadow-sm border border-slate-200">
-              <h3 className="text-lg font-semibold text-slate-700 mb-6 flex items-center gap-2">
-                <Building2 size={20} className="text-[#004080]" /> General Information
+            <div className="bg-surface p-5 md:p-8 rounded-2xl border border-line">
+              <h3 className="text-lg font-semibold text-foreground mb-6 flex items-center gap-2">
+                <Building2 size={20} className="text-foreground" /> General Information
               </h3>
               
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6">
                 <div className="space-y-2">
-                  <label className="text-sm font-semibold text-slate-600">Company Legal Name</label>
+                  <label className="text-sm font-semibold text-muted">Company Legal Name</label>
                   <div className="relative">
-                    <Building2 className="absolute left-3 top-3 text-slate-400" size={18} />
+                    <Building2 className="absolute left-3 top-3 text-subtle" size={18} />
                     <input 
                       name="companyName" 
                       value={formData.companyName} 
                       onChange={handleChange} 
-                      className="w-full pl-10 pr-4 py-2.5 border border-slate-200 rounded-xl focus:ring-2 focus:ring-[#004080]/20 focus:border-[#004080] outline-none transition-all text-sm md:text-base"
+                      className="w-full pl-10 pr-4 py-2.5 border border-line rounded-xl focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none transition-all text-sm md:text-base"
                     />
                   </div>
                 </div>
 
                 <div className="space-y-2">
-                  <label className="text-sm font-semibold text-slate-600">System Email</label>
+                  <label className="text-sm font-semibold text-muted">System Email</label>
                   <div className="relative">
-                    <Mail className="absolute left-3 top-3 text-slate-400" size={18} />
+                    <Mail className="absolute left-3 top-3 text-subtle" size={18} />
                     <input 
                       type="email" 
                       name="defaultEmail" 
                       value={formData.defaultEmail} 
                       onChange={handleChange} 
-                      className="w-full pl-10 pr-4 py-2.5 border border-slate-200 rounded-xl focus:ring-2 focus:ring-[#004080]/20 focus:border-[#004080] outline-none transition-all text-sm md:text-base"
+                      className="w-full pl-10 pr-4 py-2.5 border border-line rounded-xl focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none transition-all text-sm md:text-base"
                     />
                   </div>
                 </div>
 
                 <div className="space-y-2">
-                  <label className="text-sm font-semibold text-slate-600">Mobile Contact</label>
+                  <label className="text-sm font-semibold text-muted">Mobile Contact</label>
                   <div className="relative">
-                    <Phone className="absolute left-3 top-3 text-slate-400" size={18} />
+                    <Phone className="absolute left-3 top-3 text-subtle" size={18} />
                     <input 
                       name="companyMobile" 
                       value={formData.companyMobile} 
                       onChange={handleChange} 
                       maxLength={12} 
                       placeholder="0XXXXXXXXX or +94XXXXXXXXX" 
-                      className="w-full pl-10 pr-4 py-2.5 border border-slate-200 rounded-xl focus:ring-2 focus:ring-[#004080]/20 focus:border-[#004080] outline-none transition-all text-sm md:text-base"
+                      className="w-full pl-10 pr-4 py-2.5 border border-line rounded-xl focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none transition-all text-sm md:text-base"
                     />
                   </div>
                 </div>
 
                 <div className="space-y-2">
-                  <label className="text-sm font-semibold text-slate-600">WhatsApp Number (Optional)</label>
+                  <label className="text-sm font-semibold text-muted">WhatsApp Number (Optional)</label>
                   <div className="relative">
-                    <Globe className="absolute left-3 top-3 text-slate-400" size={18} />
+                    <Globe className="absolute left-3 top-3 text-subtle" size={18} />
                     <input 
                       name="whatsappNumber" 
                       value={formData.whatsappNumber} 
                       onChange={handleChange} 
                       placeholder="+94 7X XXX XXXX"
-                      className="w-full pl-10 pr-4 py-2.5 border border-slate-200 rounded-xl focus:ring-2 focus:ring-[#004080]/20 focus:border-[#004080] outline-none transition-all text-sm md:text-base"
+                      className="w-full pl-10 pr-4 py-2.5 border border-line rounded-xl focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none transition-all text-sm md:text-base"
                     />
                   </div>
                 </div>
@@ -335,42 +339,42 @@ const SystemSettings: React.FC = () => {
         </div>
 
         {/* Location & Regional */}
-        <div className="bg-white p-5 md:p-8 rounded-2xl shadow-sm border border-slate-200">
-          <h3 className="text-lg font-semibold text-slate-700 mb-6 flex items-center gap-2">
-            <MapPin size={20} className="text-[#004080]" /> Location & Regional
+        <div className="bg-surface p-5 md:p-8 rounded-2xl border border-line">
+          <h3 className="text-lg font-semibold text-foreground mb-6 flex items-center gap-2">
+            <MapPin size={20} className="text-primary" /> Location & Regional
           </h3>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6">
             <div className="space-y-2">
-              <label className="text-sm font-semibold text-slate-600">Country (Optional)</label>
+              <label className="text-sm font-semibold text-muted">Country (Optional)</label>
               <input
                 name="country"
                 value={formData.country}
                 onChange={handleChange}
                 placeholder="e.g. Sri Lanka"
-                className="w-full px-4 py-2.5 border border-slate-200 rounded-xl focus:ring-2 focus:ring-[#004080]/20 focus:border-[#004080] outline-none transition-all text-sm md:text-base"
+                className="w-full px-4 py-2.5 border border-line rounded-xl focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none transition-all text-sm md:text-base"
               />
             </div>
 
             <div className="space-y-2">
-              <label className="text-sm font-semibold text-slate-600">City (Optional)</label>
+              <label className="text-sm font-semibold text-muted">City (Optional)</label>
               <input
                 name="city"
                 value={formData.city}
                 onChange={handleChange}
                 placeholder="e.g. Colombo"
-                className="w-full px-4 py-2.5 border border-slate-200 rounded-xl focus:ring-2 focus:ring-[#004080]/20 focus:border-[#004080] outline-none transition-all text-sm md:text-base"
+                className="w-full px-4 py-2.5 border border-line rounded-xl focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none transition-all text-sm md:text-base"
               />
             </div>
 
             <div className="space-y-2">
-              <label className="text-sm font-semibold text-slate-600">Default Currency</label>
+              <label className="text-sm font-semibold text-muted">Default Currency</label>
               <div className="relative">
                 <select
                   name="currency"
                   value={formData.currency}
                   onChange={handleChange}
-                  className="w-full pl-4 pr-12 py-2.5 border border-slate-200 rounded-xl bg-white appearance-none focus:ring-2 focus:ring-[#004080]/20 focus:border-[#004080] outline-none transition-all text-sm md:text-base"
+                  className="w-full pl-4 pr-12 py-2.5 border border-line rounded-xl bg-surface appearance-none focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none transition-all text-sm md:text-base"
                 >
                   <option value="" disabled>
                     {currencies.length ? 'Select currency' : 'Loading currencies...'}
@@ -384,7 +388,7 @@ const SystemSettings: React.FC = () => {
                 <button
                   type="button"
                   onClick={() => setIsCurrencyModalOpen(true)}
-                  className="absolute right-2 top-1/2 -translate-y-1/2 inline-flex items-center justify-center w-7 h-7  border-slate-200 bg-white text-[#004080] hover:bg-slate-50"
+                  className="absolute right-2 top-1/2 -translate-y-1/2 inline-flex items-center justify-center w-7 h-7 border-line bg-surface text-primary hover:bg-surface-raised"
                   aria-label="Create new currency"
                   title="Create new currency"
                 >
@@ -394,25 +398,25 @@ const SystemSettings: React.FC = () => {
             </div>
 
             <div className="space-y-2">
-              <label className="text-sm font-semibold text-slate-600">Postal Code (Optional)</label>
+              <label className="text-sm font-semibold text-muted">Postal Code (Optional)</label>
               <input
                 name="postalCode"
                 value={formData.postalCode}
                 onChange={handleChange}
                 placeholder="e.g. 10100"
-                className="w-full px-4 py-2.5 border border-slate-200 rounded-xl focus:ring-2 focus:ring-[#004080]/20 focus:border-[#004080] outline-none transition-all text-sm md:text-base"
+                className="w-full px-4 py-2.5 border border-line rounded-xl focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none transition-all text-sm md:text-base"
               />
             </div>
 
             <div className="space-y-2">
-              <label className="text-sm font-semibold text-slate-600">Date Format Preference</label>
+              <label className="text-sm font-semibold text-muted">Date Format Preference</label>
               <div className="relative">
-                <Calendar className="absolute left-3 top-3 text-slate-400" size={18} />
+                <Calendar className="absolute left-3 top-3 text-subtle" size={18} />
                 <select
                   name="dateFormat"
                   value={formData.dateFormat}
                   onChange={handleChange}
-                  className="w-full pl-10 pr-4 py-2.5 border border-slate-200 rounded-xl bg-white appearance-none focus:ring-2 focus:ring-[#004080]/20 focus:border-[#004080] outline-none transition-all text-sm md:text-base"
+                  className="w-full pl-10 pr-4 py-2.5 border border-line rounded-xl bg-surface appearance-none focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none transition-all text-sm md:text-base"
                 >
                   <option value="DD/MM/YYYY">DD/MM/YYYY</option>
                   <option value="MM/DD/YYYY">MM/DD/YYYY</option>
@@ -421,13 +425,13 @@ const SystemSettings: React.FC = () => {
             </div>
 
             <div className="md:col-span-2 space-y-2">
-              <label className="text-sm font-semibold text-slate-600">Full Physical Address</label>
+              <label className="text-sm font-semibold text-muted">Full Physical Address</label>
               <textarea
                 name="address"
                 value={formData.address}
                 onChange={handleChange}
                 rows={3}
-                className="w-full p-4 border border-slate-200 rounded-xl focus:ring-2 focus:ring-[#004080]/20 focus:border-[#004080] outline-none transition-all text-sm md:text-base"
+                className="w-full p-4 border border-line rounded-xl focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none transition-all text-sm md:text-base"
               />
             </div>
           </div>
@@ -438,67 +442,69 @@ const SystemSettings: React.FC = () => {
           <button
             type="button"
             onClick={handleDiscard}
-            className="w-full md:w-auto px-6 py-3 md:py-2.5 rounded-xl text-slate-500 font-semibold hover:bg-slate-100 transition text-sm md:text-base"
+            className="w-full md:w-auto px-6 py-3 md:py-2.5 rounded-xl text-muted font-semibold hover:bg-surface-muted transition text-sm md:text-base"
           >
             Discard
           </button>
           <button
             type="submit"
             disabled={loading}
-            className="w-full md:w-auto px-10 py-3 md:py-2.5 bg-[#004080] text-white rounded-xl font-bold shadow-lg shadow-blue-900/20 hover:bg-[#003060] transition-all disabled:opacity-50 text-sm md:text-base"
+            className="w-full md:w-auto px-10 py-3 md:py-2.5 bg-primary text-on-primary rounded-xl font-bold hover:bg-primary-hover transition-all disabled:opacity-50 text-sm md:text-base"
           >
             {loading ? 'Processing...' : 'Save Configuration'}
           </button>
         </div>
+      </fieldset>
       </form>
 
       {isCurrencyModalOpen && (
         <div
-          className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4"
+          className="fixed inset-0 z-50 flex items-center justify-center bg-overlay p-4"
           onClick={() => setIsCurrencyModalOpen(false)}
         >
           <div
-            className="bg-white rounded-2xl shadow-lg w-full max-w-md"
+            className="bg-surface rounded-2xl w-full max-w-md"
             onClick={(e) => e.stopPropagation()}
           >
-            <div className="p-5 border-b border-slate-200 flex items-center justify-between">
-              <h3 className="text-lg font-semibold text-slate-800">Create New Currency</h3>
+            <div className="p-5 border-b border-line flex items-center justify-between">
+              <h3 className="text-lg font-semibold text-foreground">Create New Currency</h3>
               <button
                 type="button"
                 onClick={() => setIsCurrencyModalOpen(false)}
-                className="px-3 py-1 rounded-lg text-slate-500 hover:bg-slate-100"
+                className="px-3 py-1 rounded-lg text-muted hover:bg-surface-muted"
               >
                 Cancel
               </button>
             </div>
 
             <form onSubmit={handleCreateCurrency} className="p-5 space-y-4">
+        <fieldset disabled={!canEdit} className="space-y-6">
               <div className="space-y-2">
-                <label className="text-sm font-semibold text-slate-600">Currency Name</label>
+                <label className="text-sm font-semibold text-muted">Currency Name</label>
                 <input
                   value={currencyDraft.name}
                   onChange={(e) => setCurrencyDraft((p) => ({ ...p, name: e.target.value }))}
-                  className="w-full px-4 py-2.5 border border-slate-200 rounded-xl focus:ring-2 focus:ring-[#004080]/20 focus:border-[#004080] outline-none transition-all text-sm md:text-base"
+                  className="w-full px-4 py-2.5 border border-line rounded-xl focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none transition-all text-sm md:text-base"
                   placeholder="e.g. Sri Lankan Rupee"
                 />
               </div>
 
               <div className="space-y-2">
-                <label className="text-sm font-semibold text-slate-600">Currency Code</label>
+                <label className="text-sm font-semibold text-muted">Currency Code</label>
                 <input
                   value={currencyDraft.code}
                   onChange={(e) => setCurrencyDraft((p) => ({ ...p, code: e.target.value }))}
-                  className="w-full px-4 py-2.5 border border-slate-200 rounded-xl focus:ring-2 focus:ring-[#004080]/20 focus:border-[#004080] outline-none transition-all text-sm md:text-base"
+                  className="w-full px-4 py-2.5 border border-line rounded-xl focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none transition-all text-sm md:text-base"
                   placeholder="e.g. LKR"
                 />
               </div>
 
               <div className="space-y-2">
-                <label className="text-sm font-semibold text-slate-600">Currency Symbol</label>
+                <label className="text-sm font-semibold text-muted">Currency Symbol</label>
                 <input
                   value={currencyDraft.symbol}
                   onChange={(e) => setCurrencyDraft((p) => ({ ...p, symbol: e.target.value }))}
-                  className="w-full px-4 py-2.5 border border-slate-200 rounded-xl focus:ring-2 focus:ring-[#004080]/20 focus:border-[#004080] outline-none transition-all text-sm md:text-base"
+                  className="w-full px-4 py-2.5 border border-line rounded-xl focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none transition-all text-sm md:text-base"
                   placeholder="e.g. Rs"
                 />
               </div>
@@ -511,7 +517,7 @@ const SystemSettings: React.FC = () => {
                       navigate(`/editCurrency/${formData.currency}`);
                     }
                   }}
-                  className="flex-1 px-4 py-2 rounded-xl text-[#004080] font-semibold border border-[#004080] hover:bg-[#f0f7ff] transition"
+                  className="flex-1 px-4 py-2 rounded-xl text-primary font-semibold border border-primary hover:bg-primary-soft transition"
                   disabled={!formData.currency || creatingCurrency}
                 >
                   Update Currency
@@ -519,7 +525,7 @@ const SystemSettings: React.FC = () => {
                 <button
                   type="button"
                   onClick={() => setIsCurrencyModalOpen(false)}
-                  className="flex-1 px-4 py-2 rounded-xl text-slate-600 font-semibold hover:bg-slate-100 transition"
+                  className="flex-1 px-4 py-2 rounded-xl text-muted font-semibold hover:bg-surface-muted transition"
                   disabled={creatingCurrency}
                 >
                   Cancel
@@ -527,12 +533,13 @@ const SystemSettings: React.FC = () => {
                 <button
                   type="submit"
                   disabled={creatingCurrency}
-                  className="flex-1 px-4 py-2 rounded-xl bg-[#004080] text-white font-bold hover:bg-[#003060] transition disabled:opacity-50"
+                  className="flex-1 px-4 py-2 rounded-xl bg-primary text-on-primary font-bold hover:bg-primary-hover transition disabled:opacity-50"
                 >
                   {creatingCurrency ? 'Creating...' : 'Create'}
                 </button>
               </div>
-            </form>
+            </fieldset>
+      </form>
           </div>
         </div>
       )}

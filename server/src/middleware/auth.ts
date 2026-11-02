@@ -1,6 +1,7 @@
 import { NextFunction, Request, Response } from 'express';
 import jwt from 'jsonwebtoken';
 import User, { IUser } from '../models/User';
+import { resolveRoleAccess } from '../config/rbac';
 
 export interface AuthRequest extends Request {
   user?: IUser;
@@ -37,6 +38,10 @@ export const authenticate = async (req: AuthRequest, res: Response, next: NextFu
       return;
     }
 
+    if (!await resolveRoleAccess(user)) {
+      res.status(403).json({ status: 'error', message: 'An active, valid assigned role is required.' });
+      return;
+    }
     req.user = user;
     next();
   } catch (error) {

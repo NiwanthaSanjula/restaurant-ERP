@@ -32,8 +32,10 @@ import { getUserById, getUsers } from '../controllers/user';
 import { checkVariationInUse, getVariationById, getVariations } from '../controllers/variation';
 import { getWarehouseById, getWarehouses } from '../controllers/warehouse';
 import { getAdjustmentByIdValidator, getAdjustmentSummaryValidators, getAdjustmentsValidators } from '../middleware/adjustmentValidation';
-import { authenticate, AuthRequest } from '../middleware/auth';
+import { authenticate } from '../middleware/auth';
 import { requireAnyPermission, requirePermission } from '../middleware/permissions';
+import { SYSTEM_ROLE_DATA } from '../config/rbac';
+import { getCurrentUser } from '../controllers/auth/currentUser';
 
 const router = express.Router();
 
@@ -43,24 +45,7 @@ router.get('/health', (req, res) => {
 });
 
 // Auth - Current user
-router.get('/auth/me', authenticate, (req: AuthRequest, res) => {
-  if (!req.user) {
-    res.status(401).json({ status: 'error', message: 'User not authenticated' });
-    return;
-  }
-  res.json({ 
-    status: 'success', 
-    data: { 
-      user: { 
-        id: req.user._id, 
-        name: req.user.name, 
-        email: req.user.email, 
-        role: req.user.role,
-        roleId: req.user.roleId
-      } 
-    } 
-  });
-});
+router.get('/auth/me', authenticate, getCurrentUser);
 
 // POS - catalog (categories, brands, items)
 router.get('/pos/catalog', authenticate, requirePermission('managePOS', 'view_pos'), getCatalog);
@@ -74,6 +59,13 @@ router.get('/users', authenticate, requirePermission('manageUsers', 'view_user')
 router.get('/users/:id', authenticate, requirePermission('manageUsers', 'view_user'), getUserById);
 
 // Roles & Permissions
+router.get('/roles/permission-catalog', authenticate, requireAnyPermission([
+  { component: 'manageRolesAndPermissions', action: 'view_role' },
+  { component: 'manageRolesAndPermissions', action: 'create_role' },
+  { component: 'manageRolesAndPermissions', action: 'edit_role' }
+]), (_req, res) => {
+  res.json({ status: 'success', data: SYSTEM_ROLE_DATA });
+});
 router.get('/roles', authenticate, requirePermission('manageRolesAndPermissions', 'view_role'), getRoles);
 router.get('/roles/:id', authenticate, requirePermission('manageRolesAndPermissions', 'view_role'), getRoleById);
 router.get('/permissions', authenticate, requirePermission('manageRolesAndPermissions', 'view_role'), getPermissions);
@@ -82,8 +74,8 @@ router.get('/permissions/component/:component', authenticate, requirePermission(
 // Warehouses
 router.get('/warehouses', ...getWarehouses);
 router.get('/warehouses/:id', ...getWarehouseById);
-router.get('/products', getProducts);
-router.get('/products/:id', getProductById);
+router.get('/products', authenticate, requirePermission('manageProducts', 'read'), getProducts);
+router.get('/products/:id', authenticate, requirePermission('manageProducts', 'read'), getProductById);
 router.get('/baseUnits', getBaseUnits);
 router.get('/baseUnits/:id', getBaseUnitById);
 router.get('/units', getUnits);

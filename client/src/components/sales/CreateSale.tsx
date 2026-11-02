@@ -457,7 +457,7 @@ const CreateSale: React.FC = () => {
   };
 
   return (
-    <div className="min-h-screen bg-[#F8FAFC] pb-32 xl:pb-12">
+    <div className="min-h-screen bg-canvas pb-32 xl:pb-12">
       {loading && <Loader text="Processing..." />}
 
       <div className="max-w-[1600px] mx-auto p-4 sm:p-6 lg:p-10">
@@ -465,15 +465,15 @@ const CreateSale: React.FC = () => {
           <div className="flex items-center gap-4">
             <button
               onClick={() => navigate('/viewSales')}
-              className="w-12 h-12 flex items-center justify-center bg-white border border-slate-200 text-[#1A3E73] hover:bg-slate-50 rounded-2xl shadow-sm transition-all active:scale-95"
+              className="w-12 h-12 flex items-center justify-center bg-surface border border-line text-primary hover:bg-surface-raised rounded-2xl transition-all active:scale-95"
             >
               <ArrowLeft size={24} />
             </button>
             <div className="flex flex-col">
-              <h1 className="text-3xl font-bold text-[#1A3E73] tracking-tight">
+              <h1 className="text-3xl font-bold text-foreground tracking-tight">
                 Create Sale
               </h1>
-              <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest mt-1">
+              <span className="text-[10px] font-black text-subtle uppercase tracking-widest mt-1">
                 Transaction Portal
               </span>
             </div>
@@ -482,21 +482,21 @@ const CreateSale: React.FC = () => {
 
         <form onSubmit={handleSubmit} className="flex flex-col xl:flex-row gap-8 xl:items-start">
           <div className="flex-1 space-y-8 min-w-0">
-            <div className="bg-white rounded-[2.5rem] shadow-xl border border-slate-100 p-6 sm:p-10">
-              <h3 className="text-xs font-black text-[#1A3E73] uppercase tracking-widest mb-8 flex items-center gap-2">
-                <span className="w-1.5 h-4 bg-[#1A3E73] rounded-full" />
+            <div className="bg-surface rounded-[2.5rem] border border-line p-6 sm:p-10">
+              <h3 className="text-xs font-black text-foreground uppercase tracking-widest mb-8 flex items-center gap-2">
+                <span className="w-1.5 h-4 bg-primary rounded-full" />
                 Basic Information
               </h3>
               <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-8">
                 <div className="space-y-3">
-                  <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest">
-                    Warehouse <span className="text-red-500">*</span>
+                  <label className="text-[10px] font-black text-subtle uppercase tracking-widest">
+                    Warehouse <span className="text-danger">*</span>
                   </label>
                   <select
                     value={selectedWarehouseId}
                     onChange={(e) => setSelectedWarehouseId(e.target.value)}
                     required
-                    className="w-full h-14 px-5 border-2 border-[#B9D5F2] rounded-2xl font-bold text-[#1A3E73] focus:border-[#1A3E73] outline-none"
+                    className="w-full h-14 px-5 border-2 border-line-strong rounded-2xl font-bold text-foreground focus:border-primary outline-none"
                   >
                     <option value="">Select Warehouse</option>
                     {warehouses.map((w) => (
@@ -508,8 +508,8 @@ const CreateSale: React.FC = () => {
                 </div>
 
                 <div className="space-y-3">
-                  <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest">
-                    Customer <span className="text-red-500">*</span>
+                  <label className="text-[10px] font-black text-subtle uppercase tracking-widest">
+                    Customer <span className="text-danger">*</span>
                   </label>
                   <div className="relative">
                     <input
@@ -521,18 +521,18 @@ const CreateSale: React.FC = () => {
                       }}
                       placeholder="Search..."
                       required
-                      className="w-full h-14 px-5 border-2 border-[#B9D5F2] rounded-2xl font-bold text-[#1A3E73] focus:border-[#1A3E73] outline-none"
+                      className="w-full h-14 px-5 border-2 border-line-strong rounded-2xl font-bold text-foreground focus:border-primary outline-none"
                     />
                     {customers.length > 0 && (
-                      <div className="absolute z-50 w-full mt-2 bg-white border border-slate-100 rounded-[1.5rem] shadow-2xl max-h-60 overflow-auto py-3">
+                      <div className="absolute z-50 w-full mt-2 bg-surface border border-line rounded-[1.5rem] shadow-elevated max-h-60 overflow-auto py-3">
                         {customers.map((c) => (
                           <div
                             key={c._id}
                             onClick={() => handleCustomerSelect(c)}
-                            className="px-5 py-3 hover:bg-slate-50 cursor-pointer transition-colors"
+                            className="px-5 py-3 hover:bg-surface-raised cursor-pointer transition-colors"
                           >
-                            <div className="font-bold text-[#1A3E73]">{c.name}</div>
-                            <div className="text-[10px] text-slate-400 font-bold">
+                            <div className="font-bold text-foreground">{c.name}</div>
+                            <div className="text-[10px] text-subtle font-bold">
                               {c.mobile}
                             </div>
                           </div>
@@ -543,20 +543,20 @@ const CreateSale: React.FC = () => {
                 </div>
 
                 <div className="space-y-3">
-                  <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest">
-                    Date <span className="text-red-500">*</span>
+                  <label className="text-[10px] font-black text-subtle uppercase tracking-widest">
+                    Date <span className="text-danger">*</span>
                   </label>
                   <input
                     type="date"
                     value={date}
                     onChange={(e) => setDate(e.target.value)}
                     required
-                    className="w-full h-14 px-5 border-2 border-[#B9D5F2] rounded-2xl font-bold text-[#1A3E73] focus:border-[#1A3E73] outline-none"
+                    className="w-full h-14 px-5 border-2 border-line-strong rounded-2xl font-bold text-foreground focus:border-primary outline-none"
                   />
                 </div>
 
                 <div className="space-y-3">
-                  <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest">
+                  <label className="text-[10px] font-black text-subtle uppercase tracking-widest">
                     Business Mode
                   </label>
                   <select
@@ -564,7 +564,7 @@ const CreateSale: React.FC = () => {
                     onChange={(e) =>
                       setBusinessType(e.target.value as 'retail' | 'restaurant')
                     }
-                    className="w-full h-14 px-5 border-2 border-[#B9D5F2] rounded-2xl font-bold text-[#1A3E73] focus:border-[#1A3E73] outline-none"
+                    className="w-full h-14 px-5 border-2 border-line-strong rounded-2xl font-bold text-foreground focus:border-primary outline-none"
                   >
                     <option value="retail">Retail</option>
                     <option value="restaurant">Restaurant</option>
@@ -572,7 +572,7 @@ const CreateSale: React.FC = () => {
                 </div>
 
                 <div className="space-y-3">
-                  <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest">
+                  <label className="text-[10px] font-black text-subtle uppercase tracking-widest">
                     Order Status
                   </label>
                   <select
@@ -580,7 +580,7 @@ const CreateSale: React.FC = () => {
                     onChange={(e) =>
                       setStatus(e.target.value as 'ordered' | 'pending' | 'completed')
                     }
-                    className="w-full h-14 px-5 border-2 border-[#B9D5F2] rounded-2xl font-bold text-[#1A3E73] focus:border-[#1A3E73] outline-none"
+                    className="w-full h-14 px-5 border-2 border-line-strong rounded-2xl font-bold text-foreground focus:border-primary outline-none"
                   >
                     <option value="completed">Completed</option>
                     <option value="pending">Pending</option>
@@ -590,9 +590,9 @@ const CreateSale: React.FC = () => {
               </div>
             </div>
 
-            <div className="bg-white rounded-[2.5rem] shadow-xl border border-slate-100 overflow-hidden">
-              <div className="p-8 sm:p-10 border-b border-slate-50 flex flex-col sm:flex-row justify-between items-center gap-6">
-                <h3 className="text-2xl font-black text-[#1A3E73]">Products</h3>
+            <div className="bg-surface rounded-[2.5rem] border border-line overflow-hidden">
+              <div className="p-8 sm:p-10 border-b border-line flex flex-col sm:flex-row justify-between items-center gap-6">
+                <h3 className="text-2xl font-black text-foreground">Products</h3>
                 <button
                   type="button"
                   onClick={() => {
@@ -602,7 +602,7 @@ const CreateSale: React.FC = () => {
                     }
                     setShowProductModal(true);
                   }}
-                  className="w-full sm:w-auto px-8 py-4 bg-[#1A3E73] text-white rounded-2xl font-black text-xs uppercase tracking-widest hover:bg-[#0F2A55] transition-all shadow-lg active:scale-95 flex items-center justify-center gap-3"
+                  className="w-full sm:w-auto px-8 py-4 bg-primary text-on-primary rounded-2xl font-black text-xs uppercase tracking-widest hover:bg-primary-hover transition-all active:scale-95 flex items-center justify-center gap-3"
                 >
                   <Plus size={18} strokeWidth={3} /> Add Product
                 </button>
@@ -610,7 +610,7 @@ const CreateSale: React.FC = () => {
               {products.length > 0 ? (
                 <div className="overflow-x-auto">
                   <table className="w-full text-left min-w-[1000px]">
-                    <thead className="bg-[#F8FAFC] text-[10px] font-black text-slate-400 uppercase tracking-widest border-b border-slate-100">
+                    <thead className="bg-surface-raised text-[10px] font-black text-subtle uppercase tracking-widest border-b border-line">
                       <tr>
                         <th className="px-10 py-6">Product</th>
                         <th className="px-6 py-6 text-center">Stock</th>
@@ -623,14 +623,14 @@ const CreateSale: React.FC = () => {
                         <th className="px-10 py-6 text-center">Action</th>
                       </tr>
                     </thead>
-                    <tbody className="divide-y divide-slate-50">
+                    <tbody className="divide-y divide-line">
                       {products.map((product, index) => (
-                        <tr key={index} className="hover:bg-slate-50/50 transition-all">
-                          <td className="p-6 font-bold text-[#1A3E73]">
+                        <tr key={index} className="hover:bg-surface-raised/50 transition-all">
+                          <td className="p-6 font-bold text-foreground">
                             <div>{product.productName}</div>
                             {businessType === 'restaurant' &&
                               product.isInventory === false && (
-                                <div className="mt-1 text-[10px] font-semibold text-amber-800 normal-case">
+                                <div className="mt-1 text-[10px] font-semibold text-warning normal-case">
                                   {product.recipeIngredientCount == null
                                     ? 'Recipe status unknown'
                                     : product.recipeIngredientCount > 0
@@ -645,7 +645,7 @@ const CreateSale: React.FC = () => {
                                 </div>
                               )}
                           </td>
-                          <td className="p-6 text-center text-[#3B82F6] font-black">
+                          <td className="p-6 text-center text-primary font-black">
                             {product.isWeight
                               ? Number(product.stockQtyAtSale).toFixed(2)
                               : Math.floor(product.stockQtyAtSale)}
@@ -665,13 +665,13 @@ const CreateSale: React.FC = () => {
                                   ? undefined
                                   : maxSaleQty(product)
                               }
-                              className="w-20 p-2 border-2 border-[#B9D5F2] rounded-xl text-center font-bold text-[#1A3E73] focus:outline-none focus:border-[#1A3E73]"
+                              className="w-20 p-2 border-2 border-line-strong rounded-xl text-center font-bold text-foreground focus:outline-none focus:border-primary"
                             />
                           </td>
-                          <td className="p-6 text-center text-[#64748B] font-medium">
+                          <td className="p-6 text-center text-muted font-medium">
                             {product.variation || '—'}
                           </td>
-                          <td className="p-6 text-center font-black text-[#1A3E73]">{product.price.toFixed(2)}</td>
+                          <td className="p-6 text-center font-black text-foreground">{product.price.toFixed(2)}</td>
                           <td className="p-6 text-center">
                             <input
                               type="number"
@@ -680,25 +680,25 @@ const CreateSale: React.FC = () => {
                                 handleUpdateProductTax(index, Math.max(0, parseFloat(e.target.value) || 0))
                               }
                               min={0}
-                              className="w-20 p-2 border-2 border-[#B9D5F2] rounded-xl text-center font-bold text-[#1A3E73] focus:outline-none focus:border-[#1A3E73]"
+                              className="w-20 p-2 border-2 border-line-strong rounded-xl text-center font-bold text-foreground focus:outline-none focus:border-primary"
                             />
                           </td>
                           <td className="p-6 text-center">
-                            <div className="inline-flex items-baseline gap-1 justify-center text-[#1A3E73] font-bold tabular-nums">
+                            <div className="inline-flex items-baseline gap-1 justify-center text-foreground font-bold tabular-nums">
                               <span>{product.discount.toFixed(2)}</span>
-                              <span className="text-[10px] font-black text-slate-400 uppercase">
+                              <span className="text-[10px] font-black text-subtle uppercase">
                                 {product.discountType === 'percentage' ? '%' : 'fixed'}
                               </span>
                             </div>
                           </td>
-                          <td className="p-6 text-right font-black text-[#3B82F6]">
+                          <td className="p-6 text-right font-black text-primary">
                             {product.subtotal.toFixed(2)}
                           </td>
                           <td className="p-6 text-center">
                             <button
                               type="button"
                               onClick={() => handleRemoveProduct(index)}
-                              className="text-red-400 hover:text-red-600 transition"
+                              className="text-danger hover:text-danger transition"
                             >
                               <Trash2 size={18} />
                             </button>
@@ -709,7 +709,7 @@ const CreateSale: React.FC = () => {
                   </table>
                 </div>
               ) : (
-                <div className="p-8 text-center text-[#64748B] font-bold">
+                <div className="p-8 text-center text-muted font-bold">
                   No products added. Click "Add Product" to start.
                 </div>
               )}
@@ -717,14 +717,14 @@ const CreateSale: React.FC = () => {
 
           {/* Discount, Tax, Shipping and Payment Fields */}
           <div className="mt-8 grid grid-cols-1 md:grid-cols-2 gap-6">
-            <div className="bg-white rounded-[32px] shadow-sm border border-slate-100 p-6">
-              <h3 className="text-lg font-black text-[#1A3E73] mb-4">Discount & Tax</h3>
+            <div className="bg-surface rounded-2xl border border-line p-6">
+              <h3 className="text-lg font-black text-foreground mb-4">Discount & Tax</h3>
               <div className="space-y-4">
                 <div className="grid grid-cols-2 gap-4">
                   <div>
-                    <label className="text-xs font-black text-[#64748B] uppercase tracking-widest mb-2 block">Discount Type</label>
+                    <label className="text-xs font-black text-muted uppercase tracking-widest mb-2 block">Discount Type</label>
                     <select 
-                      className="w-full p-3 border-2 border-[#B9D5F2] rounded-xl font-bold text-[#1A3E73] focus:outline-none focus:border-[#1A3E73]"
+                      className="w-full p-3 border-2 border-line-strong rounded-xl font-bold text-foreground focus:outline-none focus:border-primary"
                       value={saleDiscountType} 
                       onChange={(e) => setSaleDiscountType(e.target.value as 'fixed' | 'percentage')}
                     >
@@ -733,7 +733,7 @@ const CreateSale: React.FC = () => {
                     </select>
                   </div>
                   <div>
-                    <label className="text-xs font-black text-[#64748B] uppercase tracking-widest mb-2 block">
+                    <label className="text-xs font-black text-muted uppercase tracking-widest mb-2 block">
                       Discount {saleDiscountType === 'percentage' && '(%)'}
                     </label>
                     <input 
@@ -741,7 +741,7 @@ const CreateSale: React.FC = () => {
                       step="0.01" 
                       min="0" 
                       max={saleDiscountType === 'percentage' ? 100 : undefined}
-                      className="w-full p-3 border-2 border-[#B9D5F2] rounded-xl font-bold text-[#1A3E73] focus:outline-none focus:border-[#1A3E73]" 
+                      className="w-full p-3 border-2 border-line-strong rounded-xl font-bold text-foreground focus:outline-none focus:border-primary"
                       value={saleDiscountValue || ''} 
                       onChange={(e) => {
                         const val = parseFloat(e.target.value) || 0;
@@ -754,13 +754,13 @@ const CreateSale: React.FC = () => {
                 </div>
                 <div className="grid grid-cols-2 gap-4">
                   <div>
-                    <label className="text-xs font-black text-[#64748B] uppercase tracking-widest mb-2 block">Tax (%)</label>
+                    <label className="text-xs font-black text-muted uppercase tracking-widest mb-2 block">Tax (%)</label>
                     <input 
                       type="number" 
                       step="0.01" 
                       min="0" 
                       max={100}
-                      className="w-full p-3 border-2 border-[#B9D5F2] rounded-xl font-bold text-[#1A3E73] focus:outline-none focus:border-[#1A3E73]" 
+                      className="w-full p-3 border-2 border-line-strong rounded-xl font-bold text-foreground focus:outline-none focus:border-primary"
                       value={saleTaxValue || ''} 
                       onChange={(e) => {
                         const val = parseFloat(e.target.value) || 0;
@@ -770,12 +770,12 @@ const CreateSale: React.FC = () => {
                     />
                   </div>
                   <div>
-                    <label className="text-xs font-black text-[#64748B] uppercase tracking-widest mb-2 block">Shipping Cost</label>
+                    <label className="text-xs font-black text-muted uppercase tracking-widest mb-2 block">Shipping Cost</label>
                     <input 
                       type="number" 
                       step="0.01" 
                       min="0"
-                      className="w-full p-3 border-2 border-[#B9D5F2] rounded-xl font-bold text-[#1A3E73] focus:outline-none focus:border-[#1A3E73]" 
+                      className="w-full p-3 border-2 border-line-strong rounded-xl font-bold text-foreground focus:outline-none focus:border-primary"
                       value={shippingCost || ''} 
                       onChange={(e) => setShippingCost(Math.max(0, parseFloat(e.target.value) || 0))} 
                       placeholder="0.00"
@@ -785,61 +785,61 @@ const CreateSale: React.FC = () => {
               </div>
             </div>
 
-            <div className="bg-white rounded-[32px] shadow-sm border border-slate-100 p-6">
-              <h3 className="text-lg font-black text-[#1A3E73] mb-4">Payment Information</h3>
+            <div className="bg-surface rounded-2xl border border-line p-6">
+              <h3 className="text-lg font-black text-foreground mb-4">Payment Information</h3>
               <div className="space-y-4">
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                   <div>
-                    <label className="text-xs font-black text-[#64748B] uppercase tracking-widest mb-2 block">Cash Amount</label>
+                    <label className="text-xs font-black text-muted uppercase tracking-widest mb-2 block">Cash Amount</label>
                     <input
                       type="number"
                       step="0.01"
                       min="0"
                       value={cashAmount || ''}
                       onChange={(e) => setCashAmount(Math.max(0, parseFloat(e.target.value) || 0))}
-                      className="w-full p-3 border-2 border-[#B9D5F2] rounded-xl font-bold text-[#1A3E73] focus:outline-none focus:border-[#1A3E73]"
+                      className="w-full p-3 border-2 border-line-strong rounded-xl font-bold text-foreground focus:outline-none focus:border-primary"
                       placeholder="0.00"
                     />
                   </div>
                   <div>
-                    <label className="text-xs font-black text-[#64748B] uppercase tracking-widest mb-2 block">Card Amount</label>
+                    <label className="text-xs font-black text-muted uppercase tracking-widest mb-2 block">Card Amount</label>
                     <input
                       type="number"
                       step="0.01"
                       min="0"
                       value={cardAmount || ''}
                       onChange={(e) => setCardAmount(Math.max(0, parseFloat(e.target.value) || 0))}
-                      className="w-full p-3 border-2 border-[#B9D5F2] rounded-xl font-bold text-[#1A3E73] focus:outline-none focus:border-[#1A3E73]"
+                      className="w-full p-3 border-2 border-line-strong rounded-xl font-bold text-foreground focus:outline-none focus:border-primary"
                       placeholder="0.00"
                     />
                   </div>
                   <div>
-                    <label className="text-xs font-black text-[#64748B] uppercase tracking-widest mb-2 block">Bank Transfer Amount</label>
+                    <label className="text-xs font-black text-muted uppercase tracking-widest mb-2 block">Bank Transfer Amount</label>
                     <input
                       type="number"
                       step="0.01"
                       min="0"
                       value={bankTransferAmount || ''}
                       onChange={(e) => setBankTransferAmount(Math.max(0, parseFloat(e.target.value) || 0))}
-                      className="w-full p-3 border-2 border-[#B9D5F2] rounded-xl font-bold text-[#1A3E73] focus:outline-none focus:border-[#1A3E73]"
+                      className="w-full p-3 border-2 border-line-strong rounded-xl font-bold text-foreground focus:outline-none focus:border-primary"
                       placeholder="0.00"
                     />
                   </div>
                 </div>
 
                 <div>
-                  <label className="text-xs font-black text-[#64748B] uppercase tracking-widest mb-2 block">Balance</label>
-                  <div className="px-4 py-3 bg-[#F8FAFC] border-2 border-[#B9D5F2] rounded-xl font-bold text-[#1A3E73]">
+                  <label className="text-xs font-black text-muted uppercase tracking-widest mb-2 block">Balance</label>
+                  <div className="px-4 py-3 bg-surface-raised border-2 border-line-strong rounded-xl font-bold text-foreground">
                     {balance.toFixed(2)}
                   </div>
                 </div>
                 <div>
-                  <label className="text-xs font-black text-[#64748B] uppercase tracking-widest mb-2 block">Payment Status</label>
-                  <div className="px-4 py-3 bg-[#F8FAFC] border-2 border-[#B9D5F2] rounded-xl">
+                  <label className="text-xs font-black text-muted uppercase tracking-widest mb-2 block">Payment Status</label>
+                  <div className="px-4 py-3 bg-surface-raised border-2 border-line-strong rounded-xl">
                     <span className={`font-bold text-lg ${
-                      paymentStatus === 'paid' ? 'text-green-600' :
-                      paymentStatus === 'partial' ? 'text-yellow-600' :
-                      'text-red-600'
+                      paymentStatus === 'paid' ? 'text-secondary' :
+                      paymentStatus === 'partial' ? 'text-warning' :
+                      'text-danger'
                     }`}>
                       {paymentStatus.charAt(0).toUpperCase() + paymentStatus.slice(1)}
                     </span>
@@ -851,7 +851,7 @@ const CreateSale: React.FC = () => {
 
           {/* Footer / Summary */}
           <div className="mt-8 flex justify-end">
-            <div className="bg-[#1A3E73] p-8 rounded-[32px] w-full md:w-1/3 text-white shadow-2xl">
+            <div className="bg-primary p-8 rounded-2xl w-full md:w-1/3 text-on-primary shadow-elevated">
               <div className="space-y-3 mb-6">
                 <div className="flex justify-between items-center">
                   <span className="opacity-60 text-xs font-bold uppercase tracking-widest">Total</span>
@@ -863,9 +863,9 @@ const CreateSale: React.FC = () => {
                     <span className="text-lg font-black">{balance.toFixed(2)}</span>
                   </div>
                 )}
-                <div className="border-t border-white/20 pt-3 flex justify-between items-center">
+                <div className="border-t border-line/20 pt-3 flex justify-between items-center">
                   <span className="opacity-60 text-xs font-bold uppercase tracking-widest">Profit</span>
-                  <span className={`text-2xl font-black ${profit >= 0 ? 'text-green-300' : 'text-red-300'}`}>
+                  <span className={`text-2xl font-black ${profit >= 0 ? 'text-secondary' : 'text-danger'}`}>
                     {profit.toFixed(2)}
                   </span>
                 </div>
@@ -875,8 +875,8 @@ const CreateSale: React.FC = () => {
                   type="submit"
                   className={`w-full py-4 rounded-2xl font-black flex items-center justify-center gap-2 transition-all ${
                     status === 'completed'
-                      ? 'bg-green-600 hover:bg-green-700 text-white'
-                      : 'bg-[#3B82F6] hover:bg-[#2563EB] text-white'
+                      ? 'bg-secondary hover:bg-secondary-hover text-on-secondary'
+                      : 'bg-primary hover:bg-primary-hover text-on-primary'
                   }`}
                 >
                   Create Sale
@@ -884,7 +884,7 @@ const CreateSale: React.FC = () => {
                 <button
                   type="button"
                   onClick={() => navigate('/viewSales')}
-                  className="w-full py-3 bg-white/10 text-white rounded-2xl font-bold hover:bg-white/20 transition-all"
+                  className="w-full py-3 bg-surface-muted text-foreground rounded-2xl font-bold hover:bg-surface-muted transition-all"
                 >
                   Cancel
                 </button>

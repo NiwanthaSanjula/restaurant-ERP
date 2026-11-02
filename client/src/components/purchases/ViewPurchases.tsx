@@ -246,18 +246,18 @@ const ViewPurchases: React.FC = () => {
 
   const getStatusColor = (status: string) => {
     switch (status) {
-      case 'Received': return 'bg-green-100 text-green-800';
-      case 'Pending': return 'bg-purple-100 text-purple-800';
-      default: return 'bg-gray-100 text-gray-800';
+      case 'Received': return 'bg-secondary-soft text-secondary';
+      case 'Pending': return 'bg-violet-soft text-violet-status';
+      default: return 'bg-surface-muted text-foreground';
     }
   };
 
   const getPaymentStatusColor = (status: string) => {
     switch (status) {
-      case 'Paid': return 'bg-green-100 text-green-800';
-      case 'Partial': return 'bg-yellow-100 text-yellow-800';
-      case 'Unpaid': return 'bg-red-100 text-red-800';
-      default: return 'bg-gray-100 text-gray-800';
+      case 'Paid': return 'bg-secondary-soft text-secondary';
+      case 'Partial': return 'bg-warning-soft text-warning';
+      case 'Unpaid': return 'bg-danger-soft text-danger';
+      default: return 'bg-surface-muted text-foreground';
     }
   };
 
@@ -336,25 +336,25 @@ const ViewPurchases: React.FC = () => {
   const totalDue = purchases.reduce((sum, p) => sum + (p.due || 0), 0);
 
   return (
-    <div className="p-8 bg-[#F8FAFC] min-h-screen">
+    <div className="p-8 bg-canvas min-h-screen">
       <div className="flex justify-between items-center mb-8">
         <div>
-          <h1 className="text-4xl font-black text-[#1A3E73] mb-2">Purchases</h1>
-          <p className="text-[#64748B] font-bold">View all purchase transactions</p>
+          <h1 className="text-4xl font-black text-foreground mb-2">Purchases</h1>
+          <p className="text-muted font-bold">View all purchase transactions</p>
         </div>
         <div className="flex items-center gap-4">
           {selectedIds.length > 0 && (
             <button
               type="button"
               onClick={() => setShowBulkDeleteConfirm(true)}
-              className="bg-red-600 text-white px-6 py-3 rounded-lg hover:bg-red-700 font-black flex items-center gap-2 transition"
+              className="bg-danger text-on-danger px-6 py-3 rounded-lg hover:bg-danger-hover font-black flex items-center gap-2 transition"
             >
               <Trash2 size={20} /> Delete Multiple ({selectedIds.length})
             </button>
           )}
           <Link
             to="/createPurchase"
-            className="bg-[#1A3E73] text-white px-6 py-3 rounded-lg hover:bg-[#0F2A55] font-black flex items-center gap-2 transition"
+            className="bg-primary text-on-primary px-6 py-3 rounded-lg hover:bg-primary-hover font-black flex items-center gap-2 transition"
           >
             <Plus size={20} /> Create Purchase
           </Link>
@@ -364,15 +364,15 @@ const ViewPurchases: React.FC = () => {
       {/* Filters */}
       <div className="grid grid-cols-4 gap-4 mb-8">
         <div>
-          <label className="block text-sm font-black text-[#1A3E73] mb-2">Search</label>
+          <label className="block text-sm font-black text-foreground mb-2">Search</label>
           <SearchBar onSearch={setSearchQuery} placeholder="Search purchases..." />
         </div>
         <div>
-          <label className="block text-sm font-black text-[#1A3E73] mb-2">Supplier</label>
+          <label className="block text-sm font-black text-foreground mb-2">Supplier</label>
           <select
             value={filterSupplier}
             onChange={e => setFilterSupplier(e.target.value)}
-            className="w-full px-4 py-2 border border-slate-200 rounded-lg focus:outline-none focus:border-[#1A3E73] bg-white"
+            className="w-full px-4 py-2 border border-line rounded-lg focus:outline-none focus:border-primary bg-surface"
           >
             <option value="">All Suppliers</option>
             {suppliers.map((s: any) => (
@@ -381,11 +381,11 @@ const ViewPurchases: React.FC = () => {
           </select>
         </div>
         <div>
-          <label className="block text-sm font-black text-[#1A3E73] mb-2">Warehouse</label>
+          <label className="block text-sm font-black text-foreground mb-2">Warehouse</label>
           <select
             value={filterWarehouse}
             onChange={e => setFilterWarehouse(e.target.value)}
-            className="w-full px-4 py-2 border border-slate-200 rounded-lg focus:outline-none focus:border-[#1A3E73] bg-white"
+            className="w-full px-4 py-2 border border-line rounded-lg focus:outline-none focus:border-primary bg-surface"
           >
             <option value="">All Warehouses</option>
             {warehouses.map((w: any) => (
@@ -394,69 +394,69 @@ const ViewPurchases: React.FC = () => {
           </select>
         </div>
         <div className="date-dropdown-container relative">
-          <label className="block text-sm font-black text-[#1A3E73] mb-2">Select Date</label>
+          <label className="block text-sm font-black text-foreground mb-2">Select Date</label>
           <div className="relative">
             <button
               type="button"
               onClick={() => setShowDateDropdown(!showDateDropdown)}
-              className="w-full px-4 py-2 border border-slate-200 rounded-lg focus:outline-none focus:border-[#1A3E73] bg-white flex items-center justify-between text-left"
+              className="w-full px-4 py-2 border border-line rounded-lg focus:outline-none focus:border-primary bg-surface flex items-center justify-between text-left"
             >
-              <span className={filterDate ? 'text-[#1A3E73]' : 'text-[#64748B]'}>
+              <span className={filterDate ? 'text-primary' : 'text-muted'}>
                 {getDisplayDateText()}
               </span>
-              <Calendar size={18} className="text-[#64748B]" />
+              <Calendar size={18} className="text-muted" />
             </button>
             {showDateDropdown && (
-              <div className="absolute top-full left-0 mt-1 z-50 bg-white border border-slate-200 rounded-lg shadow-lg min-w-[200px] py-2">
-                <div className="before:absolute before:-top-2 before:left-6 before:w-4 before:h-4 before:bg-white before:border-l before:border-t before:border-slate-200 before:rotate-45"></div>
+              <div className="absolute top-full left-0 mt-1 z-50 bg-surface border border-line rounded-lg min-w-[200px] py-2">
+                <div className="before:absolute before:-top-2 before:left-6 before:w-4 before:h-4 before:bg-surface before:border-l before:border-t before:border-line before:rotate-45"></div>
                 <button
                   type="button"
                   onClick={() => handleDateRangeSelect('Today')}
-                  className="w-full px-4 py-2 text-left text-sm text-[#1A3E73] hover:bg-slate-50"
+                  className="w-full px-4 py-2 text-left text-sm text-primary hover:bg-surface-raised"
                 >
                   Today
                 </button>
                 <button
                   type="button"
                   onClick={() => handleDateRangeSelect('This Week')}
-                  className="w-full px-4 py-2 text-left text-sm text-[#1A3E73] hover:bg-slate-50"
+                  className="w-full px-4 py-2 text-left text-sm text-primary hover:bg-surface-raised"
                 >
                   This Week
                 </button>
                 <button
                   type="button"
                   onClick={() => handleDateRangeSelect('Last Week')}
-                  className="w-full px-4 py-2 text-left text-sm text-[#1A3E73] hover:bg-slate-50"
+                  className="w-full px-4 py-2 text-left text-sm text-primary hover:bg-surface-raised"
                 >
                   Last Week
                 </button>
                 <button
                   type="button"
                   onClick={() => handleDateRangeSelect('This Month')}
-                  className="w-full px-4 py-2 text-left text-sm text-[#1A3E73] hover:bg-slate-50"
+                  className="w-full px-4 py-2 text-left text-sm text-primary hover:bg-surface-raised"
                 >
                   This Month
                 </button>
                 <button
                   type="button"
                   onClick={() => handleDateRangeSelect('Last Month')}
-                  className="w-full px-4 py-2 text-left text-sm text-[#1A3E73] hover:bg-slate-50"
+                  className="w-full px-4 py-2 text-left text-sm text-primary hover:bg-surface-raised"
                 >
                   Last Month
                 </button>
-                <div className="border-t border-slate-200 my-1"></div>
+                <div className="border-t border-line my-1"></div>
                 <button
                   type="button"
                   onClick={() => handleDateRangeSelect('Custom Range')}
-                  className="w-full px-4 py-2 text-left text-sm text-[#1A3E73] hover:bg-slate-50"
+                  className="w-full px-4 py-2 text-left text-sm text-primary hover:bg-surface-raised"
                 >
                   Custom Range
                 </button>
-                <div className="border-t border-slate-200 my-1"></div>
+                <div className="border-t border-line my-1"></div>
                 <button
                   type="button"
                   onClick={() => handleDateRangeSelect('Reset')}
-                  className="w-full px-4 py-2 text-center text-sm text-[#64748B] hover:bg-slate-50 font-medium"
+                  className="w-full px-4 py-2 text-center text-sm text-muted hover:bg-surface-raised font-medium"
                 >
                   Reset
                 </button>
@@ -466,21 +466,21 @@ const ViewPurchases: React.FC = () => {
           {selectedDateRange === 'Custom Range' && (
             <div className="mt-2 grid grid-cols-2 gap-2">
               <div>
-                <label className="block text-xs text-[#64748B] mb-1">Start Date</label>
+                <label className="block text-xs text-muted mb-1">Start Date</label>
                 <input
                   type="date"
                   value={filterDate}
                   onChange={e => setFilterDate(e.target.value)}
-                  className="w-full px-3 py-1.5 text-sm border border-slate-200 rounded-lg focus:outline-none focus:border-[#1A3E73] bg-white"
+                  className="w-full px-3 py-1.5 text-sm border border-line rounded-lg focus:outline-none focus:border-primary bg-surface"
                 />
               </div>
               <div>
-                <label className="block text-xs text-[#64748B] mb-1">End Date</label>
+                <label className="block text-xs text-muted mb-1">End Date</label>
                 <input
                   type="date"
                   value={filterDateEnd}
                   onChange={e => setFilterDateEnd(e.target.value)}
-                  className="w-full px-3 py-1.5 text-sm border border-slate-200 rounded-lg focus:outline-none focus:border-[#1A3E73] bg-white"
+                  className="w-full px-3 py-1.5 text-sm border border-line rounded-lg focus:outline-none focus:border-primary bg-surface"
                 />
               </div>
             </div>
@@ -491,11 +491,11 @@ const ViewPurchases: React.FC = () => {
       {/* Additional Filters */}
       <div className="grid grid-cols-2 gap-4 mb-8">
         <div>
-          <label className="block text-sm font-black text-[#1A3E73] mb-2">Status</label>
+          <label className="block text-sm font-black text-foreground mb-2">Status</label>
           <select
             value={filterStatus}
             onChange={e => setFilterStatus(e.target.value)}
-            className="w-full px-4 py-2 border border-slate-200 rounded-lg focus:outline-none focus:border-[#1A3E73] bg-white"
+            className="w-full px-4 py-2 border border-line rounded-lg focus:outline-none focus:border-primary bg-surface"
           >
             <option value="">All Statuses</option>
             <option value="Received">Received</option>
@@ -503,11 +503,11 @@ const ViewPurchases: React.FC = () => {
           </select>
         </div>
         <div>
-          <label className="block text-sm font-black text-[#1A3E73] mb-2">Payment Status</label>
+          <label className="block text-sm font-black text-foreground mb-2">Payment Status</label>
           <select
             value={filterPaymentStatus}
             onChange={e => setFilterPaymentStatus(e.target.value)}
-            className="w-full px-4 py-2 border border-slate-200 rounded-lg focus:outline-none focus:border-[#1A3E73] bg-white"
+            className="w-full px-4 py-2 border border-line rounded-lg focus:outline-none focus:border-primary bg-surface"
           >
             <option value="">All Payment Statuses</option>
             <option value="Paid">Paid</option>
@@ -518,14 +518,14 @@ const ViewPurchases: React.FC = () => {
       </div>
 
       {/* Purchases Table */}
-      <div className="bg-white rounded-[28px] shadow-sm border border-slate-100 overflow-hidden">
+      <div className="bg-surface rounded-2xl border border-line overflow-hidden">
         <table className="w-full text-left">
-          <thead className="bg-[#F1F5F9] text-[#64748B] text-[10px] uppercase tracking-[0.2em] font-black">
+          <thead className="bg-surface-muted text-muted text-[10px] uppercase tracking-[0.2em] font-black">
             <tr>
               <th className="p-6">
                 <input
                   type="checkbox"
-                  className="w-4 h-4 rounded border-slate-300 text-[#1A3E73] focus:ring-[#1A3E73] focus:ring-2 cursor-pointer accent-[#1A3E73]"
+                  className="w-4 h-4 rounded border-line-strong text-foreground focus:ring-primary focus:ring-2 cursor-pointer accent-primary"
                   checked={paginatedPurchases.length > 0 && selectedIds.length === paginatedPurchases.length}
                   onChange={toggleSelectAll}
                 />
@@ -543,35 +543,35 @@ const ViewPurchases: React.FC = () => {
               <th className="p-6 text-center">Action</th>
             </tr>
           </thead>
-          <tbody className="divide-y divide-slate-50">
+          <tbody className="divide-y divide-line">
             {loading ? (
               <tr>
-                <td colSpan={12} className="p-6 text-center text-[#64748B]">Loading...</td>
+                <td colSpan={12} className="p-6 text-center text-muted">Loading...</td>
               </tr>
             ) : paginatedPurchases.length === 0 ? (
               <tr>
-                <td colSpan={12} className="p-6 text-center text-[#64748B] italic">No purchases found</td>
+                <td colSpan={12} className="p-6 text-center text-muted italic">No purchases found</td>
               </tr>
             ) : (
               paginatedPurchases.map((purchase) => (
-                <tr key={purchase._id} className="hover:bg-slate-50/50 transition-colors">
+                <tr key={purchase._id} className="hover:bg-surface-raised/50 transition-colors">
                   <td className="p-6">
                     <input
                       type="checkbox"
-                      className="w-4 h-4 rounded border-slate-300 text-[#1A3E73] focus:ring-[#1A3E73] focus:ring-2 cursor-pointer accent-[#1A3E73]"
+                      className="w-4 h-4 rounded border-line-strong text-foreground focus:ring-primary focus:ring-2 cursor-pointer accent-primary"
                       checked={selectedIds.includes(purchase._id)}
                       onChange={() => handleSelectItem(purchase._id)}
                     />
                   </td>
                   <td className="p-6">
-                    <span className="font-bold text-[#55AAFF] bg-[#E0F2FE] px-3 py-1 rounded">
+                    <span className="font-bold text-primary bg-surface-muted px-3 py-1 rounded">
                       {purchase.purchaseId || purchase._id}
                     </span>
                   </td>
-                  <td className="p-6 font-semibold text-[#1A3E73]">
+                  <td className="p-6 font-semibold text-foreground">
                     {purchase.supplierId?.name || 'N/A'}
                   </td>
-                  <td className="p-6 font-semibold text-[#1A3E73]">
+                  <td className="p-6 font-semibold text-foreground">
                     {purchase.warehouseId?.name || 'N/A'}
                   </td>
                   <td className="p-6 text-center">
@@ -579,13 +579,13 @@ const ViewPurchases: React.FC = () => {
                       {purchase.purchaseStatus}
                     </span>
                   </td>
-                  <td className="p-6 text-right font-black text-[#0B2C5D]">
+                  <td className="p-6 text-right font-black text-foreground">
                     {currencyCode} {(purchase.grandTotal || 0).toLocaleString()}
                   </td>
-                  <td className="p-6 text-right font-black text-[#0B2C5D]">
+                  <td className="p-6 text-right font-black text-foreground">
                     {currencyCode} {(purchase.paid || 0).toLocaleString()}
                   </td>
-                  <td className="p-6 text-right font-black text-[#0B2C5D]">
+                  <td className="p-6 text-right font-black text-foreground">
                     {currencyCode} {(purchase.due || 0).toLocaleString()}
                   </td>
                   <td className="p-6 text-center">
@@ -593,10 +593,10 @@ const ViewPurchases: React.FC = () => {
                       {purchase.paymentStatus}
                     </span>
                   </td>
-                  <td className="p-6 text-[#64748B] font-medium">
+                  <td className="p-6 text-muted font-medium">
                     {purchase.paymentMethod || '—'}
                   </td>
-                  <td className="p-6 text-[#64748B] font-medium">
+                  <td className="p-6 text-muted font-medium">
                     {new Date(purchase.createdAt).toLocaleString('en-US', {
                       hour: 'numeric',
                       minute: '2-digit',
@@ -615,24 +615,24 @@ const ViewPurchases: React.FC = () => {
                         <button
                           type="button"
                           onClick={() => setOpenActionId(prev => prev === purchase._id ? null : purchase._id)}
-                          className="p-2 rounded-lg text-[#1A3E73] hover:bg-slate-100 font-bold transition"
+                          className="p-2 rounded-lg text-primary hover:bg-surface-muted font-bold transition"
                           title="Actions"
                         >
                           <MoreVertical size={20} />
                         </button>
                         {openActionId === purchase._id && (
-                          <div className="absolute right-0 top-full mt-1 z-30 min-w-[200px] bg-white border border-slate-200 rounded-lg shadow-lg py-1">
+                          <div className="absolute right-0 top-full mt-1 z-30 min-w-[200px] bg-surface border border-line rounded-lg py-1">
                             <button
                               type="button"
                               onClick={() => { fetchPurchaseDetails(purchase._id); setOpenActionId(null); }}
-                              className="w-full flex items-center gap-2 px-4 py-2 text-left text-sm text-[#1A3E73] hover:bg-slate-50"
+                              className="w-full flex items-center gap-2 px-4 py-2 text-left text-sm text-primary hover:bg-surface-raised"
                             >
                               <Eye size={16} /> View Details
                             </button>
                             <button
                               type="button"
                               onClick={() => { navigate(`/editPurchase/${purchase._id}`); setOpenActionId(null); }}
-                              className="w-full flex items-center gap-2 px-4 py-2 text-left text-sm text-[#1A3E73] hover:bg-slate-50"
+                              className="w-full flex items-center gap-2 px-4 py-2 text-left text-sm text-primary hover:bg-surface-raised"
                             >
                               <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
@@ -642,14 +642,14 @@ const ViewPurchases: React.FC = () => {
                             <button
                               type="button"
                               onClick={() => { navigate(`/createPurchaseReturn?purchaseId=${purchase._id}`); setOpenActionId(null); }}
-                              className="w-full flex items-center gap-2 px-4 py-2 text-left text-sm text-[#1A3E73] hover:bg-slate-50"
+                              className="w-full flex items-center gap-2 px-4 py-2 text-left text-sm text-primary hover:bg-surface-raised"
                             >
                               <RotateCcw size={16} /> Return to Supplier
                             </button>
                             <button
                               type="button"
                               onClick={() => { setToDelete(purchase._id); setOpenActionId(null); }}
-                              className="w-full flex items-center gap-2 px-4 py-2 text-left text-sm text-red-600 hover:bg-red-50"
+                              className="w-full flex items-center gap-2 px-4 py-2 text-left text-sm text-danger hover:bg-danger-soft"
                             >
                               <Trash2 size={16} /> Delete Purchase
                             </button>
@@ -663,16 +663,16 @@ const ViewPurchases: React.FC = () => {
             )}
           </tbody>
           {paginatedPurchases.length > 0 && (
-            <tfoot className="bg-[#F8FAFC] border-t-2 border-slate-200">
+            <tfoot className="bg-surface-raised border-t-2 border-line">
               <tr>
-                <td colSpan={5} className="p-6 font-black text-[#1A3E73]">Total</td>
-                <td className="p-6 text-right font-black text-[#0B2C5D]">
+                <td colSpan={5} className="p-6 font-black text-foreground">Total</td>
+                <td className="p-6 text-right font-black text-foreground">
                   {currencyCode} {totalGrandTotal.toLocaleString()}
                 </td>
-                <td className="p-6 text-right font-black text-[#0B2C5D]">
+                <td className="p-6 text-right font-black text-foreground">
                   {currencyCode} {totalPaid.toLocaleString()}
                 </td>
-                <td className="p-6 text-right font-black text-[#0B2C5D]">
+                <td className="p-6 text-right font-black text-foreground">
                   {currencyCode} {totalDue.toLocaleString()}
                 </td>
                 <td colSpan={4}></td>
@@ -686,11 +686,11 @@ const ViewPurchases: React.FC = () => {
       {purchases.length > 0 && (
         <div className="mt-6 flex items-center justify-between">
           <div className="flex items-center gap-2">
-            <span className="text-sm text-[#64748B] font-bold">Records per page:</span>
+            <span className="text-sm text-muted font-bold">Records per page:</span>
             <select
               value={pagination.limit}
               onChange={e => setPagination(prev => ({ ...prev, limit: Number(e.target.value), page: 1 }))}
-              className="px-3 py-1 border border-slate-200 rounded-lg focus:outline-none focus:border-[#1A3E73]"
+              className="px-3 py-1 border border-line rounded-lg focus:outline-none focus:border-primary"
             >
               <option value={10}>10</option>
               <option value={25}>25</option>
@@ -699,34 +699,34 @@ const ViewPurchases: React.FC = () => {
             </select>
           </div>
           <div className="flex items-center gap-2">
-            <span className="text-sm text-[#64748B] font-bold">
+            <span className="text-sm text-muted font-bold">
               {((pagination.page - 1) * pagination.limit) + 1}-{Math.min(pagination.page * pagination.limit, pagination.total)} of {pagination.total}
             </span>
             <button
               onClick={() => setPagination(prev => ({ ...prev, page: 1 }))}
               disabled={pagination.page === 1}
-              className="px-3 py-1 border border-slate-200 rounded-lg disabled:opacity-50 disabled:cursor-not-allowed hover:bg-slate-50"
+              className="px-3 py-1 border border-line rounded-lg disabled:opacity-50 disabled:cursor-not-allowed hover:bg-surface-raised"
             >
               K
             </button>
             <button
               onClick={() => setPagination(prev => ({ ...prev, page: prev.page - 1 }))}
               disabled={pagination.page === 1}
-              className="px-3 py-1 border border-slate-200 rounded-lg disabled:opacity-50 disabled:cursor-not-allowed hover:bg-slate-50"
+              className="px-3 py-1 border border-line rounded-lg disabled:opacity-50 disabled:cursor-not-allowed hover:bg-surface-raised"
             >
               &lt;
             </button>
             <button
               onClick={() => setPagination(prev => ({ ...prev, page: prev.page + 1 }))}
               disabled={pagination.page * pagination.limit >= pagination.total}
-              className="px-3 py-1 border border-slate-200 rounded-lg disabled:opacity-50 disabled:cursor-not-allowed hover:bg-slate-50"
+              className="px-3 py-1 border border-line rounded-lg disabled:opacity-50 disabled:cursor-not-allowed hover:bg-surface-raised"
             >
               &gt;
             </button>
             <button
               onClick={() => setPagination(prev => ({ ...prev, page: Math.ceil(pagination.total / pagination.limit) }))}
               disabled={pagination.page * pagination.limit >= pagination.total}
-              className="px-3 py-1 border border-slate-200 rounded-lg disabled:opacity-50 disabled:cursor-not-allowed hover:bg-slate-50"
+              className="px-3 py-1 border border-line rounded-lg disabled:opacity-50 disabled:cursor-not-allowed hover:bg-surface-raised"
             >
               &gt;|
             </button>
@@ -736,11 +736,11 @@ const ViewPurchases: React.FC = () => {
 
       {/* View Purchase Details Modal */}
       {viewingPurchase && (
-        <div className="fixed inset-0 bg-black/50 flex items-start justify-center z-50 p-4 overflow-y-auto pt-8">
-          <div className="bg-white rounded-[32px] shadow-2xl max-w-2xl w-full p-8">
+        <div className="fixed inset-0 bg-overlay flex items-start justify-center z-50 p-4 overflow-y-auto pt-8">
+          <div className="bg-surface rounded-2xl shadow-elevated max-w-2xl w-full p-8">
             <div className="flex justify-between items-center mb-6">
-              <h3 className="text-2xl font-black text-[#1A3E73]">Purchase Details</h3>
-              <button onClick={() => setViewingPurchase(null)} className="text-[#64748B] hover:text-[#1A3E73]">
+              <h3 className="text-2xl font-black text-foreground">Purchase Details</h3>
+              <button onClick={() => setViewingPurchase(null)} className="text-muted hover:text-primary">
                 <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
                 </svg>
@@ -749,39 +749,39 @@ const ViewPurchases: React.FC = () => {
             <div className="space-y-4">
               <div className="grid grid-cols-2 gap-4">
                 <div>
-                  <p className="text-xs font-black text-[#64748B] uppercase tracking-widest">Purchase ID</p>
-                  <p className="text-lg font-black text-[#1A3E73]">{viewingPurchase.purchaseId}</p>
+                  <p className="text-xs font-black text-muted uppercase tracking-widest">Purchase ID</p>
+                  <p className="text-lg font-black text-foreground">{viewingPurchase.purchaseId}</p>
                 </div>
                 <div>
-                  <p className="text-xs font-black text-[#64748B] uppercase tracking-widest">Date</p>
-                  <p className="text-lg font-black text-[#1A3E73]">
+                  <p className="text-xs font-black text-muted uppercase tracking-widest">Date</p>
+                  <p className="text-lg font-black text-foreground">
                     {formatDate(viewingPurchase.createdAt)}
                   </p>
                 </div>
                 <div>
-                  <p className="text-xs font-black text-[#64748B] uppercase tracking-widest">Supplier</p>
-                  <p className="text-lg font-black text-[#1A3E73]">{viewingPurchase.supplierId?.name || 'N/A'}</p>
+                  <p className="text-xs font-black text-muted uppercase tracking-widest">Supplier</p>
+                  <p className="text-lg font-black text-foreground">{viewingPurchase.supplierId?.name || 'N/A'}</p>
                 </div>
                 <div>
-                  <p className="text-xs font-black text-[#64748B] uppercase tracking-widest">Warehouse</p>
-                  <p className="text-lg font-black text-[#1A3E73]">{viewingPurchase.warehouseId?.name || 'N/A'}</p>
+                  <p className="text-xs font-black text-muted uppercase tracking-widest">Warehouse</p>
+                  <p className="text-lg font-black text-foreground">{viewingPurchase.warehouseId?.name || 'N/A'}</p>
                 </div>
               </div>
               <div className="mt-6">
-                <p className="text-xs font-black text-[#64748B] uppercase tracking-widest mb-4">Items</p>
+                <p className="text-xs font-black text-muted uppercase tracking-widest mb-4">Items</p>
                 <div className="space-y-2">
                   {viewingPurchase.items?.map((item: any, idx: number) => (
-                    <div key={idx} className="flex justify-between items-center bg-[#F8FAFC] p-3 rounded-lg">
+                    <div key={idx} className="flex justify-between items-center bg-surface-raised p-3 rounded-lg">
                       <div>
-                        <p className="font-bold text-[#1A3E73]">{item.productName || `Item ${idx + 1}`}</p>
+                        <p className="font-bold text-foreground">{item.productName || `Item ${idx + 1}`}</p>
                         {item.productCode && (
-                          <p className="text-xs text-[#64748B]">Code: {item.productCode}</p>
+                          <p className="text-xs text-muted">Code: {item.productCode}</p>
                         )}
-                        <p className="text-xs text-[#64748B]">Qty: {item.quantity}</p>
+                        <p className="text-xs text-muted">Qty: {item.quantity}</p>
                       </div>
                       <div className="text-right">
-                        <p className="font-bold text-[#3B82F6]">{currencyCode} {(item.subTotal || 0).toLocaleString()}</p>
-                        <p className="text-xs text-[#64748B]">@ {currencyCode} {(item.cost || 0).toLocaleString()}</p>
+                        <p className="font-bold text-primary">{currencyCode} {(item.subTotal || 0).toLocaleString()}</p>
+                        <p className="text-xs text-muted">@ {currencyCode} {(item.cost || 0).toLocaleString()}</p>
                       </div>
                     </div>
                   ))}

@@ -236,33 +236,33 @@ const CalculatorModal: React.FC<Props> = ({ onClose, onUse }) => {
 
   return (
     <div 
-      className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4"
+      className="fixed inset-0 bg-overlay backdrop-blur-sm z-50 flex items-center justify-center p-4"
       onClick={(e) => {
         if (e.target === e.currentTarget) onClose();
       }}
     >
       <div 
-        className="bg-white rounded-2xl shadow-2xl w-full max-w-sm overflow-hidden flex flex-col max-h-[90vh]"
+        className="bg-surface rounded-2xl shadow-elevated w-full max-w-sm overflow-hidden flex flex-col max-h-[90vh]"
         onClick={(e) => e.stopPropagation()}
       >
         {showHistory ? (
           /* History Panel - Same size as calculator */
           <>
             {/* History Header */}
-            <div className="bg-gradient-to-r from-purple-600 to-purple-700 px-6 py-4 flex items-center justify-between flex-shrink-0">
-              <h2 className="text-white text-xl font-bold">History</h2>
+            <div className="px-6 py-4 flex items-center justify-between flex-shrink-0 bg-surface-muted">
+              <h2 className="text-foreground text-xl font-bold">History</h2>
               <div className="flex gap-2">
                 {history.length > 0 && (
                   <button
                     onClick={handleClearHistory}
-                    className="text-white hover:bg-white/20 rounded-lg px-3 py-1.5 text-sm transition-colors"
+                    className="text-foreground hover:bg-surface-muted rounded-lg px-3 py-1.5 text-sm transition-colors"
                   >
                     Clear
                   </button>
                 )}
                 <button
                   onClick={() => setShowHistory(false)}
-                  className="text-white hover:bg-white/20 rounded-lg p-1.5 transition-colors"
+                  className="text-foreground hover:bg-surface-muted rounded-lg p-1.5 transition-colors"
                   aria-label="Close history"
                 >
                   <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -273,9 +273,9 @@ const CalculatorModal: React.FC<Props> = ({ onClose, onUse }) => {
             </div>
 
             {/* History List */}
-            <div className="flex-1 overflow-y-auto p-4 bg-gray-50 min-h-0 custom-scrollbar">
+            <div className="flex-1 overflow-y-auto p-4 bg-surface-raised min-h-0 custom-scrollbar">
               {history.length === 0 ? (
-                <div className="flex flex-col items-center justify-center h-full text-gray-400 py-12">
+                <div className="flex flex-col items-center justify-center h-full text-subtle py-12">
                   <svg className="w-16 h-16 mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
                   </svg>
@@ -288,10 +288,10 @@ const CalculatorModal: React.FC<Props> = ({ onClose, onUse }) => {
                     <button
                       key={index}
                       onClick={() => handleHistoryItemClick(item.result)}
-                      className="w-full text-left p-4 bg-white hover:bg-gray-100 rounded-xl transition-colors border border-gray-200 hover:border-purple-300 group shadow-sm"
+                      className="w-full text-left p-4 bg-surface hover:bg-surface-muted rounded-xl transition-colors border border-line hover:border-violet-line group"
                     >
-                      <div className="text-gray-600 text-sm font-mono mb-1">{item.expression}</div>
-                      <div className="text-[#1f3b63] text-xl font-bold group-hover:text-purple-600">
+                      <div className="text-muted text-sm font-mono mb-1">{item.expression}</div>
+                      <div className="text-foreground text-xl font-bold group-hover:text-violet-status">
                         = {item.result}
                       </div>
                     </button>
@@ -304,11 +304,11 @@ const CalculatorModal: React.FC<Props> = ({ onClose, onUse }) => {
           /* Calculator Content */
           <>
             {/* Header */}
-            <div className="bg-gradient-to-r from-[#1f3b63] to-[#243b53] px-6 py-4 flex items-center justify-between flex-shrink-0">
-              <h2 className="text-white text-xl font-bold">Calculator</h2>
+            <div className="px-6 py-4 flex items-center justify-between flex-shrink-0 bg-surface-muted">
+              <h2 className="text-foreground text-xl font-bold">Calculator</h2>
               <button 
                 onClick={onClose}
-                className="text-white hover:bg-white/20 rounded-lg p-1.5 transition-colors"
+                className="text-foreground hover:bg-surface-muted rounded-lg p-1.5 transition-colors"
                 aria-label="Close calculator"
               >
                 <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -318,32 +318,32 @@ const CalculatorModal: React.FC<Props> = ({ onClose, onUse }) => {
             </div>
 
             {/* Display */}
-            <div className="bg-gray-900 p-6 flex-shrink-0">
+            <div className="bg-surface-muted p-6 flex-shrink-0">
               <div className="text-right">
                 {/* Expression line - shows the full expression string */}
-                <div className="text-gray-400 text-lg mb-2 min-h-[28px] font-mono">
+                <div className="text-subtle text-lg mb-2 min-h-[28px] font-mono">
                   {expression || (previousValue !== null && operation ? `${previousValue} ${operation}` : '')}
                 </div>
                 {/* Result line - shows current input or result */}
-                <div className="text-white text-4xl font-mono font-bold break-all">
+                <div className="text-foreground text-4xl font-mono font-bold break-all">
                   {display}
                 </div>
               </div>
             </div>
 
             {/* Buttons */}
-            <div className="p-4 bg-gray-50 flex-shrink-0">
+            <div className="p-4 bg-surface-raised flex-shrink-0">
           <div className="grid grid-cols-4 gap-3">
             {/* Row 1 */}
             <button
               onClick={handleClearClick}
-              className="h-14 bg-red-500 hover:bg-red-600 text-white font-bold rounded-xl transition-colors shadow-md text-sm"
+              className="h-14 bg-danger hover:bg-danger-hover text-on-danger font-bold rounded-xl transition-colors text-sm"
             >
               Clear (C)
             </button>
             <button
               onClick={handleHistoryClick}
-              className="h-14 bg-purple-500 hover:bg-purple-600 text-white font-bold rounded-xl transition-colors shadow-md flex items-center justify-center"
+              className="h-14 bg-violet-status hover:bg-violet-status text-on-violet font-bold rounded-xl transition-colors flex items-center justify-center"
               title="History"
             >
               <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={2.5}>
@@ -352,81 +352,81 @@ const CalculatorModal: React.FC<Props> = ({ onClose, onUse }) => {
             </button>
             <button
               onClick={handleDeleteClick}
-              className="h-14 bg-orange-500 hover:bg-orange-600 text-white font-bold rounded-xl transition-colors shadow-md"
+              className="h-14 bg-orange-500 hover:bg-orange-600 text-foreground font-bold rounded-xl transition-colors"
             >
               ⌫
             </button>
             <button
               onClick={() => handleOperationClick('÷')}
-              className="h-14 bg-[#1f3b63] hover:bg-[#243b53] text-white font-bold text-xl rounded-xl transition-colors shadow-md"
+              className="h-14 bg-primary hover:bg-primary-hover text-on-primary font-bold text-xl rounded-xl transition-colors"
             >
               ÷
             </button>
 
             {/* Row 2 */}
-            <button onClick={() => handleNumberClick('7')} className="h-14 bg-white hover:bg-gray-100 text-gray-800 font-bold text-xl rounded-xl transition-colors shadow-md border border-gray-200">
+            <button onClick={() => handleNumberClick('7')} className="h-14 bg-surface hover:bg-surface-muted text-foreground font-bold text-xl rounded-xl transition-colors border border-line">
               7
             </button>
-            <button onClick={() => handleNumberClick('8')} className="h-14 bg-white hover:bg-gray-100 text-gray-800 font-bold text-xl rounded-xl transition-colors shadow-md border border-gray-200">
+            <button onClick={() => handleNumberClick('8')} className="h-14 bg-surface hover:bg-surface-muted text-foreground font-bold text-xl rounded-xl transition-colors border border-line">
               8
             </button>
-            <button onClick={() => handleNumberClick('9')} className="h-14 bg-white hover:bg-gray-100 text-gray-800 font-bold text-xl rounded-xl transition-colors shadow-md border border-gray-200">
+            <button onClick={() => handleNumberClick('9')} className="h-14 bg-surface hover:bg-surface-muted text-foreground font-bold text-xl rounded-xl transition-colors border border-line">
               9
             </button>
             <button
               onClick={() => handleOperationClick('×')}
-              className="h-14 bg-[#1f3b63] hover:bg-[#243b53] text-white font-bold text-xl rounded-xl transition-colors shadow-md"
+              className="h-14 bg-primary hover:bg-primary-hover text-on-primary font-bold text-xl rounded-xl transition-colors"
             >
               ×
             </button>
 
             {/* Row 3 */}
-            <button onClick={() => handleNumberClick('4')} className="h-14 bg-white hover:bg-gray-100 text-gray-800 font-bold text-xl rounded-xl transition-colors shadow-md border border-gray-200">
+            <button onClick={() => handleNumberClick('4')} className="h-14 bg-surface hover:bg-surface-muted text-foreground font-bold text-xl rounded-xl transition-colors border border-line">
               4
             </button>
-            <button onClick={() => handleNumberClick('5')} className="h-14 bg-white hover:bg-gray-100 text-gray-800 font-bold text-xl rounded-xl transition-colors shadow-md border border-gray-200">
+            <button onClick={() => handleNumberClick('5')} className="h-14 bg-surface hover:bg-surface-muted text-foreground font-bold text-xl rounded-xl transition-colors border border-line">
               5
             </button>
-            <button onClick={() => handleNumberClick('6')} className="h-14 bg-white hover:bg-gray-100 text-gray-800 font-bold text-xl rounded-xl transition-colors shadow-md border border-gray-200">
+            <button onClick={() => handleNumberClick('6')} className="h-14 bg-surface hover:bg-surface-muted text-foreground font-bold text-xl rounded-xl transition-colors border border-line">
               6
             </button>
             <button
               onClick={() => handleOperationClick('-')}
-              className="h-14 bg-[#1f3b63] hover:bg-[#243b53] text-white font-bold text-xl rounded-xl transition-colors shadow-md"
+              className="h-14 bg-primary hover:bg-primary-hover text-on-primary font-bold text-xl rounded-xl transition-colors"
             >
               −
             </button>
 
             {/* Row 4 */}
-            <button onClick={() => handleNumberClick('1')} className="h-14 bg-white hover:bg-gray-100 text-gray-800 font-bold text-xl rounded-xl transition-colors shadow-md border border-gray-200">
+            <button onClick={() => handleNumberClick('1')} className="h-14 bg-surface hover:bg-surface-muted text-foreground font-bold text-xl rounded-xl transition-colors border border-line">
               1
             </button>
-            <button onClick={() => handleNumberClick('2')} className="h-14 bg-white hover:bg-gray-100 text-gray-800 font-bold text-xl rounded-xl transition-colors shadow-md border border-gray-200">
+            <button onClick={() => handleNumberClick('2')} className="h-14 bg-surface hover:bg-surface-muted text-foreground font-bold text-xl rounded-xl transition-colors border border-line">
               2
             </button>
-            <button onClick={() => handleNumberClick('3')} className="h-14 bg-white hover:bg-gray-100 text-gray-800 font-bold text-xl rounded-xl transition-colors shadow-md border border-gray-200">
+            <button onClick={() => handleNumberClick('3')} className="h-14 bg-surface hover:bg-surface-muted text-foreground font-bold text-xl rounded-xl transition-colors border border-line">
               3
             </button>
             <button
               onClick={() => handleOperationClick('+')}
-              className="h-14 bg-[#1f3b63] hover:bg-[#243b53] text-white font-bold text-xl rounded-xl transition-colors shadow-md"
+              className="h-14 bg-primary hover:bg-primary-hover text-on-primary font-bold text-xl rounded-xl transition-colors"
             >
               +
             </button>
 
             {/* Row 5 */}
-            <button onClick={() => handleNumberClick('0')} className="col-span-2 h-14 bg-white hover:bg-gray-100 text-gray-800 font-bold text-xl rounded-xl transition-colors shadow-md border border-gray-200">
+            <button onClick={() => handleNumberClick('0')} className="col-span-2 h-14 bg-surface hover:bg-surface-muted text-foreground font-bold text-xl rounded-xl transition-colors border border-line">
               0
             </button>
             <button
               onClick={handleDecimalClick}
-              className="h-14 bg-white hover:bg-gray-100 text-gray-800 font-bold text-xl rounded-xl transition-colors shadow-md border border-gray-200"
+              className="h-14 bg-surface hover:bg-surface-muted text-foreground font-bold text-xl rounded-xl transition-colors border border-line"
             >
               .
             </button>
             <button
               onClick={handleEqualsClick}
-              className="h-14 bg-green-600 hover:bg-green-700 text-white font-bold text-xl rounded-xl transition-colors shadow-md"
+              className="h-14 bg-secondary hover:bg-secondary-hover text-on-secondary font-bold text-xl rounded-xl transition-colors"
             >
               =
             </button>
@@ -442,7 +442,7 @@ const CalculatorModal: React.FC<Props> = ({ onClose, onUse }) => {
                       onClose();
                     }
                   }}
-                  className="w-full mt-4 h-12 bg-[#1f3b63] hover:bg-[#243b53] text-white font-bold rounded-xl transition-colors shadow-md"
+                  className="w-full mt-4 h-12 bg-primary hover:bg-primary-hover text-on-primary font-bold rounded-xl transition-colors"
                 >
                   Use Result
                 </button>

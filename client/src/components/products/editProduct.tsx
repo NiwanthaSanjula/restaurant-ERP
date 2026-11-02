@@ -588,24 +588,24 @@ const EditProduct: React.FC = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-canvas">
       {loading && <Loader text="Loading product" />}
       
       {/* Header */}
-      <div className="bg-white shadow-sm border-b">
+      <div className="bg-surface border-b">
         <div className="px-6 py-4">
           <div className="flex items-center">
             <button
               onClick={() => navigate('/viewProducts')}
-              className="mr-4 p-2 text-gray-400 hover:text-gray-600 hover:bg-gray-100 rounded-lg transition-colors duration-200"
+              className="mr-4 p-2 text-subtle hover:text-muted hover:bg-surface-muted rounded-lg transition-colors duration-200"
             >
               <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
               </svg>
             </button>
             <div>
-              <h1 className="text-2xl font-bold text-gray-900">Edit Product</h1>
-              <p className="text-sm text-gray-600 mt-1">
+              <h1 className="text-2xl font-bold text-foreground">Edit Product</h1>
+              <p className="text-sm text-muted mt-1">
                 Update {systemType} product information
               </p>
             </div>
@@ -616,11 +616,11 @@ const EditProduct: React.FC = () => {
       {/* Form */}
       <div className="p-6">
         <div className="max-w-4xl mx-auto">
-          <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
+          <div className="bg-surface rounded-lg border border-line p-6">
             <form onSubmit={submit} className="space-y-8">
               <div className="space-y-4">
                 <div className="flex flex-col">
-                  <span className="block text-base font-medium text-gray-700 mb-1">
+                  <span className="block text-base font-medium text-foreground mb-1">
                     Is Inventory
                   </span>
                   <div className="flex items-center space-x-6">
@@ -630,9 +630,9 @@ const EditProduct: React.FC = () => {
                         name="isInventory"
                         checked={isInventory === true}
                         onChange={() => setIsInventory(true)}
-                        className="h-4 w-4 text-[#003366] focus:ring-[#003366] border-gray-300"
+                        className="h-4 w-4 text-foreground focus:ring-primary border-line-strong"
                       />
-                      <span className="ml-2 text-sm text-gray-700">Yes</span>
+                      <span className="ml-2 text-sm text-foreground">Yes</span>
                     </label>
                     <label className="inline-flex items-center">
                       <input
@@ -640,24 +640,24 @@ const EditProduct: React.FC = () => {
                         name="isInventory"
                         checked={isInventory === false}
                         onChange={() => setIsInventory(false)}
-                        className="h-4 w-4 text-[#003366] focus:ring-[#003366] border-gray-300"
+                        className="h-4 w-4 text-foreground focus:ring-primary border-line-strong"
                       />
-                      <span className="ml-2 text-sm text-gray-700">No</span>
+                      <span className="ml-2 text-sm text-foreground">No</span>
                     </label>
                   </div>
-                  <span className="block text-sm text-gray-500 mt-2 leading-relaxed">
+                  <span className="block text-sm text-muted mt-2 leading-relaxed">
                     Controls whether the product is stock-tracked. Select Yes if this product maintains inventory quantities; select No for non-stocked items.
                   </span>
                 </div>
               </div>
               {/* Basic Information */}
               <div className="space-y-6">
-                <h3 className="text-lg font-medium text-gray-900 border-b border-gray-200 pb-2">Basic Information</h3>
+                <h3 className="text-lg font-medium text-foreground border-b border-line pb-2">Basic Information</h3>
                 
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                   <div>
-                    <label className="block text-base font-medium text-gray-700 mb-2">
-                      Product Name <span className="text-red-500">*</span>
+                    <label className="block text-base font-medium text-foreground mb-2">
+                      Product Name <span className="text-danger">*</span>
                     </label>
                     <input
                       type="text"
@@ -665,13 +665,13 @@ const EditProduct: React.FC = () => {
                       onChange={e => setName(e.target.value)}
                       required
                       placeholder="Enter product name"
-                      className="w-full px-3 py-2 text-base border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#003366] focus:border-transparent"
+                      className="w-full px-3 py-2 text-base border border-line-strong rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
                     />
                   </div>
 
                   <div>
-                    <label className="block text-base font-medium text-gray-700 mb-2">
-                      Product Code <span className="text-red-500">*</span>
+                    <label className="block text-base font-medium text-foreground mb-2">
+                      Product Code <span className="text-danger">*</span>
                     </label>
                     <input
                       type="text"
@@ -679,12 +679,12 @@ const EditProduct: React.FC = () => {
                       onChange={e => setCode(e.target.value)}
                       required
                       placeholder="Enter product code"
-                      className="w-full px-3 py-2 text-base border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#003366] focus:border-transparent"
+                      className="w-full px-3 py-2 text-base border border-line-strong rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
                     />
                   </div>
 
                   <div>
-                    <label className="block text-base font-medium text-gray-700 mb-2">
+                    <label className="block text-base font-medium text-foreground mb-2">
                       Product Image
                     </label>
                     <input
@@ -702,19 +702,19 @@ const EditProduct: React.FC = () => {
                         };
                         reader.readAsDataURL(file);
                       }}
-                      className="w-full px-3 py-2 text-base border border-gray-300 rounded-lg font-normal text-gray-900 focus:ring-2 focus:ring-[#003366]"
+                      className="w-full px-3 py-2 text-base border border-line-strong rounded-lg font-normal text-foreground focus:ring-2 focus:ring-primary"
                     />
                     {image && (
                       <div className="mt-2 flex items-center gap-3">
                         <img
                           src={image}
                           alt="Product preview"
-                          className="h-12 w-12 rounded-lg object-cover border border-gray-200"
+                          className="h-12 w-12 rounded-lg object-cover border border-line"
                         />
                         <button
                           type="button"
                           onClick={() => setImage('')}
-                          className="px-2 py-1 text-xs font-medium text-red-700 bg-red-50 border border-red-200 rounded-lg hover:bg-red-100"
+                          className="px-2 py-1 text-xs font-medium text-danger bg-danger-soft border border-danger-line rounded-lg hover:bg-danger-soft"
                         >
                           Remove
                         </button>
@@ -730,8 +730,8 @@ const EditProduct: React.FC = () => {
                     required
                     label="Category"
                     showRequiredIndicator
-                    labelClassName="block text-base font-medium text-gray-700 mb-2"
-                    className="px-3 py-2 text-base border border-gray-300 rounded-lg font-normal text-gray-900 focus:ring-2 focus:ring-[#003366]"
+                    labelClassName="block text-base font-medium text-foreground mb-2"
+                    className="px-3 py-2 text-base border border-line-strong rounded-lg font-normal text-foreground focus:ring-2 focus:ring-primary"
                   />
 
                   <SearchableDropdown
@@ -740,8 +740,8 @@ const EditProduct: React.FC = () => {
                     onSearch={searchBrands}
                     placeholder="Search brand"
                     label="Brand"
-                    labelClassName="block text-base font-medium text-gray-700 mb-2"
-                    className="px-3 py-2 text-base border border-gray-300 rounded-lg font-normal text-gray-900 focus:ring-2 focus:ring-[#003366]"
+                    labelClassName="block text-base font-medium text-foreground mb-2"
+                    className="px-3 py-2 text-base border border-line-strong rounded-lg font-normal text-foreground focus:ring-2 focus:ring-primary"
                   />
 
                   <SearchableDropdown
@@ -752,8 +752,8 @@ const EditProduct: React.FC = () => {
                     required
                     label="Unit"
                     showRequiredIndicator
-                    labelClassName="block text-base font-medium text-gray-700 mb-2"
-                    className="px-3 py-2 text-base border border-gray-300 rounded-lg font-normal text-gray-900 focus:ring-2 focus:ring-[#003366]"
+                    labelClassName="block text-base font-medium text-foreground mb-2"
+                    className="px-3 py-2 text-base border border-line-strong rounded-lg font-normal text-foreground focus:ring-2 focus:ring-primary"
                   />
 
                   <SearchableDropdown
@@ -762,19 +762,19 @@ const EditProduct: React.FC = () => {
                     onSearch={searchSuppliers}
                     placeholder="Search supplier"
                     label="Supplier"
-                    labelClassName="block text-base font-medium text-gray-700 mb-2"
-                    className="px-3 py-2 text-base border border-gray-300 rounded-lg font-normal text-gray-900 focus:ring-2 focus:ring-[#003366]"
+                    labelClassName="block text-base font-medium text-foreground mb-2"
+                    className="px-3 py-2 text-base border border-line-strong rounded-lg font-normal text-foreground focus:ring-2 focus:ring-primary"
                   />
 
                   <div>
-                    <label className="block text-base font-medium text-gray-700 mb-2">
-                      Product Type <span className="text-red-500">*</span>
+                    <label className="block text-base font-medium text-foreground mb-2">
+                      Product Type <span className="text-danger">*</span>
                     </label>
                     <select
                       value={ptype}
                       onChange={e => setPtype(e.target.value as 'Single' | 'Variation')}
                       required
-                      className="w-full px-3 py-2 text-base border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#003366] focus:border-transparent"
+                      className="w-full px-3 py-2 text-base border border-line-strong rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
                     >
                       <option value="Single">Single</option>
                       <option value="Variation">Variation</option>
@@ -784,7 +784,7 @@ const EditProduct: React.FC = () => {
 
                 {ptype === 'Variation' && (
                   <div className="md:col-span-2">
-                    <label className="block text-base font-medium text-gray-700 mb-2">Variation Attributes <span className="text-red-500">*</span></label>
+                    <label className="block text-base font-medium text-foreground mb-2">Variation Attributes <span className="text-danger">*</span></label>
                     <div className="flex flex-wrap gap-2">
                       {variations.map(v => {
                         const checked = selectedVariationIds.includes(v.id);
@@ -800,7 +800,7 @@ const EditProduct: React.FC = () => {
                               const names = variations.filter(x => next.includes(x.id)).map(x => x.variationName).sort();
                               setVariation(names.join('|'));
                             }}
-                            className={`px-3 py-1 rounded-full border text-sm ${checked ? 'bg-[#003366] text-white border-[#003366]' : 'bg-white text-gray-700 border-gray-300 hover:bg-gray-50'}`}
+                            className={`px-3 py-1 rounded-full border text-sm ${checked ? 'bg-primary text-on-primary border-primary' : 'bg-surface text-foreground border-line-strong hover:bg-surface-raised'}`}
                           >
                             {v.variationName}
                           </button>
@@ -808,14 +808,14 @@ const EditProduct: React.FC = () => {
                       })}
                     </div>
                     {selectedVariationIds.length === 0 && (
-                      <p className="text-xs text-red-500 mt-1">Select at least one attribute</p>
+                      <p className="text-xs text-danger mt-1">Select at least one attribute</p>
                     )}
                     <input type="hidden" required value={selectedVariationIds.join(',')} readOnly />
                   </div>
                 )}
 
                 <div>
-                  <label className="block text-base font-medium text-gray-700 mb-2">
+                  <label className="block text-base font-medium text-foreground mb-2">
                     Note
                   </label>
                   <textarea
@@ -823,7 +823,7 @@ const EditProduct: React.FC = () => {
                     onChange={e => setNote(e.target.value)}
                     placeholder="Enter product notes"
                     rows={3}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#003366] focus:border-transparent"
+                    className="w-full px-3 py-2 border border-line-strong rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
                   />
                 </div>
 
@@ -832,13 +832,13 @@ const EditProduct: React.FC = () => {
               {/* System Type Specific Fields */}
               {systemType === 'restaurant' && (
                 <div className="space-y-6">
-                  <h3 className="text-lg font-medium text-gray-900 border-b border-gray-200 pb-2">Restaurant Settings</h3>
+                  <h3 className="text-lg font-medium text-foreground border-b border-line pb-2">Restaurant Settings</h3>
                   
                   {hasBatches && (
                     <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
                       <div className="md:col-span-2">
-                        <label className="block text-base font-medium text-gray-700 mb-2">
-                          First Batch Number <span className="text-red-500">*</span>
+                        <label className="block text-base font-medium text-foreground mb-2">
+                          First Batch Number <span className="text-danger">*</span>
                         </label>
                         <input
                           type="text"
@@ -846,18 +846,18 @@ const EditProduct: React.FC = () => {
                           onChange={e => setBatchNumber(e.target.value)}
                           required
                           placeholder="Enter first batch number"
-                          className="w-full px-3 py-2 text-base border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#003366] focus:border-transparent"
+                          className="w-full px-3 py-2 text-base border border-line-strong rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
                         />
                       </div>
                       <div className="md:col-span-2">
-                        <label className="block text-base font-medium text-gray-700 mb-2">
+                        <label className="block text-base font-medium text-foreground mb-2">
                           First Batch Expiry Date
                         </label>
                         <input
                           type="date"
                           value={batchExpiryDate}
                           onChange={e => setBatchExpiryDate(e.target.value)}
-                          className="w-full px-3 py-2 text-base border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#003366] focus:border-transparent"
+                          className="w-full px-3 py-2 text-base border border-line-strong rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
                         />
                       </div>
                     </div>
@@ -867,17 +867,17 @@ const EditProduct: React.FC = () => {
 
               {systemType === 'retail' && (
                 <div className="space-y-6">
-                  <h3 className="text-lg font-medium text-gray-900 border-b border-gray-200 pb-2">Retail Settings</h3>
+                  <h3 className="text-lg font-medium text-foreground border-b border-line pb-2">Retail Settings</h3>
                   
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                     <div>
-                      <label className="block text-base font-medium text-gray-700 mb-2">
+                      <label className="block text-base font-medium text-foreground mb-2">
                         Barcode Type
                       </label>
                       <select
                         value={barcodeType}
                         onChange={e => setBarcodeType(e.target.value as '128' | '39')}
-                        className="w-full px-3 py-2 text-base border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#003366] focus:border-transparent"
+                        className="w-full px-3 py-2 text-base border border-line-strong rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
                       >
                         <option value="128">128</option>
                         <option value="39">39</option>
@@ -885,7 +885,7 @@ const EditProduct: React.FC = () => {
                     </div>
 
                     <div>
-                      <label className="block text-base font-medium text-gray-700 mb-2">
+                      <label className="block text-base font-medium text-foreground mb-2">
                         Warranty
                       </label>
                       <input
@@ -893,7 +893,7 @@ const EditProduct: React.FC = () => {
                         value={warranty}
                         onChange={e => setWarranty(e.target.value)}
                         placeholder="Enter warranty period"
-                        className="w-full px-3 py-2 text-base border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#003366] focus:border-transparent"
+                        className="w-full px-3 py-2 text-base border border-line-strong rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
                       />
                     </div>
                   </div>
@@ -904,9 +904,9 @@ const EditProduct: React.FC = () => {
                       id="isWholesale"
                       checked={isWholesale}
                       onChange={e => setIsWholesale(e.target.checked)}
-                      className="h-4 w-4 text-[#003366] focus:ring-[#003366] border-gray-300 rounded"
+                      className="h-4 w-4 text-foreground focus:ring-primary border-line-strong rounded"
                     />
-                    <label htmlFor="isWholesale" className="ml-2 block text-sm text-gray-700">
+                    <label htmlFor="isWholesale" className="ml-2 block text-sm text-foreground">
                       Is Wholesale
                     </label>
                   </div>
@@ -914,7 +914,7 @@ const EditProduct: React.FC = () => {
                   {isWholesale && (
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                       <div>
-                        <label className="block text-base font-medium text-gray-700 mb-2">
+                        <label className="block text-base font-medium text-foreground mb-2">
                           Wholesale Price
                         </label>
                         <input
@@ -922,12 +922,12 @@ const EditProduct: React.FC = () => {
                           value={wholesalePrice}
                           onChange={e => setWholesalePrice(e.target.value ? Number(e.target.value) : '')}
                           placeholder="Enter wholesale price"
-                          className="w-full px-3 py-2 text-base border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#003366] focus:border-transparent"
+                          className="w-full px-3 py-2 text-base border border-line-strong rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
                         />
                       </div>
 
                       <div>
-                        <label className="block text-base font-medium text-gray-700 mb-2">
+                        <label className="block text-base font-medium text-foreground mb-2">
                           Wholesale Quantity
                         </label>
                         <input
@@ -935,7 +935,7 @@ const EditProduct: React.FC = () => {
                           value={wholesaleQuantity}
                           onChange={e => setWholesaleQuantity(e.target.value ? Number(e.target.value) : '')}
                           placeholder="Enter wholesale quantity"
-                          className="w-full px-3 py-2 text-base border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#003366] focus:border-transparent"
+                          className="w-full px-3 py-2 text-base border border-line-strong rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
                         />
                       </div>
                     </div>
@@ -945,10 +945,10 @@ const EditProduct: React.FC = () => {
 
               {/* Warehouse Selection */}
               <div className="space-y-6">
-                <h3 className="text-lg font-medium text-gray-900 border-b border-gray-200 pb-2">Warehouse Configuration</h3>
+                <h3 className="text-lg font-medium text-foreground border-b border-line pb-2">Warehouse Configuration</h3>
                 
                 <div>
-                  <label className="block text-base font-medium text-gray-700 mb-2">
+                  <label className="block text-base font-medium text-foreground mb-2">
                     Add Warehouses
                   </label>
                   <select
@@ -958,7 +958,7 @@ const EditProduct: React.FC = () => {
                         e.target.value = '';
                       }
                     }}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#003366] focus:border-transparent"
+                    className="w-full px-3 py-2 border border-line-strong rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
                   >
                     <option value="">Select warehouse to add</option>
                     {availableWarehouses
@@ -973,7 +973,7 @@ const EditProduct: React.FC = () => {
                     <button
                       type="button"
                       onClick={fetchWarehouses}
-                      className="inline-flex items-center px-3 py-1 rounded text-xs bg-gray-100 text-gray-700 hover:bg-gray-200"
+                      className="inline-flex items-center px-3 py-1 rounded text-xs bg-surface-muted text-foreground hover:bg-surface-muted"
                       title="Refresh warehouses"
                     >
                       Refresh Warehouses
@@ -983,13 +983,13 @@ const EditProduct: React.FC = () => {
 
                 {/* Warehouse Cards */}
                 {warehouses.map((warehouse, index) => (
-                  <div key={index} className="border border-gray-200 rounded-lg p-4 bg-gray-50">
+                  <div key={index} className="border border-line rounded-lg p-4 bg-surface-raised">
                     <div className="flex items-center justify-between mb-4">
-                      <h4 className="font-medium text-gray-900">{warehouse.warehouseName}</h4>
+                      <h4 className="font-medium text-foreground">{warehouse.warehouseName}</h4>
                       <button
                         type="button"
                         onClick={() => removeWarehouse(index)}
-                        className="text-red-600 hover:text-red-800"
+                        className="text-danger hover:text-danger"
                       >
                         <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
@@ -1000,60 +1000,60 @@ const EditProduct: React.FC = () => {
                     {ptype !== 'Variation' && (
                     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
                       <div>
-                        <label className="block text-base font-medium text-gray-700 mb-1">
-                          Product Cost <span className="text-red-500">*</span>
+                        <label className="block text-base font-medium text-foreground mb-1">
+                          Product Cost <span className="text-danger">*</span>
                         </label>
                         <input
                           type="number"
                           value={warehouse.productCost}
                           onChange={e => updateWarehouseData(index, 'productCost', Number(e.target.value))}
                           required
-                          className="w-full px-3 py-2 text-base border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#003366] focus:border-transparent"
+                          className="w-full px-3 py-2 text-base border border-line-strong rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
                         />
                       </div>
 
                       <div>
-                        <label className="block text-base font-medium text-gray-700 mb-1">
-                          Product Price <span className="text-red-500">*</span>
+                        <label className="block text-base font-medium text-foreground mb-1">
+                          Product Price <span className="text-danger">*</span>
                         </label>
                         <input
                           type="number"
                           value={warehouse.productPrice}
                           onChange={e => updateWarehouseData(index, 'productPrice', Number(e.target.value))}
                           required
-                          className="w-full px-3 py-2 text-base border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#003366] focus:border-transparent"
+                          className="w-full px-3 py-2 text-base border border-line-strong rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
                         />
                       </div>
 
                       {isInventory && (
                         <div>
-                          <label className="block text-base font-medium text-gray-700 mb-1">
-                            Stock Alert <span className="text-red-500">*</span>
+                          <label className="block text-base font-medium text-foreground mb-1">
+                            Stock Alert <span className="text-danger">*</span>
                           </label>
                           <input
                             type="number"
                             value={warehouse.stockAlert}
                             onChange={e => updateWarehouseData(index, 'stockAlert', Number(e.target.value))}
                             required
-                            className="w-full px-3 py-2 text-base border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#003366] focus:border-transparent"
+                            className="w-full px-3 py-2 text-base border border-line-strong rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
                           />
                         </div>
                       )}
 
                       <div>
-                        <label className="block text-base font-medium text-gray-700 mb-1">
+                        <label className="block text-base font-medium text-foreground mb-1">
                           Discount
                         </label>
                         <input
                           type="number"
                           value={warehouse.discount}
                           onChange={e => updateWarehouseData(index, 'discount', Number(e.target.value))}
-                          className="w-full px-3 py-2 text-base border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#003366] focus:border-transparent"
+                          className="w-full px-3 py-2 text-base border border-line-strong rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
                         />
                       </div>
                       {/* Calculated fields for single product */}
                       <div>
-                        <label className="block text-base font-medium text-gray-700 mb-1">Product Profit</label>
+                        <label className="block text-base font-medium text-foreground mb-1">Product Profit</label>
                         <input
                           type="number"
                           readOnly
@@ -1064,11 +1064,11 @@ const EditProduct: React.FC = () => {
                             const net = Math.max(0, price - discountAmt);
                             return (net - cost).toFixed(2);
                           })()}
-                          className="w-full px-3 py-2 border border-gray-200 bg-gray-100 rounded-lg"
+                          className="w-full px-3 py-2 border border-line bg-surface-muted rounded-lg"
                         />
                       </div>
                       <div>
-                        <label className="block text-base font-medium text-gray-700 mb-1">Profit Margin (%)</label>
+                        <label className="block text-base font-medium text-foreground mb-1">Profit Margin (%)</label>
                         <input
                           type="number"
                           readOnly
@@ -1081,21 +1081,21 @@ const EditProduct: React.FC = () => {
                             const margin = net > 0 ? (profit / net) * 100 : 0;
                             return margin.toFixed(2);
                           })()}
-                          className="w-full px-3 py-2 border border-gray-200 bg-gray-100 rounded-lg"
+                          className="w-full px-3 py-2 border border-line bg-surface-muted rounded-lg"
                         />
                       </div>
 
                       {isInventory && (
                         <div>
-                          <label className="block text-base font-medium text-gray-700 mb-1">
-                            Quantity <span className="text-red-500">*</span>
+                          <label className="block text-base font-medium text-foreground mb-1">
+                            Quantity <span className="text-danger">*</span>
                           </label>
                           <input
                             type="number"
                             value={warehouse.productQty ?? ''}
                             onChange={e => updateWarehouseData(index, 'productQty', Number(e.target.value))}
                             required
-                            className="w-full px-3 py-2 text-base border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#003366] focus:border-transparent"
+                            className="w-full px-3 py-2 text-base border border-line-strong rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
                           />
                         </div>
                       )}
@@ -1107,9 +1107,9 @@ const EditProduct: React.FC = () => {
                               type="checkbox"
                               checked={warehouse.wholesaleEnabled || false}
                               onChange={e => updateWarehouseData(index, 'wholesaleEnabled', e.target.checked)}
-                              className="h-4 w-4 text-[#003366] focus:ring-[#003366] border-gray-300 rounded"
+                              className="h-4 w-4 text-foreground focus:ring-primary border-line-strong rounded"
                             />
-                            <label className="ml-2 block text-sm text-gray-700">
+                            <label className="ml-2 block text-sm text-foreground">
                               Enable Wholesale
                             </label>
                           </div>
@@ -1119,26 +1119,26 @@ const EditProduct: React.FC = () => {
                       {systemType === 'retail' && warehouse.wholesaleEnabled && (
                         <>
                           <div>
-                            <label className="block text-base font-medium text-gray-700 mb-1">
+                            <label className="block text-base font-medium text-foreground mb-1">
                               Wholesale Price
                             </label>
                             <input
                               type="number"
                               value={warehouse.wholesalePrice || ''}
                               onChange={e => updateWarehouseData(index, 'wholesalePrice', Number(e.target.value))}
-                              className="w-full px-3 py-2 text-base border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#003366] focus:border-transparent"
+                              className="w-full px-3 py-2 text-base border border-line-strong rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
                             />
                           </div>
 
                           <div>
-                            <label className="block text-base font-medium text-gray-700 mb-1">
+                            <label className="block text-base font-medium text-foreground mb-1">
                               Wholesale Min Qty
                             </label>
                             <input
                               type="number"
                               value={warehouse.wholesaleMinQty || ''}
                               onChange={e => updateWarehouseData(index, 'wholesaleMinQty', Number(e.target.value))}
-                              className="w-full px-3 py-2 text-base border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#003366] focus:border-transparent"
+                              className="w-full px-3 py-2 text-base border border-line-strong rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
                             />
                           </div>
                         </>
@@ -1149,7 +1149,7 @@ const EditProduct: React.FC = () => {
                     {ptype === 'Variation' && (
                       <div className="md:col-span-4 w-full">
                         <div className="flex items-center justify-between mb-2">
-                          <h5 className="font-medium text-gray-800">Variation Combinations</h5>
+                          <h5 className="font-medium text-foreground">Variation Combinations</h5>
                           <button
                             type="button"
                             onClick={() => {
@@ -1157,18 +1157,18 @@ const EditProduct: React.FC = () => {
                               const newCombos = [...combos, { valueMap: {}, productCost: 0, productPrice: 0, stockAlert: (systemType!=='restaurant' || isInventory) ? 0 : undefined, discount: 0, code: '', productQty: (systemType==='retail'||isInventory)?0:undefined }];
                               updateWarehouseData(index, 'combos' as any, newCombos);
                             }}
-                            className="inline-flex items-center px-3 py-1 rounded text-xs bg-[#003366] text-white hover:bg-[#004080]"
+                            className="inline-flex items-center px-3 py-1 rounded text-xs bg-primary text-on-primary hover:bg-primary-hover"
                           >Add Combination</button>
                         </div>
                         {(((warehouse as any).combos && (warehouse as any).combos.length ? (warehouse as any).combos : [{ valueMap: (warehouse as any).varValueMap || {}, productCost: warehouse.productCost || 0, productPrice: warehouse.productPrice || 0, stockAlert: (systemType!=='restaurant' || isInventory) ? (warehouse.stockAlert || 0) : undefined, discount: warehouse.discount || 0, code: '', productQty: (systemType==='retail'||isInventory)? (warehouse.productQty || 0): undefined }])).map((combo: any, ci: number) => (
-                          <div key={ci} className="border rounded-lg p-3 mb-3 bg-white">
+                          <div key={ci} className="border rounded-lg p-3 mb-3 bg-surface">
                             <div className="grid grid-cols-1 md:grid-cols-4 gap-3">
                               {selectedVariationIds.map(vid => {
                                 const attr = variations.find(v => v.id === vid);
                                 const attrName = attr?.variationName || '';
                                 return (
                                   <div key={vid}>
-                                    <label className="block text-base font-medium text-gray-700 mb-1">{attrName}</label>
+                                    <label className="block text-base font-medium text-foreground mb-1">{attrName}</label>
                                     <select
                                       value={combo.valueMap?.[attrName] || ''}
                                       onChange={e => {
@@ -1177,7 +1177,7 @@ const EditProduct: React.FC = () => {
                                         clone[ci] = { ...(clone[ci]||{}), valueMap: vm };
                                         updateWarehouseData(index,'combos' as any,clone);
                                       }}
-                                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#003366]"
+                                      className="w-full px-3 py-2 border border-line-strong rounded-lg focus:outline-none focus:ring-2 focus:ring-primary"
                                     >
                                       <option value="">Select {attrName}</option>
                                       {(attr?.variationType || []).map(val => (
@@ -1188,41 +1188,41 @@ const EditProduct: React.FC = () => {
                                 );
                               })}
                               <div>
-                                <label className="block text-base font-medium text-gray-700 mb-1">Cost</label>
+                                <label className="block text-base font-medium text-foreground mb-1">Cost</label>
                                 <input type="number" value={combo.productCost}
                                   onChange={e=>{const combos=(warehouse as any).combos||[];const clone=[...combos];clone[ci]={...clone[ci],productCost:Number(e.target.value)};updateWarehouseData(index,'combos' as any,clone);}}
-                                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#003366]"/>
+                                  className="w-full px-3 py-2 border border-line-strong rounded-lg focus:outline-none focus:ring-2 focus:ring-primary"/>
                               </div>
                               <div>
-                                <label className="block text-base font-medium text-gray-700 mb-1">Price</label>
+                                <label className="block text-base font-medium text-foreground mb-1">Price</label>
                                 <input type="number" value={combo.productPrice}
                                   onChange={e=>{const combos=(warehouse as any).combos||[];const clone=[...combos];clone[ci]={...clone[ci],productPrice:Number(e.target.value)};updateWarehouseData(index,'combos' as any,clone);}}
-                                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#003366]"/>
+                                  className="w-full px-3 py-2 border border-line-strong rounded-lg focus:outline-none focus:ring-2 focus:ring-primary"/>
                               </div>
                               {(systemType !== 'restaurant' || isInventory) && (
                                 <div>
-                                  <label className="block text-base font-medium text-gray-700 mb-1">Stock Alert</label>
+                                  <label className="block text-base font-medium text-foreground mb-1">Stock Alert</label>
                                   <input type="number" value={combo.stockAlert}
                                     onChange={e=>{const combos=(warehouse as any).combos||[];const clone=[...combos];clone[ci]={...clone[ci],stockAlert:Number(e.target.value)};updateWarehouseData(index,'combos' as any,clone);}}
-                                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#003366]"/>
+                                    className="w-full px-3 py-2 border border-line-strong rounded-lg focus:outline-none focus:ring-2 focus:ring-primary"/>
                                 </div>
                               )}
                               <div>
-                                <label className="block text-base font-medium text-gray-700 mb-1">Discount</label>
+                                <label className="block text-base font-medium text-foreground mb-1">Discount</label>
                                 <input type="number" value={combo.discount || ''}
                                   onChange={e=>{const combos=(warehouse as any).combos||[];const clone=[...combos];clone[ci]={...clone[ci],discount:Number(e.target.value)||0};updateWarehouseData(index,'combos' as any,clone);}}
-                                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#003366]"/>
+                                  className="w-full px-3 py-2 border border-line-strong rounded-lg focus:outline-none focus:ring-2 focus:ring-primary"/>
                               </div>
                               <div>
-                                <label className="block text-base font-medium text-gray-700 mb-1">Variation Code</label>
+                                <label className="block text-base font-medium text-foreground mb-1">Variation Code</label>
                                 <input type="text" value={combo.code || ''}
                                   onChange={e=>{const combos=(warehouse as any).combos||[];const clone=[...combos];clone[ci]={...clone[ci],code:e.target.value};updateWarehouseData(index,'combos' as any,clone);}}
                                   placeholder="Enter variation code"
-                                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#003366]"/>
+                                  className="w-full px-3 py-2 border border-line-strong rounded-lg focus:outline-none focus:ring-2 focus:ring-primary"/>
                               </div>
                               {/* Calculated fields for variation combo */}
                               <div>
-                                <label className="block text-base font-medium text-gray-700 mb-1">Product Profit</label>
+                                <label className="block text-base font-medium text-foreground mb-1">Product Profit</label>
                                 <input
                                   type="number"
                                   readOnly
@@ -1233,11 +1233,11 @@ const EditProduct: React.FC = () => {
                                     const net = Math.max(0, price - discountAmt);
                                     return (net - cost).toFixed(2);
                                   })()}
-                                  className="w-full px-3 py-2 border border-gray-200 bg-gray-100 rounded-lg"
+                                  className="w-full px-3 py-2 border border-line bg-surface-muted rounded-lg"
                                 />
                               </div>
                               <div>
-                                <label className="block text-base font-medium text-gray-700 mb-1">Profit Margin (%)</label>
+                                <label className="block text-base font-medium text-foreground mb-1">Profit Margin (%)</label>
                                 <input
                                   type="number"
                                   readOnly
@@ -1250,21 +1250,21 @@ const EditProduct: React.FC = () => {
                                     const margin = net > 0 ? (profit / net) * 100 : 0;
                                     return margin.toFixed(2);
                                   })()}
-                                  className="w-full px-3 py-2 border border-gray-200 bg-gray-100 rounded-lg"
+                                  className="w-full px-3 py-2 border border-line bg-surface-muted rounded-lg"
                                 />
                               </div>
                               {isInventory && (
                                 <div>
-                                  <label className="block text-base font-medium text-gray-700 mb-1">Quantity <span className="text-red-500">*</span></label>
+                                  <label className="block text-base font-medium text-foreground mb-1">Quantity <span className="text-danger">*</span></label>
                                   <input type="number" value={combo.productQty ?? ''}
                                     onChange={e=>{const combos=(warehouse as any).combos||[];const clone=[...combos];clone[ci]={...clone[ci],productQty:Number(e.target.value)};updateWarehouseData(index,'combos' as any,clone);}}
                                     required
-                                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#003366]"/>
+                                    className="w-full px-3 py-2 border border-line-strong rounded-lg focus:outline-none focus:ring-2 focus:ring-primary"/>
                                 </div>
                               )}
                             </div>
                             <div className="mt-2 text-right">
-                              <button type="button" onClick={()=>{const combos=(warehouse as any).combos||[];const clone=[...combos];clone.splice(ci,1);updateWarehouseData(index,'combos' as any,clone);}} className="text-red-600 hover:text-red-700 text-sm">Remove Combination</button>
+                              <button type="button" onClick={()=>{const combos=(warehouse as any).combos||[];const clone=[...combos];clone.splice(ci,1);updateWarehouseData(index,'combos' as any,clone);}} className="text-danger hover:text-danger text-sm">Remove Combination</button>
                             </div>
                           </div>
                         ))}
@@ -1276,17 +1276,17 @@ const EditProduct: React.FC = () => {
               </div>
 
               {/* Submit Buttons */}
-              <div className="flex justify-end space-x-3 pt-6 border-t border-gray-200">
+              <div className="flex justify-end space-x-3 pt-6 border-t border-line">
                 <button
                   type="button"
                   onClick={() => navigate('/viewProducts')}
-                  className="px-4 py-2 text-base font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#003366] transition-colors duration-200"
+                  className="px-4 py-2 text-base font-medium text-foreground bg-surface border border-line-strong rounded-lg hover:bg-surface-raised focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary transition-colors duration-200"
                 >
                   Cancel
                 </button>
                 <button
                   type="submit"
-                  className="px-4 py-2 text-base font-medium text-white bg-[#003366] rounded-lg hover:bg-[#004080] focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#003366] transition-colors duration-200"
+                  className="px-4 py-2 text-base font-medium text-on-primary bg-primary rounded-lg hover:bg-primary-hover focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary transition-colors duration-200"
                 >
                   Update Product
                 </button>

@@ -103,61 +103,61 @@ const EditCustomer: React.FC = () => {
       <div className="w-full max-w-xl">
         {loading && <Loader text="Saving" />}
         <div className="mb-6">
-          <div className="text-2xl font-semibold text-[#001F54]">Edit Customer</div>
+          <div className="text-2xl font-semibold text-foreground">Edit Customer</div>
         </div>
-        <form onSubmit={submit} className="bg-white border border-gray-200 rounded-lg p-6 space-y-4">
+        <form onSubmit={submit} className="bg-surface border border-line rounded-lg p-6 space-y-4">
           <div>
-            <label className="block text-base font-medium text-[#001F54] mb-2">
-              Name <span className="text-red-500">*</span>
+            <label className="block text-base font-medium text-foreground mb-2">
+              Name <span className="text-danger">*</span>
             </label>
             <input 
               required 
               value={name} 
               onChange={e => setName(e.target.value)} 
-              className="w-full text-base border border-gray-200 rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-[#001F54] focus:border-transparent" 
+              className="w-full text-base border border-line rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
             />
           </div>
           <div>
-            <label className="block text-base font-medium text-[#001F54] mb-2">
-              Mobile <span className="text-red-500">*</span>
+            <label className="block text-base font-medium text-foreground mb-2">
+              Mobile <span className="text-danger">*</span>
             </label>
             <input 
               required 
               value={mobile} 
               onChange={e => setMobile(e.target.value)} 
               placeholder="0XXXXXXXXX or +94XXXXXXXXX"
-              className="w-full text-base border border-gray-200 rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-[#001F54] focus:border-transparent" 
+              className="w-full text-base border border-line rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
             />
           </div>
           <div>
-            <label className="block text-base font-medium text-[#001F54] mb-2">NIC</label>
+            <label className="block text-base font-medium text-foreground mb-2">NIC</label>
             <input 
               value={NIC} 
               onChange={e => setNIC(e.target.value)} 
               placeholder="12 digits or 9 digits + V"
-              className="w-full text-base border border-gray-200 rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-[#001F54] focus:border-transparent" 
+              className="w-full text-base border border-line rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
             />
           </div>
           <div>
-            <label className="block text-base font-medium text-[#001F54] mb-2">Address</label>
+            <label className="block text-base font-medium text-foreground mb-2">Address</label>
             <textarea 
               value={address} 
               onChange={e => setAddress(e.target.value)} 
               rows={3}
-              className="w-full text-base border border-gray-200 rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-[#001F54] focus:border-transparent" 
+              className="w-full text-base border border-line rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
             />
           </div>
           <div className="flex justify-end gap-3 pt-4">
             <button 
               type="button" 
               onClick={() => navigate('/viewCustomers')} 
-              className="px-4 py-2 text-base font-medium text-gray-700 bg-white border border-gray-300 rounded hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#003366] transition-colors duration-200"
+              className="px-4 py-2 text-base font-medium text-foreground bg-surface border border-line-strong rounded hover:bg-surface-raised focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary transition-colors duration-200"
             >
               Cancel
             </button>
             <button 
               type="submit" 
-              className="px-4 py-2 text-base font-medium rounded bg-[#003366] text-white hover:bg-[#004080] focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#003366] transition-colors duration-200"
+              className="px-4 py-2 text-base font-medium rounded bg-primary text-on-primary hover:bg-primary-hover focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary transition-colors duration-200"
               disabled={loading}
             >
               {loading ? 'Saving...' : 'Save'}
