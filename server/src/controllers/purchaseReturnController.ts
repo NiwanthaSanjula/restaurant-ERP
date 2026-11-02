@@ -359,6 +359,7 @@ export const getPurchaseReturns = async (
     const sortDirection = sortOrder === 'asc' ? 1 : -1;
     const sortObj: any = {};
     sortObj[sortField] = sortDirection;
+    sortObj._id = sortDirection;
 
     const returns = await PurchaseReturn.find(filter)
       .populate('supplierId', 'name')

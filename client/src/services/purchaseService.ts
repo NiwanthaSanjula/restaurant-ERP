@@ -1,4 +1,5 @@
 import { formatDate } from '../utils/date.ts';
+import { fetchCompletePurchaseReport, type PurchaseReportParams } from './purchaseReportData';
 const api = (import.meta.env.VITE_API_URL || "http://localhost:5000/api") as string;
 
 const getAuthHeaders = () => {
@@ -9,26 +10,34 @@ const getAuthHeaders = () => {
   };
 };
 
-type PurchaseReportParams = {
-  fromDate?: string;
-  toDate?: string;
-  warehouseId?: string;
-};
+interface PurchaseReportRecord {
+  _id: string;
+  purchaseDate?: string;
+  purchaseId?: string;
+  supplierId?: { name?: string };
+  warehouseId?: { name?: string };
+  grandTotal: number;
+  paymentStatus?: string;
+}
+
+interface PurchaseReturnReportRecord {
+  _id: string;
+  returnDate?: string;
+  returnId?: string;
+  purchaseId?: { purchaseId?: string };
+  purchaseRef?: string;
+  supplierId?: { name?: string };
+  warehouseId?: { name?: string };
+  totalReturnAmount: number;
+  status?: string;
+}
 
 export const getPurchaseReport = async (params: PurchaseReportParams) => {
-  const query = new URLSearchParams();
-  if (params.fromDate) query.append("startDate", params.fromDate);
-  if (params.toDate) query.append("endDate", params.toDate);
-  if (params.warehouseId) query.append("warehouseId", params.warehouseId);
+  const report = await fetchCompletePurchaseReport<PurchaseReportRecord>(
+    `${api}/purchases`, params, getAuthHeaders(), row => row.grandTotal, true,
+  );
 
-  const res = await fetch(`${api}/purchases?${query.toString()}`, {
-    method: "GET",
-    headers: getAuthHeaders(),
-  });
-  const json = await res.json();
-  if (!res.ok) throw new Error(json?.message || "Failed to fetch purchase report");
-
-  const rows = (Array.isArray(json?.data) ? json.data : []).map((p: any) => ({
+  const rows = report.data.map(p => ({
     date: p?.purchaseDate ? formatDate(p.purchaseDate) : "—",
     ref: p?.purchaseId || p?._id || "—",
     supplier: p?.supplierId?.name || "—",
@@ -38,36 +47,28 @@ export const getPurchaseReport = async (params: PurchaseReportParams) => {
   }));
 
   return {
-    status: json?.status || "success",
+    ...report,
     data: rows,
   };
 };
 
 export const getPurchaseReturnsReport = async (params: PurchaseReportParams) => {
-  const query = new URLSearchParams();
-  if (params.fromDate) query.append("startDate", params.fromDate);
-  if (params.toDate) query.append("endDate", params.toDate);
-  if (params.warehouseId) query.append("warehouseId", params.warehouseId);
+  const report = await fetchCompletePurchaseReport<PurchaseReturnReportRecord>(
+    `${api}/purchase-returns`, params, getAuthHeaders(), row => row.totalReturnAmount, false,
+  );
 
-  const res = await fetch(`${api}/purchase-returns?${query.toString()}`, {
-    method: "GET",
-    headers: getAuthHeaders(),
-  });
-  const json = await res.json();
-  if (!res.ok) throw new Error(json?.message || "Failed to fetch purchase returns report");
-
-  const rows = (Array.isArray(json?.data) ? json.data : []).map((r: any) => ({
+  const rows = report.data.map(r => ({
     date: r?.returnDate ? formatDate(r.returnDate) : "—",
     retRef: r?.returnId || r?._id || "—",
     purchaseRef: r?.purchaseId?.purchaseId || r?.purchaseRef || "—",
     supplier: r?.supplierId?.name || "—",
     warehouse: r?.warehouseId?.name || "—",
-    total: Number(r?.grandTotal || r?.total || 0),
+    total: r.totalReturnAmount,
     status: r?.status || "Received",
   }));
 
   return {
-    status: json?.status || "success",
+    ...report,
     data: rows,
   };
 };

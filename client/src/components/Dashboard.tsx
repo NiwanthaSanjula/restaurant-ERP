@@ -71,14 +71,15 @@ const Dashboard: React.FC = () => {
   if (loading) return <div className="p-10 text-center text-foreground font-semibold italic">Loading ServeSmart...</div>;
   if (!data) return <div className="p-10 text-center text-danger">Error loading data.</div>;
 
-  const StatCard = ({ title, value, unit, icon: Icon, path }: any) => (
+  const StatCard = ({ title, value, unit, icon: Icon, path, tone }: any) => (
     <button type="button"
       onClick={() => path && navigate(path)} 
-      className="ss-stat flex justify-between items-center min-h-[120px] w-full border border-l-3 border-l-primary"
+      data-tone={tone}
+      className="ss-stat flex justify-between items-center min-h-[120px] w-full"
     >
-      <div className="text-foreground">
-        <p className="text-muted text-xs font-medium mb-2">{title}</p>
-        <h3 className="text-2xl font-semibold leading-tight"><span className="text-sm font-medium text-muted">{unit}</span> {value.toLocaleString()}</h3>
+      <div>
+        <p className="ss-stat-label text-xs font-medium mb-2">{title}</p>
+        <h3 className="text-2xl font-semibold leading-tight"><span className="ss-stat-label text-sm font-medium">{unit}</span> {value.toLocaleString()}</h3>
       </div>
       <div className="ss-stat-icon ml-3 shrink-0">
         <Icon size={22} strokeWidth={1.75} />
@@ -96,20 +97,20 @@ const Dashboard: React.FC = () => {
       
       {}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-        <StatCard title="Today Sale" value={data.cards?.todaySales || 0} unit={currencyCode} icon={FileText} path="/viewSales" />
+        <StatCard tone="orange" title="Today Sale" value={data.cards?.todaySales || 0} unit={currencyCode} icon={FileText} path="/viewSales" />
         
         {}
-        <StatCard title="Today Purchase" value={data.cards?.todayPurchases || 0} unit={currencyCode} icon={ShoppingCart} path="/createPurchase" />
+        <StatCard tone="emerald" title="Today Purchase" value={data.cards?.todayPurchases || 0} unit={currencyCode} icon={ShoppingCart} path="/createPurchase" />
         
-        <StatCard title="Today Purchase Return" value={data.cards?.todayPurchaseReturns || 0} unit={currencyCode} icon={ArrowRight} path="/viewPurchaseReturns" />
-        <StatCard title="Today Sale Return" value={data.cards?.todaySaleReturns || 0} unit={currencyCode} icon={ArrowLeft} path="/saleReturns" />
-        <StatCard title="Total Sale" value={data.cards?.sales || 0} unit={currencyCode} icon={Layout} path="/viewSales" />
+        <StatCard tone="violet" title="Today Purchase Return" value={data.cards?.todayPurchaseReturns || 0} unit={currencyCode} icon={ArrowRight} path="/viewPurchaseReturns" />
+        <StatCard tone="rose" title="Today Sale Return" value={data.cards?.todaySaleReturns || 0} unit={currencyCode} icon={ArrowLeft} path="/saleReturns" />
+        <StatCard tone="lime" title="Total Sale" value={data.cards?.sales || 0} unit={currencyCode} icon={Layout} path="/viewSales" />
         
         {}
-        <StatCard title="Total Purchase" value={data.cards?.totalPurchases || 0} unit={currencyCode} icon={Wallet} path="/createPurchase" />
+        <StatCard tone="indigo" title="Total Purchase" value={data.cards?.totalPurchases || 0} unit={currencyCode} icon={Wallet} path="/createPurchase" />
         
-        <StatCard title="Total Sale Return" value={data.cards?.saleReturns || 0} unit={currencyCode} icon={RefreshCcw} path="/saleReturns" />
-        <StatCard title="Today Expenses" value={data.cards?.todayExpenses || 0} unit={currencyCode} icon={Wallet} path="/expenses" />
+        <StatCard tone="fuchsia" title="Total Sale Return" value={data.cards?.saleReturns || 0} unit={currencyCode} icon={RefreshCcw} path="/saleReturns" />
+        <StatCard tone="amber" title="Today Expenses" value={data.cards?.todayExpenses || 0} unit={currencyCode} icon={Wallet} path="/expenses" />
       </div>
 
       {}

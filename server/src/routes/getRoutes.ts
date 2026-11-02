@@ -116,12 +116,12 @@ router.get('/orders', authenticate, requirePermission('manageOrders', 'view_orde
 router.get('/orders/:id', authenticate, requirePermission('manageOrders', 'view_order'), getOrderById);
 
 // Purchases
-router.get('/purchases', getPurchases);
-router.get('/purchases/:id', getPurchaseById);
+router.get('/purchases', authenticate, requirePermission('managePurchases', 'read'), getPurchases);
+router.get('/purchases/:id', authenticate, requirePermission('managePurchases', 'read'), getPurchaseById);
 
 // Purchase Returns
-router.get('/purchase-returns', getPurchaseReturns);
-router.get('/purchase-returns/:id', getPurchaseReturnById);
+router.get('/purchase-returns', authenticate, requirePermission('managePurchases', 'read'), getPurchaseReturns);
+router.get('/purchase-returns/:id', authenticate, requirePermission('managePurchases', 'read'), getPurchaseReturnById);
 
 // Sale Returns
 router.get('/sale-returns', getSaleReturns);

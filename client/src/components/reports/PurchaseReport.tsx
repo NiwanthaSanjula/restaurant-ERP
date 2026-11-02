@@ -7,7 +7,7 @@ import {
     Store,
     Wallet
 } from "lucide-react";
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useCurrency } from "../../contexts/CurrencyContext";
 import { getPurchaseReport, getPurchaseReturnsReport } from "../../services/purchaseService";
@@ -47,6 +47,10 @@ const PurchaseReport: React.FC = () => {
 
   const [purchasesData, setPurchasesData] = useState<PurchaseRow[]>([]);
   const [returnsData, setReturnsData] = useState<PurchaseReturnRow[]>([]);
+  const [totalPurchasesAmount, setTotalPurchasesAmount] = useState<number | null>(null);
+  const [totalReturnsAmount, setTotalReturnsAmount] = useState<number | null>(null);
+  const purchaseRequest = useRef(0);
+  const returnRequest = useRef(0);
   const [loading, setLoading] = useState(false);
   const [loadingReturns, setLoadingReturns] = useState(false);
   const [warehouses, setWarehouses] = useState<Array<{ _id: string; name: string }>>([]);
@@ -74,7 +78,10 @@ const PurchaseReport: React.FC = () => {
   };
 
   const fetchPurchaseReport = async () => {
+    const request = ++purchaseRequest.current;
     setLoading(true);
+    setPurchasesData([]);
+    setTotalPurchasesAmount(null);
     try {
       const response = await getPurchaseReport({
         fromDate: filters.fromDate || undefined,
@@ -82,21 +89,27 @@ const PurchaseReport: React.FC = () => {
         warehouseId: !filters.store || filters.store === "All Stores" ? undefined : filters.store,
       });
 
+      if (request !== purchaseRequest.current) return;
       if (response.status === "success" && Array.isArray(response.data)) {
         setPurchasesData(response.data);
+        setTotalPurchasesAmount(response.summary.totalAmount);
       } else {
         setPurchasesData([]);
       }
     } catch (error: any) {
+      if (request !== purchaseRequest.current) return;
       showErrorToast(error.message || "Failed to load purchase report");
       setPurchasesData([]);
     } finally {
-      setLoading(false);
+      if (request === purchaseRequest.current) setLoading(false);
     }
   };
 
   const fetchPurchaseReturnsReport = async () => {
+    const request = ++returnRequest.current;
     setLoadingReturns(true);
+    setReturnsData([]);
+    setTotalReturnsAmount(null);
     try {
       const response = await getPurchaseReturnsReport({
         fromDate: filters.fromDate || undefined,
@@ -104,16 +117,19 @@ const PurchaseReport: React.FC = () => {
         warehouseId: !filters.store || filters.store === "All Stores" ? undefined : filters.store,
       });
 
+      if (request !== returnRequest.current) return;
       if (response.status === "success" && Array.isArray(response.data)) {
         setReturnsData(response.data);
+        setTotalReturnsAmount(response.summary.totalAmount);
       } else {
         setReturnsData([]);
       }
     } catch (error: any) {
+      if (request !== returnRequest.current) return;
       showErrorToast(error.message || "Failed to load purchase returns report");
       setReturnsData([]);
     } finally {
-      setLoadingReturns(false);
+      if (request === returnRequest.current) setLoadingReturns(false);
     }
   };
 
@@ -125,9 +141,6 @@ const PurchaseReport: React.FC = () => {
     fetchPurchaseReport();
     fetchPurchaseReturnsReport();
   }, [filters.fromDate, filters.toDate, filters.store]);
-
-  const totalPurchasesAmount = purchasesData.reduce((acc, curr) => acc + curr.total, 0);
-  const totalReturnsAmount = returnsData.reduce((acc, curr) => acc + curr.total, 0);
 
   return (
     <div className="max-w-7xl mx-auto p-4 md:p-8 bg-canvas min-h-screen">
@@ -154,6 +167,7 @@ const PurchaseReport: React.FC = () => {
             </button>
 
             <ExportPDFButton
+              disabled={activeTab === "purchases" ? loading || totalPurchasesAmount === null : loadingReturns || totalReturnsAmount === null}
               columns={activeTab === "purchases"
                 ? ["date", "ref", "supplier", "warehouse", "total", "status"]
                 : ["date", "retRef", "purchaseRef", "supplier", "warehouse", "total", "status"]}
@@ -241,7 +255,7 @@ const PurchaseReport: React.FC = () => {
           <div className="relative z-10 flex justify-between items-center">
             <div>
               <p className="text-foreground text-sm font-bold uppercase tracking-wider mb-1">Total Purchases</p>
-              <h3 className="text-foreground text-3xl font-black tracking-tighter">{currencySymbol} {currencyCode} {totalPurchasesAmount.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</h3>
+              <h3 className="text-foreground text-3xl font-black tracking-tighter">{totalPurchasesAmount === null ? "Unavailable" : `${currencySymbol} ${currencyCode} ${totalPurchasesAmount.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`}</h3>
             </div>
             <div className="bg-surface-muted p-4 rounded-2xl backdrop-blur-md">
               <ShoppingCart className="text-foreground w-8 h-8" />
@@ -257,7 +271,7 @@ const PurchaseReport: React.FC = () => {
           <div className="relative z-10 flex justify-between items-center">
             <div>
               <p className="text-foreground text-sm font-bold uppercase tracking-wider mb-1">Total Returns</p>
-              <h3 className="text-foreground text-3xl font-black tracking-tighter">{currencySymbol} {currencyCode} {totalReturnsAmount.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</h3>
+              <h3 className="text-foreground text-3xl font-black tracking-tighter">{totalReturnsAmount === null ? "Unavailable" : `${currencySymbol} ${currencyCode} ${totalReturnsAmount.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`}</h3>
             </div>
             <div className="bg-surface-muted p-4 rounded-2xl backdrop-blur-md">
               <RefreshCcw className="text-foreground w-8 h-8" />

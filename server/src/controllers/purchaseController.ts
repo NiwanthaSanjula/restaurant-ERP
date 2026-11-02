@@ -6,6 +6,7 @@ import Supplier from '../models/Supplier';
 import Warehouse from '../models/Warehouse';
 import logActivity from '../services/logActivity';
 import { buildZonedDateRange, parseDateInputAsZonedStart } from '../utils/timezone';
+import { purchaseReadResponse } from '../utils/purchaseRead';
 
 interface IPurchaseItem {
   productId: string;
@@ -668,13 +669,24 @@ export const getPurchases = async (req: Request, res: Response): Promise<void> =
       filter.purchaseDate = { $gte: start, $lte: end };
     }
 
-    if (supplierId) filter.supplierId = supplierId;
-    if (warehouseId) filter.warehouseId = warehouseId;
+    for (const [field, value] of Object.entries({ supplierId, warehouseId })) {
+      if (!value) continue;
+      if (!mongoose.isValidObjectId(value)) {
+        res.status(400).json({ status: 'error', message: `Invalid ${field}.` });
+        return;
+      }
+      // Aggregation does not perform the query casting done by find().
+      filter[field] = new mongoose.Types.ObjectId(value);
+    }
     if (purchaseStatus) filter.purchaseStatus = purchaseStatus;
     if (paymentStatus) filter.paymentStatus = paymentStatus;
 
     const pageNum = parseInt(page);
     const limitNum = parseInt(limit);
+    if (!Number.isSafeInteger(pageNum) || pageNum < 1 || !Number.isSafeInteger(limitNum) || limitNum < 1) {
+      res.status(400).json({ status: 'error', message: 'Page and limit must be positive integers.' });
+      return;
+    }
     const skip = (pageNum - 1) * limitNum;
 
     const [purchases, total] = await Promise.all([
@@ -682,9 +694,10 @@ export const getPurchases = async (req: Request, res: Response): Promise<void> =
         .populate('supplierId', 'name')
         .populate('warehouseId', 'name')
         .populate('createdBy', 'name')
-        .sort({ createdAt: -1 })
+        .sort({ createdAt: -1, _id: -1 })
         .skip(skip)
-        .limit(limitNum),
+        .limit(limitNum)
+        .lean(),
       Purchase.countDocuments(filter)
     ]);
 
@@ -695,7 +708,7 @@ export const getPurchases = async (req: Request, res: Response): Promise<void> =
 
     res.status(200).json({
       status: 'success',
-      data: purchases,
+      data: purchases.map(purchaseReadResponse),
       pagination: {
         total,
         page: pageNum,
@@ -776,7 +789,7 @@ export const getPurchaseById = async (req: Request, res: Response): Promise<void
     
     res.status(200).json({ 
       status: 'success', 
-      data: purchase 
+      data: purchaseReadResponse(purchase)
     });
   } catch (error: any) {
     res.status(500).json({ 

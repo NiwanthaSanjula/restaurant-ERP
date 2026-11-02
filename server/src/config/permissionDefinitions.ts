@@ -42,6 +42,8 @@ for (const component of ['manageProducts', 'manageWarehouses', 'manageBaseUnits'
 }
 SYSTEM_ROLE_DATA.manageSpecialOffers = ['create', 'update', 'delete'];
 SYSTEM_ROLE_DATA.manageQuotations = ['update'];
+// Purchase list, detail and report reads share one explicit grant. No implicit grants.
+SYSTEM_ROLE_DATA.managePurchases = ['read'];
 
 export type PermissionMap = Record<string, Record<string, boolean>>;
 export interface RolePermission { component: string; actions: Record<string, boolean> }

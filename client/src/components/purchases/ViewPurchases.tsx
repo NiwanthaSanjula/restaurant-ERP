@@ -8,6 +8,7 @@ import { showErrorToast, showSuccessToast } from '../../utils/toast';
 import DeleteConfirmModal from '../common/DeleteConfirmModal';
 import SearchBar from '../common/SearchBar';
 import { formatDate } from '../../utils/date.ts';
+import { formatPurchasePayment, purchasePaymentTotal } from '../../utils/purchasePayments';
 
 interface PurchaseRow {
   _id: string;
@@ -21,8 +22,8 @@ interface PurchaseRow {
     name: string;
   };
   grandTotal: number;
-  paid: number;
-  due: number;
+  paid: number | null;
+  due: number | null;
   paymentStatus: 'Paid' | 'Partial' | 'Unpaid';
   paymentMethod?: string;
   purchaseStatus: 'Received' | 'Pending';
@@ -326,14 +327,11 @@ const ViewPurchases: React.FC = () => {
     return filterDate;
   };
 
-  const paginatedPurchases = purchases.slice(
-    (pagination.page - 1) * pagination.limit,
-    pagination.page * pagination.limit
-  );
+  const paginatedPurchases = purchases;
 
   const totalGrandTotal = purchases.reduce((sum, p) => sum + (p.grandTotal || 0), 0);
-  const totalPaid = purchases.reduce((sum, p) => sum + (p.paid || 0), 0);
-  const totalDue = purchases.reduce((sum, p) => sum + (p.due || 0), 0);
+  const totalPaid = purchasePaymentTotal(purchases, 'paid');
+  const totalDue = purchasePaymentTotal(purchases, 'due');
 
   return (
     <div className="p-8 bg-canvas min-h-screen">
@@ -583,10 +581,10 @@ const ViewPurchases: React.FC = () => {
                     {currencyCode} {(purchase.grandTotal || 0).toLocaleString()}
                   </td>
                   <td className="p-6 text-right font-black text-foreground">
-                    {currencyCode} {(purchase.paid || 0).toLocaleString()}
+                    {formatPurchasePayment(purchase.paid, currencyCode)}
                   </td>
                   <td className="p-6 text-right font-black text-foreground">
-                    {currencyCode} {(purchase.due || 0).toLocaleString()}
+                    {formatPurchasePayment(purchase.due, currencyCode)}
                   </td>
                   <td className="p-6 text-center">
                     <span className={`inline-flex px-3 py-1 text-xs font-bold rounded-full ${getPaymentStatusColor(purchase.paymentStatus)}`}>
@@ -665,15 +663,15 @@ const ViewPurchases: React.FC = () => {
           {paginatedPurchases.length > 0 && (
             <tfoot className="bg-surface-raised border-t-2 border-line">
               <tr>
-                <td colSpan={5} className="p-6 font-black text-foreground">Total</td>
+                <td colSpan={5} className="p-6 font-black text-foreground">Page total</td>
                 <td className="p-6 text-right font-black text-foreground">
                   {currencyCode} {totalGrandTotal.toLocaleString()}
                 </td>
                 <td className="p-6 text-right font-black text-foreground">
-                  {currencyCode} {totalPaid.toLocaleString()}
+                  {formatPurchasePayment(totalPaid, currencyCode)}
                 </td>
                 <td className="p-6 text-right font-black text-foreground">
-                  {currencyCode} {totalDue.toLocaleString()}
+                  {formatPurchasePayment(totalDue, currencyCode)}
                 </td>
                 <td colSpan={4}></td>
               </tr>

@@ -15,7 +15,9 @@ export function permissionForPath(path: string): RoutePermission | null {
     [/^\/editUser\//, 'manageUsers', 'edit_user'],
     [/^\/(SystemSettings|ReceiptSettings)\/?$/, 'manageSettings', 'view_settings'],
     [/^\/mail-settings\/?$/, 'manageSettings', 'view_mail_settings'],
-    [/^\/(pos|pos-checkout)\/?$/, 'managePOS', 'view_pos']
+    [/^\/(pos|pos-checkout)\/?$/, 'managePOS', 'view_pos'],
+    [/^\/(purchases|reports\/purchase|viewPurchaseReturns|return_to_supplier)\/?$/, 'managePurchases', 'read'],
+    [/^\/purchaseReturnDetails\//, 'managePurchases', 'read']
   ];
   const matched = rules.find(([pattern]) => new RegExp(pattern.source, 'i').test(pathname));
   return matched ? { component: matched[1], action: matched[2] } : null;
