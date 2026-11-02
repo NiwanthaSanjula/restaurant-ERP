@@ -1,0 +1,72 @@
+import { toast } from 'react-toastify';
+
+const isMobileViewport = () =>
+  typeof window !== 'undefined' && window.matchMedia('(max-width: 639px)').matches;
+
+const baseToastStyle = (backgroundColor: string) => {
+  const isMobile = isMobileViewport();
+  return {
+    backgroundColor,
+    color: 'white',
+    width: isMobile ? 'calc(100vw - 1.25rem)' : undefined,
+    maxWidth: isMobile ? '21rem' : '28rem',
+    margin: isMobile ? '0 auto' : undefined,
+    minHeight: isMobile ? '2.4rem' : undefined,
+    fontSize: isMobile ? '0.9rem' : '0.9rem',
+    lineHeight: 1.35,
+    borderRadius: isMobile ? '10px' : '12px',
+    padding: isMobile ? '10px 12px' : '10px 12px'
+  } as const;
+};
+
+export const showSuccessToast = (message: string) => {
+  const isMobile = isMobileViewport();
+  toast.success(message, {
+    position: isMobile ? 'top-center' : 'top-right',
+    autoClose: isMobile ? 2600 : 3000,
+    hideProgressBar: isMobile,
+    closeOnClick: true,
+    pauseOnHover: true,
+    draggable: true,
+    style: baseToastStyle('#10B981')
+  });
+};
+
+export const showErrorToast = (message: string) => {
+  const isMobile = isMobileViewport();
+  toast.error(message, {
+    position: isMobile ? 'top-center' : 'top-right',
+    autoClose: isMobile ? 3200 : 5000,
+    hideProgressBar: isMobile,
+    closeOnClick: true,
+    pauseOnHover: true,
+    draggable: true,
+    style: baseToastStyle('#EF4444')
+  });
+};
+
+export const showInfoToast = (message: string) => {
+  const isMobile = isMobileViewport();
+  toast.info(message, {
+    position: isMobile ? 'top-center' : 'top-right',
+    autoClose: isMobile ? 2200 : 3000,
+    hideProgressBar: isMobile,
+    closeOnClick: true,
+    pauseOnHover: true,
+    draggable: true,
+    style: baseToastStyle('#3B82F6')
+  });
+};
+
+export const showWarningToast = (message: string) => {
+  const isMobile = isMobileViewport();
+  toast.warn(message, {
+    position: isMobile ? 'top-center' : 'top-right',
+    autoClose: isMobile ? 3800 : 6000,
+    hideProgressBar: isMobile,
+    closeOnClick: true,
+    pauseOnHover: true,
+    draggable: true,
+    style: baseToastStyle('#F59E0B')
+  });
+};

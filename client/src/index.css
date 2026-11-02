@@ -1,0 +1,823 @@
+/* src/index.css */
+@import "tailwindcss";
+
+@import url("https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap");
+
+body {
+  background-color: white;
+  color: rgb(31 41 55);
+  font-family: "Inter", system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI",
+    sans-serif;
+}
+
+/* Premium POS shared styles */
+.animated-gradient {
+  background: linear-gradient(-45deg, #1a2b3d, #243b53, #334e68, #486581);
+  background-size: 400% 400%;
+  animation: gradient 15s ease infinite;
+}
+
+@keyframes gradient {
+  0% {
+    background-position: 0% 50%;
+  }
+  50% {
+    background-position: 100% 50%;
+  }
+  100% {
+    background-position: 0% 50%;
+  }
+}
+
+.glass {
+  background: rgba(255, 255, 255, 0.1);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+.glass-white {
+  background: rgba(255, 255, 255, 0.95);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.3);
+}
+
+.glass-card {
+  background: rgba(255, 255, 255, 0.98);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  border: 1px solid rgba(255, 255, 255, 0.4);
+}
+
+.custom-scrollbar::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+.custom-scrollbar::-webkit-scrollbar-track {
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 10px;
+}
+
+.custom-scrollbar::-webkit-scrollbar-thumb {
+  background: rgba(72, 101, 129, 0.6);
+  border-radius: 10px;
+}
+
+.custom-scrollbar::-webkit-scrollbar-thumb:hover {
+  background: rgba(72, 101, 129, 0.8);
+}
+
+.smooth-transition {
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.hover-scale:hover {
+  transform: scale(1.02);
+}
+
+.hover-lift:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 12px 24px rgba(0, 0, 0, 0.15);
+}
+
+.perfect-grid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 1rem;
+  align-items: stretch;
+}
+
+.product-card {
+  width: 100%;
+  max-width: 100%;
+  height: 250px;
+  display: flex;
+  flex-direction: column;
+}
+
+.product-card-image {
+  height: 110px;
+  object-fit: cover;
+}
+
+.glass-input:focus {
+  background: rgba(255, 255, 255, 1);
+  border-color: rgba(72, 101, 129, 0.5);
+  outline: none;
+  box-shadow: 0 0 0 3px rgba(72, 101, 129, 0.1);
+}
+
+/* Modal Animations */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes slideUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.animate-fadeIn {
+  animation: fadeIn 0.2s ease-out;
+}
+
+.animate-slideUp {
+  animation: slideUp 0.3s ease-out;
+}
+
+/* Menu display — staggered grid cards & order drawer (ServeSmart) */
+@keyframes menu-card-reveal {
+  from {
+    opacity: 0;
+    transform: translateY(18px) scale(0.96);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+.menu-card-reveal {
+  animation: menu-card-reveal 0.55s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+
+@keyframes menu-drawer-slide {
+  from {
+    transform: translateX(100%);
+  }
+  to {
+    transform: translateX(0);
+  }
+}
+
+.menu-order-drawer-enter {
+  animation: menu-drawer-slide 0.45s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+@keyframes menu-order-line-in {
+  from {
+    opacity: 0;
+    transform: translateX(16px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+.menu-order-line-enter {
+  animation: menu-order-line-in 0.42s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+@keyframes menu-backdrop-fade {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+.menu-cart-backdrop {
+  animation: menu-backdrop-fade 0.3s ease-out both;
+}
+
+/* Menu — gentle floating “breathing” cards (inner wrapper; entrance stays on outer) */
+@keyframes menu-card-breathe {
+  0%,
+  100% {
+    transform: translateY(0);
+    box-shadow: 0 10px 36px -14px rgba(0, 31, 84, 0.32);
+  }
+  50% {
+    transform: translateY(-5px);
+    box-shadow: 0 18px 44px -10px rgba(0, 51, 102, 0.38);
+  }
+}
+
+.menu-order-card-breathe {
+  animation: menu-card-breathe 5.2s ease-in-out infinite;
+}
+
+.menu-order-card-breathe:hover {
+  animation-play-state: paused;
+}
+
+@keyframes menu-product-breathe {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-4px);
+  }
+}
+
+.menu-product-card-breathe {
+  animation: menu-product-breathe 4.8s ease-in-out infinite;
+}
+
+.menu-product-card-breathe:hover {
+  animation-play-state: paused;
+}
+
+/* Soft curved shimmer along card edge (decorative) */
+@keyframes menu-curve-shimmer {
+  0% {
+    opacity: 0.35;
+  }
+  50% {
+    opacity: 0.85;
+  }
+  100% {
+    opacity: 0.35;
+  }
+}
+
+.menu-curve-accent {
+  animation: menu-curve-shimmer 3.5s ease-in-out infinite;
+}
+
+@keyframes menu-ribbon-drift {
+  0%,
+  100% {
+    transform: translateX(-50%) translateY(0);
+    opacity: 0.6;
+  }
+  50% {
+    transform: translateX(-50%) translateY(2px);
+    opacity: 0.95;
+  }
+}
+
+.menu-order-ribbon {
+  animation: menu-ribbon-drift 4.2s ease-in-out infinite;
+}
+
+@keyframes menu-header-in {
+  from {
+    opacity: 0;
+    transform: translateY(-8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.menu-header-enter {
+  animation: menu-header-in 0.45s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+@keyframes menu-chip-in {
+  from {
+    opacity: 0.75;
+    transform: translateY(3px) scale(0.96);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+.menu-chip-pop {
+  animation: menu-chip-in 0.24s ease-out both;
+}
+
+@keyframes menu-search-glow {
+  0%,
+  100% {
+    box-shadow: 0 0 0 0 rgba(74, 144, 226, 0);
+  }
+  50% {
+    box-shadow: 0 0 0 4px rgba(74, 144, 226, 0.08);
+  }
+}
+
+.menu-search-pulse:focus {
+  animation: menu-search-glow 1.2s ease-in-out infinite;
+}
+
+.menu-tax-card {
+  animation: menu-chip-in 0.32s ease-out both;
+}
+
+
+.menu-glass-boost {
+  backdrop-filter: blur(14px) saturate(125%);
+  -webkit-backdrop-filter: blur(14px) saturate(125%);
+  background: rgba(255, 255, 255, 0.92);
+}
+
+.menu-top-panel {
+  backdrop-filter: blur(14px) saturate(120%);
+  -webkit-backdrop-filter: blur(14px) saturate(120%);
+}
+
+.menu-search-input {
+  transition: border-color 0.25s ease, box-shadow 0.25s ease, transform 0.25s ease,
+    background-color 0.25s ease;
+}
+
+.menu-search-input:hover {
+  border-color: rgba(0, 51, 102, 0.28);
+}
+
+.menu-search-input:focus {
+  border-color: rgba(0, 51, 102, 0.42);
+  box-shadow: 0 0 0 3px rgba(74, 144, 226, 0.12), 0 10px 24px -16px rgba(0, 31, 84, 0.45);
+  transform: translateY(-1px);
+}
+
+.menu-search-shell {
+  isolation: isolate;
+}
+
+.menu-search-shell::before {
+  content: "";
+  position: absolute;
+  inset: -1px;
+  border-radius: 1rem;
+  background: linear-gradient(
+    130deg,
+    rgba(0, 51, 102, 0.18),
+    rgba(74, 144, 226, 0.16),
+    rgba(0, 31, 84, 0.12)
+  );
+  opacity: 0;
+  transition: opacity 0.28s ease;
+  z-index: -1;
+}
+
+.menu-search-shell:focus-within::before {
+  opacity: 1;
+}
+
+@keyframes menu-search-sweep {
+  0% {
+    transform: translateX(-120%);
+    opacity: 0;
+  }
+  35% {
+    opacity: 0.7;
+  }
+  100% {
+    transform: translateX(140%);
+    opacity: 0;
+  }
+}
+
+.menu-search-shine::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  background: linear-gradient(
+    105deg,
+    transparent 28%,
+    rgba(255, 255, 255, 0.65) 47%,
+    transparent 62%
+  );
+  transform: translateX(-120%);
+  opacity: 0;
+}
+
+.menu-search-shell:focus-within .menu-search-shine::after {
+  animation: menu-search-sweep 0.85s ease-out both;
+}
+
+.menu-search-icon {
+  transition: color 0.25s ease, transform 0.25s ease;
+}
+
+.menu-search-shell:focus-within .menu-search-icon {
+  color: rgba(0, 51, 102, 0.9);
+  transform: translateY(-50%) scale(1.06);
+}
+
+.menu-search-clear {
+  transition: transform 0.2s ease, box-shadow 0.2s ease, color 0.2s ease,
+    background-color 0.2s ease;
+}
+
+.menu-search-clear:hover {
+  transform: translateY(-50%) scale(1.04);
+}
+
+.menu-search-clear:active {
+  transform: translateY(-50%) scale(0.96);
+}
+
+.menu-mobile-cart-fab {
+  backdrop-filter: blur(14px) saturate(120%);
+  -webkit-backdrop-filter: blur(14px) saturate(120%);
+  animation: menu-chip-in 0.32s ease-out both;
+}
+
+@media (max-width: 639px) {
+  html,
+  body,
+  #root {
+    width: 100%;
+    max-width: 100%;
+    overflow-x: hidden;
+  }
+
+  .menu-order-drawer-enter {
+    width: 100vw !important;
+    max-width: 100vw !important;
+    height: 100dvh !important;
+    min-height: 100dvh !important;
+    overflow: hidden;
+  }
+
+  .menu-order-drawer-enter .custom-scrollbar {
+    -webkit-overflow-scrolling: touch;
+  }
+
+  .menu-mobile-cart-fab {
+    right: 0.65rem !important;
+    bottom: max(0.65rem, env(safe-area-inset-bottom)) !important;
+    padding: 0.62rem 0.8rem !important;
+    border-radius: 0.9rem !important;
+    font-size: 0.78rem !important;
+  }
+
+  .menu-mobile-cart-fab svg {
+    width: 1rem;
+    height: 1rem;
+  }
+
+  .Toastify__toast-container {
+    width: calc(100vw - 1.25rem) !important;
+    max-width: 21rem !important;
+    left: 50% !important;
+    right: auto !important;
+    transform: translateX(-50%) !important;
+    padding: 0 !important;
+    margin-top: 0.35rem !important;
+  }
+
+  .Toastify__toast {
+    min-height: 2.35rem !important;
+    margin-bottom: 0.35rem !important;
+    padding: 9px 11px !important;
+    border-radius: 10px !important;
+    box-shadow: 0 8px 20px -12px rgba(0, 31, 84, 0.45) !important;
+  }
+
+  .Toastify__toast-body {
+    margin: 0 !important;
+    padding: 0 !important;
+    font-size: 0.9rem !important;
+    line-height: 1.35 !important;
+    font-weight: 600 !important;
+  }
+
+  .Toastify__close-button {
+    align-self: flex-start !important;
+    margin-top: 2px !important;
+    font-size: 0.95rem !important;
+  }
+
+  .Toastify__toast--success {
+    min-height: 2.55rem !important;
+    padding-top: 10px !important;
+    padding-bottom: 10px !important;
+  }
+
+  .perfect-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 0.75rem;
+    align-items: stretch;
+    justify-items: stretch;
+  }
+
+  .product-card {
+    width: 100%;
+    height: 238px;
+  }
+
+  .product-card-image {
+    height: 88px;
+  }
+
+  .menu-card-reveal {
+    width: 100%;
+    height: 100%;
+  }
+
+  /* Keep desktop-like hover reveal behavior in mobile viewport with mouse */
+  .menu-card-reveal .menu-mobile-hover-layer {
+    opacity: 0;
+    pointer-events: none;
+  }
+
+  .menu-card-reveal:hover .menu-mobile-hover-layer,
+  .menu-card-reveal:active .menu-mobile-hover-layer {
+    opacity: 1;
+    pointer-events: auto;
+  }
+
+  .menu-card-reveal .menu-mobile-hover-cta {
+    transform: translateY(12px);
+  }
+
+  .menu-card-reveal:hover .menu-mobile-hover-cta,
+  .menu-card-reveal:active .menu-mobile-hover-cta {
+    transform: translateY(0);
+  }
+}
+
+@media (min-width: 640px) and (max-width: 1023px) {
+  .perfect-grid {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 0.875rem;
+  }
+}
+
+@media (min-width: 1024px) {
+  .perfect-grid {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 1rem;
+    justify-content: stretch;
+  }
+
+  .product-card {
+    width: 100%;
+    max-width: 100%;
+    height: 260px;
+  }
+
+  .product-card-image {
+    height: 120px;
+  }
+}
+
+.menu-static-mode .menu-order-card-breathe,
+.menu-static-mode .menu-product-card-breathe,
+.menu-static-mode .menu-curve-accent,
+.menu-static-mode .menu-header-enter,
+.menu-static-mode .menu-chip-pop,
+.menu-static-mode .menu-search-pulse {
+  animation: none !important;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .menu-order-card-breathe,
+  .menu-product-card-breathe,
+  .menu-curve-accent,
+  .menu-order-ribbon,
+  .menu-header-enter,
+  .menu-chip-pop,
+  .menu-search-pulse,
+  .menu-search-shine::after {
+    animation: none !important;
+  }
+}
+
+.active\:scale-95:active {
+  transform: scale(0.95);
+}
+
+.active\:scale-98:active {
+  transform: scale(0.98);
+}
+
+/* Spinner Animation */
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.animate-spin {
+  animation: spin 1s linear infinite;
+}
+
+/* Login page animations */
+@keyframes loginShake {
+  0%, 100% { transform: translateX(0); }
+  20% { transform: translateX(-6px); }
+  40% { transform: translateX(6px); }
+  60% { transform: translateX(-4px); }
+  80% { transform: translateX(4px); }
+}
+
+@keyframes loginFadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(12px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes loginFloat {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-8px); }
+}
+
+.animate-login-shake {
+  animation: loginShake 0.5s ease-in-out;
+}
+
+.animate-login-fade-in-up {
+  animation: loginFadeInUp 0.5s ease-out forwards;
+}
+
+.animate-login-float {
+  animation: loginFloat 4s ease-in-out infinite;
+}
+
+/* Print styles: limit print to specific areas (receipt, barcode preview) */
+@media print {
+  html, body {
+    margin: 0;
+    padding: 0;
+    background: #ffffff;
+    width: 100%;
+    min-height: auto;
+    -webkit-print-color-adjust: exact;
+  }
+
+  body * {
+    visibility: hidden;
+  }
+
+  #purchase-receipt,
+  #purchase-receipt *,
+  #barcode-preview-area,
+  #barcode-preview-area * {
+    visibility: visible;
+  }
+
+  #purchase-receipt,
+  #barcode-preview-area {
+    position: static !important;
+    margin: 0 !important;
+    width: auto !important;
+    min-height: auto !important;
+    overflow: visible !important;
+    page-break-inside: auto !important;
+    break-inside: auto !important;
+  }
+
+  #barcode-preview-area svg {
+    max-width: 100% !important;
+    height: auto !important;
+  }
+
+  /* Hide elements marked as non-printable (e.g., buttons) */
+  .no-print {
+    display: none !important;
+  }
+
+  .barcode-page {
+    page-break-after: always;
+    break-after: page;
+    page-break-inside: avoid;
+    break-inside: avoid;
+    margin: 0 !important;
+    padding: 0 !important;
+    border: none !important;
+    width: auto !important;
+  }
+
+  .barcode-page + .barcode-page {
+    margin-top: 0 !important;
+    padding-top: 0 !important;
+    border-top: none !important;
+  }
+
+  .barcode-page .grid {
+    border: none !important;
+    gap: 0 !important;
+  }
+
+  .barcode-page .bg-white {
+    background: #ffffff !important;
+  }
+
+  @page {
+    size: A4 portrait;
+    margin: 5mm;
+  }
+}
+
+/* Recipe costing summary — kitchen recipe editor (system navy #003366) */
+@keyframes recipe-costing-enter {
+  from {
+    opacity: 0;
+    transform: translateY(14px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes recipe-costing-orb-float {
+  0%,
+  100% {
+    transform: scale(1) translate(0, 0);
+    opacity: 0.45;
+  }
+  50% {
+    transform: scale(1.1) translate(8px, -10px);
+    opacity: 0.7;
+  }
+}
+
+@keyframes recipe-costing-price-shine {
+  0% {
+    transform: translateX(-120%) skewX(-12deg);
+  }
+  100% {
+    transform: translateX(280%) skewX(-12deg);
+  }
+}
+
+@keyframes recipe-costing-bar {
+  0%,
+  100% {
+    transform: scaleX(0.86);
+    opacity: 0.88;
+  }
+  50% {
+    transform: scaleX(1);
+    opacity: 1;
+  }
+}
+
+.recipe-costing-summary-root {
+  animation: recipe-costing-enter 0.65s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+.recipe-costing-orb {
+  animation: recipe-costing-orb-float 9s ease-in-out infinite;
+}
+
+.recipe-costing-orb--alt {
+  animation: recipe-costing-orb-float 11s ease-in-out infinite reverse;
+}
+
+.recipe-costing-price-shine {
+  pointer-events: none;
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  border-radius: inherit;
+}
+
+.recipe-costing-price-shine::after {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  height: 100%;
+  width: 42%;
+  background: linear-gradient(
+    90deg,
+    transparent,
+    rgba(0, 51, 102, 0.09),
+    transparent
+  );
+  animation: recipe-costing-price-shine 4.5s ease-in-out infinite;
+}
+
+.recipe-costing-bar-glow {
+  transform-origin: left center;
+  animation: recipe-costing-bar 3.2s ease-in-out infinite;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .recipe-costing-summary-root,
+  .recipe-costing-orb,
+  .recipe-costing-orb--alt,
+  .recipe-costing-price-shine::after,
+  .recipe-costing-bar-glow {
+    animation: none !important;
+  }
+
+  .recipe-costing-bar-glow {
+    transform: scaleX(1);
+    opacity: 1;
+  }
+}

@@ -1,0 +1,65 @@
+# Local environment and credential files
+.env
+.env.*
+*.env
+*.env.*
+.envrc
+!.env.example
+!.env.*.example
+!*.env.example
+!*.env.*.example
+.npmrc
+.netrc
+_netrc
+credentials.json
+credentials.*.json
+*service-account*.json
+secrets/
+.secrets/
+*.key
+*.pem
+*.p12
+*.pfx
+*.jks
+id_rsa*
+id_ed25519*
+
+# Existing local scripts contain credentials; preserve them without staging.
+/server/src/seed.ts
+/server/tmp_test_login.js
+
+# Dependencies and generated build/test/cache output
+node_modules/
+dist/
+dist-ssr/
+build/
+coverage/
+.cache/
+.vite/
+.next/
+.nuxt/
+.turbo/
+.parcel-cache/
+.nyc_output/
+.npm/
+.yarn/cache/
+*.tsbuildinfo
+.eslintcache
+
+# Runtime files, logs, and external/local backups
+logs/
+*.log
+*.pid
+*.pid.lock
+uploads/
+backups/
+backup/
+.backups/
+REST-000-*/
+*.bak
+*.backup
+
+# Operating system metadata
+.DS_Store
+Thumbs.db
+Desktop.ini
