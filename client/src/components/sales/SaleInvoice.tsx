@@ -337,10 +337,6 @@ const SaleInvoice: React.FC = () => {
                     {sale.products.map((product, index) => {
                       const netUnitPrice = product.price;
                       const unitPrice = product.price;
-                      const discountAmount = product.discountType === 'percentage'
-                        ? (product.price * product.qty * product.discount / 100)
-                        : product.discount;
-                      const taxAmount = (product.price * product.qty - discountAmount) * product.tax / 100;
                       
                       return (
                         <tr key={index} className="hover:bg-gray-50">

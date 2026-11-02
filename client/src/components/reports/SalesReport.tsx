@@ -9,7 +9,7 @@ import ExportPDFButton from "../common/ExportPDFButton";
 
 const SalesReport: React.FC = () => {
   const navigate = useNavigate();
-  const { currencySymbol } = useCurrency();
+  const { currencySymbol, currencyCode } = useCurrency();
   const [activeTab, setActiveTab] = useState<"sales" | "returns">("sales");
 
   const [filters, setFilters] = useState({
@@ -42,7 +42,7 @@ const SalesReport: React.FC = () => {
   const [loading, setLoading] = useState(false);
   const [loadingReturns, setLoadingReturns] = useState(false);
   const [warehouses, setWarehouses] = useState<Array<{ _id: string; name: string }>>([]);
-  const [loadingWarehouses, setLoadingWarehouses] = useState(false);
+  const [, setLoadingWarehouses] = useState(false);
 
   const fetchWarehousesList = async () => {
     setLoadingWarehouses(true);

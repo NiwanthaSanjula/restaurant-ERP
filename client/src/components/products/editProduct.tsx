@@ -50,7 +50,7 @@ const EditProduct: React.FC = () => {
   
   // Restaurant-specific inventory flag (batches/weight removed)
   const [hasBatches, setHasBatches] = useState(false); // kept only to read old data but not used in UI
-  const [isWeight, setIsWeight] = useState(false); // kept only to read old data but not used in UI
+  const [, setIsWeight] = useState(false); // kept only to read old data but not used in UI
   const [isInventory, setIsInventory] = useState(true);
   const [batchNumber, setBatchNumber] = useState('');
   const [batchExpiryDate, setBatchExpiryDate] = useState('');
@@ -573,7 +573,7 @@ const EditProduct: React.FC = () => {
       
       if (!res.ok) {
         const errorMessage = data?.message || data?.errors?.join(', ') || 'Failed to update product';
-        showErrorToast(toUserFriendlyError(errorMessage));
+        showErrorToast(toUserFriendlyError(errorMessage) || 'Failed to update product');
         return;
       }
       

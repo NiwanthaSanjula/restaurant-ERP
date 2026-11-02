@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { toast } from 'react-toastify';
 import { Tag, Plus, Trash2, Edit, Calendar, Percent, Loader2, X,ArrowLeft } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
-import { formatDate } from '../utils/date.ts';
+import { formatDate, toBusinessDateInputValue } from '../utils/date.ts';
 
 const SpecialOffers: React.FC = () => {
   const [offers, setOffers] = useState([]);

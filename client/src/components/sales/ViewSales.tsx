@@ -3,7 +3,7 @@ import React, { useEffect, useRef, useState } from 'react';
 import { createPortal } from 'react-dom';
 import { Link, useNavigate } from 'react-router-dom';
 import { useCurrency } from '../../contexts/CurrencyContext';
-import { addPayment, cancelSale, completeSale, deletePayment, deleteSale, getSaleById, getSales, updatePayment } from '../../services/saleService';
+import { addPayment, cancelSale, deletePayment, deleteSale, getSaleById, getSales, updatePayment } from '../../services/saleService';
 import { showErrorToast, showSuccessToast } from '../../utils/toast';
 import DeleteConfirmModal from '../common/DeleteConfirmModal';
 import SearchBar from '../common/SearchBar';
@@ -66,8 +66,8 @@ const ViewSales: React.FC = () => {
     businessType: '' as '' | 'retail' | 'restaurant',
     status: '' as '' | 'draft' | 'completed' | 'cancelled' | 'returned'
   });
-  const [customers, setCustomers] = useState<Array<{ _id: string; name: string }>>([]);
-  const [warehouses, setWarehouses] = useState<Array<{ _id: string; name: string }>>([]);
+  const [, setCustomers] = useState<Array<{ _id: string; name: string }>>([]);
+  const [, setWarehouses] = useState<Array<{ _id: string; name: string }>>([]);
   const [pagination, setPagination] = useState({ page: 1, limit: 10, total: 0, pages: 0 });
   const [sortBy, setSortBy] = useState<'total' | 'createdAt' | ''>('createdAt');
   const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('desc');
@@ -411,23 +411,6 @@ const ViewSales: React.FC = () => {
     if (sale.cardAmount > 0) types.push('Card');
     if (sale.bankTransferAmount > 0) types.push('Bank Transfer');
     return types.join(', ') || '—';
-  };
-
-  const handleCompleteSale = async (id: string) => {
-    if (!window.confirm('Are you sure you want to complete this sale? This will update inventory.')) {
-      return;
-    }
-    setLoading(true);
-    try {
-      await completeSale(id);
-      showSuccessToast('Sale completed successfully');
-      setOpenActionId(null);
-      fetchSales();
-    } catch (error: any) {
-      showErrorToast(error.message || 'Failed to complete sale');
-    } finally {
-      setLoading(false);
-    }
   };
 
   const handleCancelSale = async (id: string) => {
@@ -1127,21 +1110,6 @@ const ViewSales: React.FC = () => {
     return () => { cancelled = true; };
   }, [showPaymentsSaleId]);
 
-  const openCreatePayment = (sale: SaleRow) => {
-    const today = new Date();
-    const y = today.getFullYear();
-    const m = String(today.getMonth() + 1).padStart(2, '0');
-    const d = String(today.getDate()).padStart(2, '0');
-    setPaymentForm({
-      date: `${y}-${m}-${d}`,
-      reference: '',
-      paymentType: 'cash',
-      amount: Math.min(sale.balance, sale.balance)
-    });
-    setCreatePaymentSale(sale);
-    setOpenActionId(null);
-  };
-
   const handleSavePayment = async () => {
     if (!createPaymentSale || paymentForm.amount <= 0 || paymentForm.amount > createPaymentSale.balance) {
       showErrorToast('Invalid paying amount');
@@ -1149,7 +1117,7 @@ const ViewSales: React.FC = () => {
     }
     setPaymentSubmitting(true);
     try {
-      const res = await addPayment(createPaymentSale._id, {
+      await addPayment(createPaymentSale._id, {
         date: paymentForm.date || undefined,
         reference: paymentForm.reference || undefined,
         paymentType: paymentForm.paymentType,
@@ -1267,18 +1235,10 @@ const ViewSales: React.FC = () => {
     return `${currencyCode} ${amount.toFixed(2).replace('.', ',')}`;
   };
 
-  const formatTime = (dateString: string) => {
-    return new Date(dateString).toLocaleTimeString('en-US', {
-      hour: 'numeric',
-      minute: '2-digit',
-      hour12: true
-    });
-  };
-
   const formatCreatedOn = (dateString: string) => {
     const d = new Date(dateString);
     const time = d.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit', hour12: true });
-    const date = d.toLocaleDateString('en-CA', { year: 'numeric', month: '2-digit', day: '2-digit' }).replace(/-/g, '-');
+    d.toLocaleDateString('en-CA', { year: 'numeric', month: '2-digit', day: '2-digit' }).replace(/-/g, '-');
     return `${time} ${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
   };
 

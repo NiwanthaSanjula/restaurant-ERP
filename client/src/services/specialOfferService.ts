@@ -37,8 +37,5 @@ export const getActiveOffers = async (): Promise<SpecialOffer[]> => {
   } catch (error) {
     console.error("Error fetching special offers:", error);
     return [];
-  } catch (error) {
-    console.error("Error fetching special offers:", error);
-    return [];
   }
 };

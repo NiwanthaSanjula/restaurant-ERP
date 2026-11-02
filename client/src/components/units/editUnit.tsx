@@ -13,7 +13,7 @@ const EditUnit: React.FC = () => {
   const { id } = useParams<{ id: string }>();
   const [unitName, setUnitName] = useState('');
   const [shortName, setShortName] = useState('');
-  const [baseUnits] = useState<BaseUnit[]>([]);
+  useState<BaseUnit[]>([]);
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
   const api = (import.meta.env.VITE_API_URL || 'http://localhost:5000/api') as string;

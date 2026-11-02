@@ -357,12 +357,6 @@ const EditAdjustment: React.FC = () => {
     const r = reasonsForCurrentType.find((x) => x.label === reason);
     return r ? r.value : reason;
   };
-  const getReasonLabel = (value: string) => {
-    if (reasonsForCurrentType.some((r) => r.label === value)) return value;
-    const r = REASONS_FOR_INCREASE.find((x) => x.value === value) ?? REASONS_FOR_DECREASE.find((x) => x.value === value);
-    return r?.label ?? value;
-  };
-
   const displayUnit = (item: AdjustmentItem): string => {
     const u = (item.baseUnit || item.unit || '').trim();
     if (!u || u.length > 20 || /^[0-9a-f]{24}$/i.test(u)) return '';

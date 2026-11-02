@@ -10,11 +10,12 @@ import {
   humanizeVariationKey,
   humanizeVariationSegment,
   mapApiProductToProductRow,
+  splitVariationKey,
   variationValuesForDimension,
   type MenuVariationAttributeModel,
   type MenuVariationOption,
   type ProductRow
-} from '../products/viewProducts';
+} from './menuProductHelpers';
 
 const PLACEHOLDER_IMAGE =
   'https://images.unsplash.com/photo-1546069901-ba9599a7e63c?w=400&h=300&fit=crop';
@@ -234,8 +235,9 @@ const serviceMeta: Record<ServiceType, { label: string }> = {
 
 function initialVariationParts(m: MenuVariationAttributeModel): string[] {
   const first = m.options[0];
+  if (!first) return [];
   if (m.flatKeys) return [first.key];
-  let cur = first.key.split('|').map((s) => s.trim()).slice(0, m.attributeCount);
+  let cur = splitVariationKey(first.key, m.flatKeys).slice(0, m.attributeCount);
   while (cur.length < m.attributeCount) cur.push('');
   for (let d = 1; d < m.attributeCount; d++) {
     const vals = variationValuesForDimension(m.options, m.attributeCount, m.flatKeys, d, cur);
@@ -265,7 +267,6 @@ const MenuVariationPickerModal: React.FC<MenuVariationPickerModalProps> = ({
     if (!parts.length) return undefined;
     return findMenuVariationOptionBySelection(
       model.options,
-      model.attributeCount,
       model.flatKeys,
       parts
     );

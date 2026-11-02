@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { ArrowLeft, Boxes } from "lucide-react";
+import { ArrowLeft } from "lucide-react";
 import { formatDate } from '../../utils/date.ts';
 import { showErrorToast } from '../../utils/toast';
 

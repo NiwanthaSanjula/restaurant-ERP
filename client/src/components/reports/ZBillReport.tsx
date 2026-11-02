@@ -1,7 +1,7 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import { toast } from 'react-toastify';
 import { useCurrency } from '../../contexts/CurrencyContext';
-import { formatDate } from '../../utils/date.ts';
+import { formatDate, toBusinessDateInputValue } from '../../utils/date.ts';
 import {
   bulkDeleteZBills,
   deleteZBillBySessionId,
@@ -12,7 +12,7 @@ import {
 } from '../../services/posSessionService';
 
 const ZBillReport: React.FC = () => {
-  const { currency } = useCurrency();
+  const { currencySymbol } = useCurrency();
   const today = useMemo(() => toBusinessDateInputValue(), []);
   const [fromDate, setFromDate] = useState(today);
   const [toDate, setToDate] = useState(today);
@@ -27,7 +27,7 @@ const ZBillReport: React.FC = () => {
   const [selectedIds, setSelectedIds] = useState<string[]>([]);
   const [bulkDeleting, setBulkDeleting] = useState(false);
 
-  const money = (value: number) => `${selectedCurrency?.symbol} ${Number(value || 0).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+  const money = (value: number) => `${currencySymbol} ${Number(value || 0).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
   const timeOnly = (value?: string | null) => {
     if (!value) return '-';
     return new Date(value).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' });

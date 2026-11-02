@@ -122,7 +122,7 @@ const CheckoutPage: React.FC<Partial<CheckoutPageOverlayProps>> = (overlayProps)
   const [bankTransferAmount, setBankTransferAmount] = useState<number>(0);
   const [specialOffers, setSpecialOffers] = useState<SpecialOffer[]>([]);
   const [selectedOfferIdState, setSelectedOfferIdState] = useState<string | null>(null);
-  const [showOfferModal, setShowOfferModal] = useState(false);
+  useState(false); // Preserve hook order for the inactive offer modal.
 
   // Wrapper for selectedOfferId with localStorage persistence
   const selectedOfferId = selectedOfferIdState;

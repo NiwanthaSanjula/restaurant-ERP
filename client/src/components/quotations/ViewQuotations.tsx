@@ -23,7 +23,7 @@ const ViewQuotations: React.FC = () => {
   const [loading, setLoading] = useState(false);
   const [toDelete, setToDelete] = useState<string | null>(null);
   const [selectedIds, setSelectedIds] = useState<string[]>([]);
-  const [bulkDeleting, setBulkDeleting] = useState(false);
+  useState(false);
   const [viewingQuotation, setViewingQuotation] = useState<any | null>(null);
 
   // Filters

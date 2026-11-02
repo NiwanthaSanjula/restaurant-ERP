@@ -28,7 +28,7 @@ const SearchableDropdown: React.FC<SearchableDropdownProps> = ({
   showRequiredIndicator = false,
   clearOnSelect = false
 }) => {
-  const { currencyCode } = useCurrency();
+  useCurrency();
   const [query, setQuery] = useState(value);
   const [options, setOptions] = useState<any[]>([]);
   const [isOpen, setIsOpen] = useState(false);

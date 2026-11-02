@@ -56,6 +56,13 @@ type ProductDetails = {
   updatedAt: string;
 };
 
+type ProductFinancialEntry = {
+  productProfit?: number;
+  profitMargin?: number;
+  variationValues?: Map<string, ProductFinancialEntry> | Record<string, ProductFinancialEntry>;
+  batches?: ProductFinancialEntry[];
+};
+
 const ViewProducts: React.FC = () => {
   const { currencyCode } = useCurrency();
   const [products, setProducts] = useState<ProductRow[]>([]);
@@ -233,6 +240,47 @@ const ViewProducts: React.FC = () => {
     return stockAlerts;
   };
 
+
+  const extractFinancialValues = (
+    warehouse: Map<string, ProductFinancialEntry> | Record<string, ProductFinancialEntry> | undefined,
+    field: 'productProfit' | 'profitMargin'
+  ): number[] | null => {
+    if (!warehouse) return null;
+    const values: number[] = [];
+    let hasMissingValues = false;
+    const collectValue = (entry: ProductFinancialEntry) => {
+      const value = entry?.[field];
+      if (typeof value !== 'number' || !Number.isFinite(value)) {
+        hasMissingValues = true;
+        return;
+      }
+      values.push(value);
+    };
+    const collectEntry = (entry: ProductFinancialEntry) => {
+      if (!entry) {
+        hasMissingValues = true;
+        return;
+      }
+      if (entry.variationValues) {
+        const variations = entry.variationValues instanceof Map
+          ? Array.from(entry.variationValues.values())
+          : Object.values(entry.variationValues);
+        if (variations.length === 0) hasMissingValues = true;
+        variations.forEach(collectValue);
+      } else {
+        collectValue(entry);
+      }
+    };
+    const warehouses = warehouse instanceof Map ? Array.from(warehouse.values()) : Object.values(warehouse);
+    warehouses.forEach((entry) => {
+      if (entry?.batches && Array.isArray(entry.batches) && entry.batches.length > 0) {
+        entry.batches.forEach(collectEntry);
+      } else {
+        collectEntry(entry);
+      }
+    });
+    return hasMissingValues || values.length === 0 ? null : values;
+  };
 
   const calculatePrice = (warehouse: any): number => {
     const prices = extractAllPrices(warehouse);
@@ -491,7 +539,7 @@ const ViewProducts: React.FC = () => {
             <table className="min-w-full divide-y divide-gray-200">
               <thead className="bg-gray-50">
                 <tr>
-                  {productTableHeaders.map((header, index) => (
+                  {productTableHeaders.map((header) => (
                     <th
                       key={header}
                       className={`px-6 py-4 text-sm font-semibold text-gray-700 uppercase tracking-wider ${
@@ -839,6 +887,10 @@ const ViewProducts: React.FC = () => {
                       
                       // Show summary only when inventory is enabled (restaurant-only)
                       if (isInventory) {
+                        const profits = extractFinancialValues(viewingProduct.warehouse, 'productProfit');
+                        const margins = extractFinancialValues(viewingProduct.warehouse, 'profitMargin');
+                        const totalProfit = profits ? profits.reduce((sum, profit) => sum + profit, 0) : null;
+                        const avgMargin = margins ? margins.reduce((sum, margin) => sum + margin, 0) / margins.length : null;
                         const summaryItems = [];
                         
                         // Stock Alert
@@ -861,7 +913,7 @@ const ViewProducts: React.FC = () => {
                         summaryItems.push(
                           <div key="margin" className="bg-purple-50 rounded-lg p-4 border-2 border-purple-200 shadow-sm">
                             <div className="text-xs font-semibold text-purple-600 uppercase tracking-wide mb-2">Margin</div>
-                            <div className="text-2xl font-bold text-purple-900">{avgMargin.toFixed(2)}%</div>
+                            <div className="text-2xl font-bold text-purple-900">{avgMargin === null ? 'Unavailable' : `${avgMargin.toFixed(2)}%`}</div>
                           </div>
                         );
                         
@@ -869,7 +921,7 @@ const ViewProducts: React.FC = () => {
                         summaryItems.push(
                             <div key="profit" className="bg-orange-50 rounded-lg p-4 border-2 border-orange-200 shadow-sm">
                             <div className="text-xs font-semibold text-orange-600 uppercase tracking-wide mb-2">Profit</div>
-                            <div className="text-2xl font-bold text-orange-900">{currencyCode} {totalProfit.toFixed(2)}</div>
+                            <div className="text-2xl font-bold text-orange-900">{totalProfit === null ? 'Unavailable' : `${currencyCode} ${totalProfit.toFixed(2)}`}</div>
                           </div>
                         );
                         

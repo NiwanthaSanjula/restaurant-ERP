@@ -1,4 +1,4 @@
-import { Calendar, ChevronDown, ChevronUp, Eye, FileDown, Filter, MoreVertical, Pencil, Plus, Trash2 } from 'lucide-react';
+import { ChevronDown, ChevronUp, Eye, FileDown, Filter, MoreVertical, Pencil, Plus, Trash2 } from 'lucide-react';
 import React, { useEffect, useRef, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useCurrency } from '../../contexts/CurrencyContext';
@@ -33,8 +33,8 @@ const ViewSaleReturns: React.FC = () => {
   const [filterDate, setFilterDate] = useState('');
   const [filterStatus, setFilterStatus] = useState<string>('All');
   const [showFilterDropdown, setShowFilterDropdown] = useState(false);
-  const [customers, setCustomers] = useState<any[]>([]);
-  const [warehouses, setWarehouses] = useState<any[]>([]);
+  const [, setCustomers] = useState<any[]>([]);
+  const [, setWarehouses] = useState<any[]>([]);
   const [pagination, setPagination] = useState({ page: 1, limit: 10, total: 0 });
   const [sortBy, setSortBy] = useState<string>('createdAt');
   const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('desc');

@@ -17,7 +17,7 @@ import ExportPDFButton from "../common/ExportPDFButton";
 
 const PurchaseReport: React.FC = () => {
   const navigate = useNavigate();
-  const { currencySymbol } = useCurrency();
+  const { currencySymbol, currencyCode } = useCurrency();
   const [activeTab, setActiveTab] = useState<"purchases" | "returns">("purchases");
 
   const [filters, setFilters] = useState({

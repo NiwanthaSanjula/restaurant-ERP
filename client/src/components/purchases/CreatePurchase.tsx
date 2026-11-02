@@ -1,5 +1,5 @@
 import axios from 'axios';
-import { ArrowLeft, Calendar, Loader2, Plus, Save, Trash2, Users, Warehouse, X } from 'lucide-react';
+import { ArrowLeft, Calendar, Loader2, PackagePlus, Plus, Save, Trash2, Users, Warehouse, X } from 'lucide-react';
 import React, { useEffect, useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useCurrency } from '../../contexts/CurrencyContext';
@@ -19,7 +19,7 @@ const CreatePurchase = () => {
   const [items, setItems] = useState<any[]>([{ id: Date.now(), productId: '', name: '', stock: 0, qty: 0, cost: 0, subTotal: 0 }]);
   const [suppliers, setSuppliers] = useState<any[]>([]);
   const [warehouses, setWarehouses] = useState<any[]>([]);
-  const [products, setProducts] = useState<any[]>([]);
+  const [, setProducts] = useState<any[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [submittedPurchase, setSubmittedPurchase] = useState<any>(null);
   const [showConfirmModal, setShowConfirmModal] = useState(false);
@@ -61,7 +61,7 @@ const CreatePurchase = () => {
   const [isHistoryLoading, setIsHistoryLoading] = useState(false);
 
   // System type for filtering products
-  const [systemType, setSystemType] = useState<'retail' | 'restaurant'>('retail');
+  const [, setSystemType] = useState<'retail' | 'restaurant'>('retail');
   
   // Discount and Tax fields
   const [discount, setDiscount] = useState<number>(0);
@@ -674,51 +674,6 @@ const CreatePurchase = () => {
     updatedItems[index].subTotal = (parseFloat(String(updatedItems[index].qty)) || 0) * costNum;
     setItems(updatedItems);
   };
-
-  // Smart increment/decrement based on cursor position
-  const handleSmartIncrement = (index: number, field: 'qty' | 'cost', increment: boolean) => {
-    const updatedItems = [...items];
-    const currentValue = String(updatedItems[index][field] || '0');
-    const input = document.activeElement as HTMLInputElement;
-    
-    if (!input || input.type !== 'number') return;
-    
-    const cursorPos = input.selectionStart || 0;
-    const valueStr = currentValue;
-    const decimalIndex = valueStr.indexOf('.');
-    
-    let step = 1; // Default step for whole numbers
-    
-    if (decimalIndex !== -1 && cursorPos > decimalIndex) {
-      // Cursor is in decimal part
-      const decimalPlaces = cursorPos - decimalIndex - 1;
-      step = Math.pow(10, -decimalPlaces - 1); // 0.1, 0.01, 0.001, etc.
-    }
-    
-    const currentNum = parseFloat(valueStr) || 0;
-    const newValue = increment 
-      ? currentNum + step 
-      : Math.max(0, currentNum - step);
-    
-    updatedItems[index][field] = field === 'cost' ? newValue.toFixed(2) : newValue;
-    
-    if (field === 'qty') {
-      updatedItems[index].subTotal = newValue * updatedItems[index].cost;
-    } else {
-      updatedItems[index].subTotal = (parseFloat(String(updatedItems[index].qty)) || 0) * newValue;
-    }
-    
-    setItems(updatedItems);
-    
-    // Restore cursor position after a short delay
-    setTimeout(() => {
-      input.focus();
-      const newValueStr = String(updatedItems[index][field]);
-      const newCursorPos = Math.min(cursorPos, newValueStr.length);
-      input.setSelectionRange(newCursorPos, newCursorPos);
-    }, 0);
-  };
-
 
   // Calculate subtotal (sum of all items)
   const subtotal = useMemo(() => items.reduce((sum, i) => sum + i.subTotal, 0), [items]);

@@ -90,7 +90,7 @@ const CreateTransfer: React.FC = () => {
     if (matchedKey) return warehouseObj[matchedKey];
     
     // 3. Try matching by warehouseName property inside the object
-    for (const [key, wh] of warehouseEntries) {
+    for (const [, wh] of warehouseEntries) {
       const whData = wh as any;
       if (whData && whData.warehouseName && 
           whData.warehouseName.toLowerCase().trim() === warehouseName.toLowerCase().trim()) {

@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import Loader from '../common/Loader';
 import { showSuccessToast, showErrorToast } from '../../utils/toast';
@@ -12,7 +12,7 @@ type BaseUnit = {
 const CreateUnit: React.FC = () => {
   const [unitName, setUnitName] = useState('');
   const [shortName, setShortName] = useState('');
-  const [baseUnits] = useState<BaseUnit[]>([]);
+  useState<BaseUnit[]>([]);
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
   const api = (import.meta.env.VITE_API_URL || 'http://localhost:5000/api') as string;

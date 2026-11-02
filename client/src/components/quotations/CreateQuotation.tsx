@@ -50,7 +50,7 @@ const CreateQuotation: React.FC = () => {
 
   const [items, setItems] = useState<QuotationItem[]>([]);
   const [discountValue, setDiscountValue] = useState(0);
-  const [discountType, setDiscountType] = useState<'fixed' | 'percentage'>('fixed');
+  const [discountType] = useState<'fixed' | 'percentage'>('fixed');
   const [taxValue, setTaxValue] = useState(0);
   const [shippingCost, setShippingCost] = useState(0);
   const [referenceNumber, setReferenceNumber] = useState('');

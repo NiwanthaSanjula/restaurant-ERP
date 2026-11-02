@@ -3,14 +3,11 @@ import { Loader2, Minus, Pencil, Plus, Save, Search, Trash2 } from 'lucide-react
 import React, { useEffect, useMemo, useState } from 'react';
 import { Link, useNavigate, useParams } from 'react-router-dom';
 import { useCurrency } from '../../contexts/CurrencyContext';
-import { toBusinessDateInputValue } from '../../utils/date';
 import { showErrorToast, showSuccessToast } from '../../utils/toast';
 import Loader from '../common/Loader';
 import SearchableDropdown from '../common/SearchableDropdown';
 
 const api = (import.meta.env.VITE_API_URL || 'http://localhost:5000/api') as string;
-
-const escapeHtml = (s: string) => (s || '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
 
 interface EditItem {
   id: string;
@@ -29,7 +26,7 @@ interface EditItem {
 
 const EditPurchaseReturn: React.FC = () => {
   const { id } = useParams<{ id: string }>();
-  const navigate = useNavigate();
+  useNavigate();
   const { currencyCode, currencySymbol } = useCurrency();
   const [returnData, setReturnData] = useState<any>(null);
   const [loading, setLoading] = useState(true);

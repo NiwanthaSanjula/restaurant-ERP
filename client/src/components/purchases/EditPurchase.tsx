@@ -20,14 +20,14 @@ const EditPurchase = () => {
   const [items, setItems] = useState<any[]>([]);
   const [suppliers, setSuppliers] = useState<any[]>([]);
   const [warehouses, setWarehouses] = useState<any[]>([]);
-  const [products, setProducts] = useState<any[]>([]);
+  const [, setProducts] = useState<any[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [loadingPurchase, setLoadingPurchase] = useState(true);
   const [loadError, setLoadError] = useState('');
   const [showConfirmModal, setShowConfirmModal] = useState(false);
   
   // System type for filtering products
-  const [systemType, setSystemType] = useState<'retail' | 'restaurant'>('retail');
+  const [, setSystemType] = useState<'retail' | 'restaurant'>('retail');
   
   // Discount and Tax fields
   const [discount, setDiscount] = useState<number>(0);

@@ -53,7 +53,7 @@ const CreatePurchaseReturn: React.FC = () => {
   const [selectedWarehouseId, setSelectedWarehouseId] = useState('');
   const [selectedWarehouseName, setSelectedWarehouseName] = useState('');
   const [returnDate, setReturnDate] = useState(toBusinessDateInputValue());
-  const [reason, setReason] = useState('other');
+  const [reason] = useState('other');
   const [notes, setNotes] = useState('');
   const [orderTax, setOrderTax] = useState(0);
   const [orderTaxInput, setOrderTaxInput] = useState('0');

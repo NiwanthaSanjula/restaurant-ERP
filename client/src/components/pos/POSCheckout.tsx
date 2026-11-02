@@ -1661,13 +1661,6 @@ const POSCheckout: React.FC<POSCheckoutProps> = ({ onSessionClosed }) => {
     return (registerReport.openingCash + registerReport.cashPayments) - countedCash;
   }, [registerReport, countedCash]);
 
-  const updateClosingQty = (key: DenominationKey, delta: number) => {
-    setClosingDenominations(prev => {
-      const next = Math.max(0, (prev[key] || 0) + delta);
-      return { ...prev, [key]: next };
-    });
-  };
-
   const setClosingQty = (key: DenominationKey, value: number) => {
     const safe = Number.isFinite(value) ? Math.max(0, Math.floor(value)) : 0;
     setClosingDenominations(prev => ({ ...prev, [key]: safe }));

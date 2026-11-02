@@ -4,7 +4,6 @@ import { ArrowLeft, Plus, Trash2 } from 'lucide-react';
 import Loader from '../common/Loader';
 import ProductSelectionModal from './ProductSelectionModal';
 import {
-  calculateBalance,
   calculateProductSubtotal,
   calculateSaleTotals,
   calculateOverpaidBalance,
@@ -376,32 +375,6 @@ const CreateSale: React.FC = () => {
           product.discount,
           product.discountType,
           tax
-        )
-      };
-      const next = [...prev];
-      next[index] = updatedProduct;
-      return next;
-    });
-  };
-
-  const handleUpdateProductDiscount = (
-    index: number,
-    discount: number,
-    discountType: 'fixed' | 'percentage'
-  ) => {
-    setProducts((prev) => {
-      const product = prev[index];
-      const safeDiscount = Math.max(0, discount);
-      const updatedProduct: SaleProduct = {
-        ...product,
-        discount: safeDiscount,
-        discountType,
-        subtotal: calculateProductSubtotal(
-          product.qty,
-          product.price,
-          safeDiscount,
-          discountType,
-          product.tax
         )
       };
       const next = [...prev];
