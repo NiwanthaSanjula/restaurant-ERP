@@ -1,0 +1,43 @@
+{
+  "scope": "Frontend rendered with intercepted local fixture API; no real backend or database used",
+  "mobileBefore": {
+    "url": "/dashboard",
+    "width": 390,
+    "scrollWidth": 375,
+    "asideTransform": "none"
+  },
+  "mobileAfter": {
+    "asideTransform": "none"
+  },
+  "mobilePos": {
+    "viewport": {
+      "width": 390,
+      "height": 844
+    },
+    "documentScrollHeight": 844,
+    "panes": [
+      {
+        "top": 0,
+        "bottom": 844,
+        "height": 844,
+        "clientHeight": 842,
+        "scrollHeight": 842,
+        "overflowY": "auto",
+        "flexShrink": "0"
+      },
+      {
+        "top": 844,
+        "bottom": 844,
+        "height": 0,
+        "clientHeight": 0,
+        "scrollHeight": 447,
+        "overflowY": "hidden",
+        "flexShrink": "1"
+      }
+    ],
+    "productCardCount": 3,
+    "bodyText": "Cart Items\n\nCart is empty\n\nAdd items to get started\n\nTAX, DISCOUNT & OFFER\nFixed\n%\nDISCOUNT\nTAX (%)\nSHIPPING\nSPECIAL OFFER\nNo offer selected\nFailed to load offers\nSubtotal\nLKR 0.00\nTotal\nLKR 0.00\nHold\nReset\nPay Now\nMain Kitchen\nView Menu\nCATEGORIES\nAll Categories\nMains\nDrinks\nBRANDS\nAll Brands\n+ Add to Cart\nChicken Fried Rice\n—\n\nLKR 1250.00\n\nMains\n+ Add to Cart\nVegetable Noodles\n—\n\nLKR 900.00\n\nMains\n+ Add to Cart\nLime Juice\n—\n\nLKR 350.00\n\nDrinks"
+  },
+  "errors": [],
+  "apiRequests": 57
+}

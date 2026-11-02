@@ -1,0 +1,66 @@
+{
+  "scope": "Local fixture API, no database",
+  "routes": [
+    {
+      "route": "/dashboard",
+      "path": "/dashboard",
+      "text": "SS\nServeSmart\nRestaurant POS\n❮\nHome\nProducts\n▶\nPeople\n▶\nWarehouse\nTransfers\nSale\n▶\nPurchase / Inventory\n▶\nQuotations\nExp",
+      "length": 794,
+      "errors": []
+    },
+    {
+      "route": "/createPurchase",
+      "path": "/createPurchase",
+      "text": "",
+      "length": 0,
+      "errors": [
+        "ReferenceError: PackagePlus is not defined\n    at CreatePurchase (http://127.0.0.1:5173/src/components/purchases/CreatePurchase.tsx:2392:38)\n    at Object.react_stack_bottom_frame (http://127.0.0.1:5173/node_modules/.vite/deps/react-dom_client.js?v=53af1188:17424:20)\n    at renderWithHooks (http://127.0.0.1:5173/node_modules/.vite/deps/react-dom_client.js?v=53af1188:4206:24)\n    at updateFunctionComponent (http://127.0.0.1:5173/node_modules/.vite/deps/react-dom_client.js?v=53af1188:6619:21)\n    at beginWork (http://127.0.0.1:5173/node_modules/.vite/deps/react-dom_client.js?v=53af1188:7654:20)\n    at runWithFiberInDEV (http://127.0.0.1:5173/no"
+      ]
+    },
+    {
+      "route": "/reports_sales",
+      "path": "/reports_sales",
+      "text": "",
+      "length": 0,
+      "errors": [
+        "ReferenceError: currencyCode is not defined\n    at SalesReport (http://127.0.0.1:5173/src/components/reports/SalesReport.tsx:392:19)\n    at Object.react_stack_bottom_frame (http://127.0.0.1:5173/node_modules/.vite/deps/react-dom_client.js?v=53af1188:17424:20)\n    at renderWithHooks (http://127.0.0.1:5173/node_modules/.vite/deps/react-dom_client.js?v=53af1188:4206:24)\n    at updateFunctionComponent (http://127.0.0.1:5173/node_modules/.vite/deps/react-dom_client.js?v=53af1188:6619:21)\n    at beginWork (http://127.0.0.1:5173/node_modules/.vite/deps/react-dom_client.js?v=53af1188:7654:20)\n    at runWithFiberInDEV (http://127.0.0.1:5173/node_modul"
+      ]
+    },
+    {
+      "route": "/reports/purchase",
+      "path": "/reports/purchase",
+      "text": "",
+      "length": 0,
+      "errors": [
+        "ReferenceError: currencyCode is not defined\n    at PurchaseReport (http://127.0.0.1:5173/src/components/reports/PurchaseReport.tsx:390:19)\n    at Object.react_stack_bottom_frame (http://127.0.0.1:5173/node_modules/.vite/deps/react-dom_client.js?v=53af1188:17424:20)\n    at renderWithHooks (http://127.0.0.1:5173/node_modules/.vite/deps/react-dom_client.js?v=53af1188:4206:24)\n    at updateFunctionComponent (http://127.0.0.1:5173/node_modules/.vite/deps/react-dom_client.js?v=53af1188:6619:21)\n    at beginWork (http://127.0.0.1:5173/node_modules/.vite/deps/react-dom_client.js?v=53af1188:7654:20)\n    at runWithFiberInDEV (http://127.0.0.1:5173/node"
+      ]
+    },
+    {
+      "route": "/reports/z-bill",
+      "path": "/reports/z-bill",
+      "text": "",
+      "length": 0,
+      "errors": [
+        "ReferenceError: toBusinessDateInputValue is not defined\n    at http://127.0.0.1:5173/src/components/reports/ZBillReport.tsx:31:31\n    at mountMemo (http://127.0.0.1:5173/node_modules/.vite/deps/react-dom_client.js?v=53af1188:5052:25)\n    at Object.useMemo (http://127.0.0.1:5173/node_modules/.vite/deps/react-dom_client.js?v=53af1188:16513:20)\n    at exports.useMemo (http://127.0.0.1:5173/node_modules/.vite/deps/chunk-NZP3G7XT.js?v=53af1188:918:36)\n    at ZBillReport (http://127.0.0.1:5173/src/components/reports/ZBillReport.tsx:31:17)\n    at Object.react_stack_bottom_frame (http://127.0.0.1:5173/node_modules/.vite/deps/react-dom_client.js?v=53a"
+      ]
+    },
+    {
+      "route": "/SpecialOffers",
+      "path": "/SpecialOffers",
+      "text": "SS\nServeSmart\nRestaurant POS\n❮\nHome\nProducts\n▶\nPeople\n▶\nWarehouse\nTransfers\nSale\n▶\nPurchase / Inventory\n▶\nQuotations\nExp",
+      "length": 378,
+      "errors": []
+    },
+    {
+      "route": "/viewProducts",
+      "path": "/viewProducts",
+      "text": "SS\nServeSmart\nRestaurant POS\n❮\nHome\nProducts\n▶\nProducts\nUnits\nKitchen inventory\n▶\nCategories\nVariations\nBrands\nBarcode P",
+      "length": 492,
+      "errors": []
+    }
+  ],
+  "mobileMenu": {
+    "before": -288,
+    "after": -288
+  }
+}
