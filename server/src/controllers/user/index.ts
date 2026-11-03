@@ -6,6 +6,7 @@ import { checkPermission } from '../../middleware/permissions';
 import User from '../../models/User';
 import { sendEmail } from '../../utils/email';
 import { generateTemporaryPassword } from '../../utils/password';
+import { protectRoleRecovery, RoleRecoveryError } from '../../services/roleRecovery';
 
 export const getUsers = [authenticate, checkPermission('manageUsers', 'read'), async (req: express.Request, res: express.Response): Promise<void> => {
   try {
@@ -95,17 +96,17 @@ export const createUser = async (req: express.Request, res: express.Response): P
     try {
       await sendEmail({
         to: email,
-        subject: 'Your ServeSmart temporary password',
+        subject: 'Your {{companyName}} temporary password',
         html: `
           <p>Hello ${name},</p>
           <p>Your account has been created.</p>
           <p><strong>Temporary password:</strong> ${temporaryPassword}</p>
           <p>Use this password to sign in. For changing password, use Forgot Password flow.</p>
-          <p>-- ServeSmart Team</p>
+          <p>-- {{companyName}} Team</p>
         `
       });
     } catch (emailError: any) {
-      await User.findByIdAndDelete(user._id);
+      await protectRoleRecovery({ kind: 'account', id: String(user._id), deleted: true }, async session => User.findByIdAndDelete(user._id, { session }));
       res.status(500).json({
         status: 'error',
         message: emailError?.message || 'Failed to send temporary password email. User was not created.'
@@ -119,6 +120,7 @@ export const createUser = async (req: express.Request, res: express.Response): P
       data: { id: user._id }
     });
   } catch (e) {
+    if (e instanceof RoleRecoveryError) { res.status(e.status).json({ status: 'error', message: e.message }); return; }
     res.status(500).json({ status: 'error', message: 'Failed to create user' });
   }
 };
@@ -178,13 +180,17 @@ export const updateUser = async (req: express.Request, res: express.Response): P
       updateData.isActive = isActive;
     }
 
-    const updated = await User.findByIdAndUpdate(id, updateData, { new: true });
+    const write = async (session?: import('mongoose').ClientSession) => User.findByIdAndUpdate(id, updateData, { new: true, ...(session ? { session } : {}) });
+    const updated = roleId !== undefined || isActive !== undefined
+      ? await protectRoleRecovery({ kind: 'account', id, ...(roleId !== undefined ? { roleId: roleId || null } : {}), ...(isActive !== undefined ? { isActive } : {}) }, write)
+      : await write();
     if (!updated) {
       res.status(404).json({ status: 'error', message: 'User not found' });
       return;
     }
     res.json({ status: 'success', data: { id: updated._id, roleId: updated.roleId, isActive: updated.isActive } });
   } catch (e) {
+    if (e instanceof RoleRecoveryError) { res.status(e.status).json({ status: 'error', message: e.message }); return; }
     res.status(500).json({ status: 'error', message: 'Failed to update user' });
   }
 };
@@ -194,13 +200,14 @@ export const deleteUserValidators = [authenticate, checkPermission('manageUsers'
 export const deleteUser = async (req: express.Request, res: express.Response): Promise<void> => {
   try {
     const { id } = req.params as { id: string };
-    const deleted = await User.findByIdAndDelete(id);
+    const deleted = await protectRoleRecovery({ kind: 'account', id, deleted: true }, async session => User.findByIdAndDelete(id, { session }));
     if (!deleted) {
       res.status(404).json({ status: 'error', message: 'User not found' });
       return;
     }
     res.json({ status: 'success', message: 'User deleted' });
   } catch (e) {
+    if (e instanceof RoleRecoveryError) { res.status(e.status).json({ status: 'error', message: e.message }); return; }
     res.status(500).json({ status: 'error', message: 'Failed to delete user' });
   }
 };

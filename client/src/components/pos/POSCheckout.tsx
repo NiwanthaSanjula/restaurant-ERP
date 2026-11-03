@@ -1,10 +1,12 @@
 import React, { useEffect, useMemo, useState, useRef } from "react";
 import { useCurrency } from '../../contexts/CurrencyContext';
+import { useBranding } from '../../contexts/BrandingProvider';
 import CalculatorModal from "./CalculatorModal";
 import POSLayout from './POSLayout';
 import { Info, Minus, Plus, Trash2 } from 'lucide-react';
 import { useNavigate } from "react-router-dom";
 import { showInfoToast, showSuccessToast } from "../../utils/toast";
+import { clearPosCheckout, pendingPosCheckout, preparePosCheckout } from '../../services/posCheckoutRequest';
 
 const POS_API_BASE = (import.meta.env.VITE_API_URL || "http://localhost:5000/api") as string;
 const CATALOG_PLACEHOLDER_IMG =
@@ -61,6 +63,8 @@ function printBillHtml(html: string): void {
 }
 
 function buildFallbackReceiptHtml(params: {
+  companyName: string;
+  currencyCode: string;
   orderId?: string;
   items: Array<{ name: string; quantity: number; price: number }>;
   subtotal: number;
@@ -74,14 +78,16 @@ function buildFallbackReceiptHtml(params: {
   due: number;
 }): string {
   const now = new Date();
+  const companyName = params.companyName.replace(/[&<>"']/g, char => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[char] || char));
+  const currency = params.currencyCode.replace(/[<>&"']/g, '');
   const rows = params.items
     .map(
       (item) =>
-        `<tr><td>${item.name}</td><td style="text-align:center">${item.quantity}</td><td style="text-align:right">Rs ${(item.price * item.quantity).toFixed(2)}</td></tr>`
+        `<tr><td>${item.name.replace(/[&<>"']/g, char => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[char] || char))}</td><td style="text-align:center">${item.quantity}</td><td style="text-align:right">${currency} ${(item.price * item.quantity).toFixed(2)}</td></tr>`
     )
     .join("");
   return `<!doctype html><html><head><meta charset="utf-8"/><title>Receipt</title><style>
-    body{font-family:Arial,sans-serif;margin:0;padding:8px;color:#111}
+    body{font-family:Arial,sans-serif;margin:0;padding:8px;color:#111;background:#fff;color-scheme:light}
     .r{width:80mm;margin:0 auto}
     h2,p{margin:0}
     .c{text-align:center}.mt{margin-top:6px}.line{border-top:1px dashed #000;margin:6px 0}
@@ -89,21 +95,23 @@ function buildFallbackReceiptHtml(params: {
     td{padding:2px 0;vertical-align:top}
     .small{font-size:11px}
   </style></head><body><div class="r">
-    <h2 class="c">POS Receipt</h2>
+    <h2 class="c">${companyName}</h2>
+    <p class="c small">POS Receipt</p>
     <p class="c small mt">${now.toLocaleString()}</p>
-    ${params.orderId ? `<p class="c small">Order: ${params.orderId}</p>` : ""}
+    ${params.orderId ? `<p class="c small">Order: ${params.orderId.replace(/[<>&"']/g, '')}</p>` : ""}
     <div class="line"></div>
     <table><tbody>${rows}</tbody></table>
     <div class="line"></div>
     <table><tbody>
-      <tr><td>Subtotal</td><td style="text-align:right">Rs ${params.subtotal.toFixed(2)}</td></tr>
-      ${params.specialOfferDiscount && params.specialOfferDiscount > 0 ? `<tr><td>Special Offer</td><td style="text-align:right">Rs -${params.specialOfferDiscount.toFixed(2)}</td></tr>` : ''}
-      <tr><td>Discount</td><td style="text-align:right">Rs ${params.discountAmount.toFixed(2)}</td></tr>
-      <tr><td>Shipping</td><td style="text-align:right">Rs ${params.shipping.toFixed(2)}</td></tr>
-      <tr><td>Tax</td><td style="text-align:right">Rs ${params.taxAmount.toFixed(2)}</td></tr>
-      <tr><td><b>Total</b></td><td style="text-align:right"><b>Rs ${params.total.toFixed(2)}</b></td></tr>
-      <tr><td>Paid</td><td style="text-align:right">Rs ${params.paid.toFixed(2)}</td></tr>
-      <tr><td>${params.change > 0 ? "Balance" : "Due"}</td><td style="text-align:right">Rs ${(params.change > 0 ? params.change : params.due).toFixed(2)}</td></tr>
+      <tr><td>Subtotal</td><td style="text-align:right">${currency} ${params.subtotal.toFixed(2)}</td></tr>
+      ${params.specialOfferDiscount && params.specialOfferDiscount > 0 ? `<tr><td>Special Offer</td><td style="text-align:right">${currency} -${params.specialOfferDiscount.toFixed(2)}</td></tr>` : ''}
+      <tr><td>Discount</td><td style="text-align:right">${currency} ${params.discountAmount.toFixed(2)}</td></tr>
+      <tr><td>Shipping</td><td style="text-align:right">${currency} ${params.shipping.toFixed(2)}</td></tr>
+      <tr><td>Tax</td><td style="text-align:right">${currency} ${params.taxAmount.toFixed(2)}</td></tr>
+      <tr><td><b>Total</b></td><td style="text-align:right"><b>${currency} ${params.total.toFixed(2)}</b></td></tr>
+      <tr><td>Paid</td><td style="text-align:right">${currency} ${params.paid.toFixed(2)}</td></tr>
+      <tr><td>Change</td><td style="text-align:right">${currency} ${params.change.toFixed(2)}</td></tr>
+      <tr><td>Due</td><td style="text-align:right">${currency} ${params.due.toFixed(2)}</td></tr>
     </tbody></table>
     <div class="line"></div><p class="c small">Thank you!</p>
   </div></body></html>`;
@@ -888,6 +896,7 @@ type POSCheckoutProps = {
 };
 
 const POSCheckout: React.FC<POSCheckoutProps> = ({ onSessionClosed }) => {
+  const { companyName } = useBranding();
   const { currencyCode } = useCurrency();
   const navigate = useNavigate();
   const [cartItems, setCartItems] = useState<CartItem[]>([]);
@@ -906,6 +915,8 @@ const POSCheckout: React.FC<POSCheckoutProps> = ({ onSessionClosed }) => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [showCalculator, setShowCalculator] = useState(false);
   const [showCheckoutModal, setShowCheckoutModal] = useState(false);
+  const [checkoutSubmitting, setCheckoutSubmitting] = useState(false);
+  const checkoutInFlight = useRef(false);
   const [isFullScreen, setIsFullScreen] = useState(false);
   const [discountType, setDiscountType] = useState<DiscountType>("fixed");
   const [discount, setDiscount] = useState<number>(0);
@@ -1417,7 +1428,20 @@ const POSCheckout: React.FC<POSCheckoutProps> = ({ onSessionClosed }) => {
       showInfoToast("Please add items to cart first!");
       return;
     }
-    setShowCheckoutModal(true);
+    try {
+      const sessionId = sessionStorage.getItem('posSessionId');
+      const pending = sessionId ? pendingPosCheckout(localStorage, sessionId) : null;
+      if (pending && Array.isArray(pending.payload.payments)) {
+        const payments = pending.payload.payments as Array<{ type: string; amount: number }>;
+        setCashPayment(payments.find(payment => payment.type === 'cash')?.amount ?? 0);
+        setCardPayment(payments.find(payment => payment.type === 'card')?.amount ?? 0);
+        setBankPayment(payments.find(payment => payment.type === 'bankTransfer')?.amount ?? 0);
+        showInfoToast('An earlier payment is unconfirmed. Submitting will retry it; do not collect payment again.');
+      }
+      setShowCheckoutModal(true);
+    } catch {
+      showInfoToast('Pending payment storage is unavailable. Confirm the previous payment before continuing.');
+    }
   };
 
   const sanitizePaymentInput = (value: string): number => {
@@ -1429,6 +1453,9 @@ const POSCheckout: React.FC<POSCheckoutProps> = ({ onSessionClosed }) => {
   };
 
   const handleCheckoutSubmit = async (printBill = false) => {
+    if (checkoutInFlight.current) return;
+    checkoutInFlight.current = true;
+    setCheckoutSubmitting(true);
     try {
       const token = localStorage.getItem("token");
       const sessionId = sessionStorage.getItem("posSessionId");
@@ -1465,6 +1492,7 @@ const POSCheckout: React.FC<POSCheckoutProps> = ({ onSessionClosed }) => {
 
       const payload = {
         sessionId,
+        warehouseId: selectedWarehouseId,
         customerId: selectedCustomer?._id,
         items: cartItems.map((item) => ({
           id: item.id,
@@ -1483,38 +1511,34 @@ const POSCheckout: React.FC<POSCheckoutProps> = ({ onSessionClosed }) => {
         notes: ""
       };
 
+      const request = preparePosCheckout(localStorage, payload);
       const res = await fetch(`${api}/pos/sale`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
           ...(token ? { Authorization: `Bearer ${token}` } : {})
         },
-        body: JSON.stringify(payload)
+        body: JSON.stringify(request)
       });
       const data = await res.json();
       if (!res.ok) {
+        // A validation failure rolls back the transaction and allows correction.
+        // Ambiguous failures retain the ID so a retry cannot duplicate a sale.
+        if (res.status === 400) clearPosCheckout(localStorage, sessionId, request.checkoutRequestId);
         throw new Error(data?.message || "Failed to process POS sale");
       }
 
-      showSuccessToast("Payment processed successfully!");
+      const receipt = data?.data;
+      if (!receipt || !Array.isArray(receipt.items) || typeof receipt.total !== 'number' || typeof receipt.change !== 'number') {
+        throw new Error('Payment response could not be confirmed. Retry the same payment.');
+      }
+      showSuccessToast(data.replayed ? "Previous payment confirmed." : "Payment processed successfully!");
       const billHtml = data?.billHtml || data?.data?.billHtml;
       if (printBill) {
         const htmlToPrint =
           typeof billHtml === "string" && billHtml.trim()
             ? billHtml
-            : buildFallbackReceiptHtml({
-                orderId: data?.data?.orderId,
-                items: cartItems.map((item) => ({ name: item.name, quantity: item.quantity, price: item.price })),
-                subtotal,
-                discountAmount,
-                shipping,
-                taxAmount,
-                total: checkoutTotal,
-                paid: totalPaid,
-                change: Math.max(0, totalPaid - checkoutTotal),
-                due: Math.max(0, checkoutTotal - totalPaid),
-                specialOfferDiscount,
-              });
+            : buildFallbackReceiptHtml({ ...receipt, currencyCode, companyName });
         printBillHtml(htmlToPrint);
       }
       setCartItems([]);
@@ -1523,6 +1547,7 @@ const POSCheckout: React.FC<POSCheckoutProps> = ({ onSessionClosed }) => {
       setBankPayment(0);
       setShowCheckoutModal(false);
       try {
+        clearPosCheckout(localStorage, sessionId, request.checkoutRequestId);
         if (selectedWarehouseId) localStorage.removeItem(posCartDraftStorageKey(selectedWarehouseId));
       } catch {
         /* ignore */
@@ -1530,6 +1555,9 @@ const POSCheckout: React.FC<POSCheckoutProps> = ({ onSessionClosed }) => {
       // Discount/shipping reset via useEffect when cart becomes empty
     } catch (e: any) {
       showInfoToast(e?.message || "Failed to process POS payment");
+    } finally {
+      checkoutInFlight.current = false;
+      setCheckoutSubmitting(false);
     }
   };
 
@@ -1914,6 +1942,7 @@ const POSCheckout: React.FC<POSCheckoutProps> = ({ onSessionClosed }) => {
               <button
                 type="button"
                 onClick={() => handleCheckoutSubmit(false)}
+                disabled={checkoutSubmitting}
                 className="h-10 rounded-lg bg-secondary hover:bg-secondary-hover text-on-secondary font-semibold text-sm"
               >
                 Submit Payment
@@ -1921,6 +1950,7 @@ const POSCheckout: React.FC<POSCheckoutProps> = ({ onSessionClosed }) => {
               <button
                 type="button"
                 onClick={() => handleCheckoutSubmit(true)}
+                disabled={checkoutSubmitting}
                 className="h-10 rounded-lg bg-primary hover:bg-primary-hover text-on-primary font-semibold text-sm"
               >
                 Submit &amp; Print Bill

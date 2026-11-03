@@ -1,6 +1,8 @@
 import { useEffect, useRef, useState, useSyncExternalStore, type ReactNode } from 'react';
 import { Calculator, LayoutDashboard, Maximize, Minimize, MoreHorizontal, Power, ReceiptText, ShoppingBag, X } from 'lucide-react';
 import ThemeToggle from '../common/ThemeToggle';
+import { useBranding } from '../../contexts/BrandingProvider';
+import CompanyMark from '../common/CompanyMark';
 import './pos.css';
 
 const desktopQuery = '(min-width: 1200px)';
@@ -24,6 +26,7 @@ interface Props {
 }
 
 export default function POSLayout(props: Props) {
+  const { companyName } = useBranding();
   const [orderOpen, setOrderOpen] = useState(false);
   const desktop = useSyncExternalStore(subscribe, () => window.matchMedia(desktopQuery).matches, () => true);
   const drawer = useRef<HTMLElement>(null);
@@ -67,15 +70,15 @@ export default function POSLayout(props: Props) {
 
   const tool = (callback: () => void) => { tools.current?.removeAttribute('open'); callback(); };
   return <section className="pos-workspace" aria-label="Point of sale">
-    <nav className="pos-rail" aria-label="POS navigation" inert={modal}>
-      <span className="pos-mark" aria-label="ServeSmart">SS</span>
+    <nav className="pos-rail" data-theme="dark" aria-label="POS navigation" inert={modal}>
+      <CompanyMark className="pos-mark" />
       <button type="button" className="pos-rail-action" aria-label="Dashboard" title="Dashboard" onClick={props.onDashboard}><LayoutDashboard size={21} /><span className="pos-tooltip">Dashboard</span></button>
       <span className="pos-rail-current" aria-label="Point of sale" aria-current="page"><ShoppingBag size={21} /><span className="pos-tooltip">Point of sale</span></span>
       <button type="button" className="pos-rail-action" aria-label="Sales history" title="Sales history" onClick={props.onSales}><ReceiptText size={21} /><span className="pos-tooltip">Sales history</span></button>
     </nav>
     <main className="pos-catalog" inert={modal}>
       <header className="pos-header">
-        <div className="min-w-0"><p className="pos-eyebrow">ServeSmart</p><h1>Point of sale</h1></div>
+        <div className="min-w-0"><p className="pos-eyebrow truncate max-w-56" title={companyName}>{companyName}</p><h1>POINT OF SALE</h1></div>
         <div className="pos-header-actions">
           <ThemeToggle />
           <details className="pos-tools" ref={tools} onKeyDown={event => { if (event.key === 'Escape') { event.currentTarget.removeAttribute('open'); event.currentTarget.querySelector('summary')?.focus(); } }}>
@@ -90,7 +93,7 @@ export default function POSLayout(props: Props) {
           </details>
         </div>
       </header>
-      {props.catalog}
+      <div className="pos-catalog-panel">{props.catalog}</div>
       <button ref={trigger} type="button" className="pos-cart-trigger" aria-controls="pos-order-panel" aria-expanded={orderOpen} onClick={() => setOrderOpen(true)}>
         <span className="pos-cart-count">{props.quantity}</span><span>View order</span><strong>{props.total}</strong><ShoppingBag size={19} aria-hidden="true" />
       </button>

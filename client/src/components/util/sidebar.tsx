@@ -37,6 +37,8 @@ import {
 } from 'lucide-react';
 import { usePermissions } from '../../contexts/PermissionContext';
 import { permissionForPath } from '../../utils/permissionRoutes';
+import { useBranding } from '../../contexts/BrandingProvider';
+import CompanyMark from '../common/CompanyMark';
 
 /** Leaf link in the sidebar */
 export type MenuLeaf = { label: string; to: string };
@@ -216,6 +218,7 @@ const Sidebar: React.FC<SidebarProps> = ({
   onToggleCollapse
 }) => {
   const [open, setOpen] = useState<Record<string, boolean>>({});
+  const { companyName } = useBranding();
   const sidebarRef = useRef<HTMLElement>(null);
   const navigate = useNavigate();
   const location = useLocation();
@@ -291,21 +294,20 @@ const Sidebar: React.FC<SidebarProps> = ({
     <aside
       ref={sidebarRef}
       id="primary-navigation"
+      data-theme="dark"
       aria-label="Primary navigation"
       role={mobileOpen ? 'dialog' : undefined}
       aria-modal={mobileOpen ? true : undefined}
-      className={`ss-sidebar ${collapsed ? 'md:w-20' : 'md:w-72'} w-72 h-dvh min-h-0 self-stretch flex-shrink-0 overflow-y-auto sidebar-scrollbar transition-[transform,width] duration-200 fixed inset-y-0 left-0 z-40 transform ${mobileOpen ? 'translate-x-0 visible' : '-translate-x-full invisible'} md:translate-x-0 md:visible`}
+      className={`ss-sidebar min-h-0 self-stretch flex-shrink-0 overflow-y-auto sidebar-scrollbar transition-[transform,width] duration-200 z-40 transform ${mobileOpen ? 'translate-x-0 visible' : '-translate-x-full invisible'} md:translate-x-0 md:visible shadow-primary`}
     >
       <div className={`${collapsed ? 'px-3' : 'px-5'} py-5 border-b border-line`}>
-        <div className="flex items-center justify-between">
+        <div className={`flex items-center ${collapsed ? 'flex-col gap-2' : 'justify-between'}`}>
           <div className="flex items-center space-x-3">
-            <div className="ss-brand-mark w-10 h-10 flex items-center justify-center">
-              <span>SS</span>
-            </div>
+            <CompanyMark />
             {!collapsed && (
-              <div>
-                <div className="text-lg font-semibold text-foreground">ServeSmart</div>
-                <div className="text-xs text-muted">Restaurant POS</div>
+              <div className="min-w-0">
+                <div className="ss-company-name text-lg font-semibold text-foreground truncate max-w-36" title={companyName}>{companyName}</div>
+                <div className="ss-subheading text-xs text-muted">Restaurant POS</div>
               </div>
             )}
           </div>

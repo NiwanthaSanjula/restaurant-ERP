@@ -164,7 +164,7 @@ export const postRequestOtp = async (req: express.Request, res: express.Response
     // Send OTP via email (fallback logs if SMTP not configured)
     await sendEmail({
       to: email,
-      subject: 'Your ServeSmart password reset code',
+      subject: 'Your {{companyName}} password reset code',
       html: `<p>Your password reset code is:</p><h2>${otp}</h2><p>This code expires in 10 minutes.</p>`
     });
 
@@ -236,8 +236,8 @@ export const putResetPassword = async (req: express.Request, res: express.Respon
     // Send confirmation email after successful password change
     await sendEmail({
       to: email,
-      subject: 'Your ServeSmart password was changed successfully',
-      html: `<p>Hello,</p><p>Your password for ServeSmart Restaurant POS has been changed successfully.</p><p>If you did not make this change, please contact support immediately.</p><p>— ServeSmart Team</p>`
+      subject: 'Your {{companyName}} password was changed successfully',
+      html: `<p>Hello,</p><p>Your password for {{companyName}} has been changed successfully.</p><p>If you did not make this change, please contact support immediately.</p><p>— {{companyName}} Team</p>`
     }).catch((err) => console.error('Confirmation email failed:', err));
 
     res.json({ status: 'success', message: 'Password has been reset successfully' });

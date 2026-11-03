@@ -1,4 +1,5 @@
 import axios from 'axios';
+import { getBrandingRevision, syncBranding } from './branding';
 
 // Base URL (Adjust based on your environment)
 const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
@@ -19,12 +20,15 @@ api.interceptors.request.use((config) => {
 
 export const settingService = {
   getSettings: async () => {
+    const revision = getBrandingRevision();
     const response = await api.get('/settings/system');
+    if (response.data?.success && response.data?.data?.system) syncBranding(response.data.data.system, revision);
     return response.data; // Expected { success: true, data: { ... } }
   },
 
   updateSettings: async (settingsData: any) => {
     const response = await api.put('/settings/system', settingsData);
+    if (response.data?.success && response.data?.data?.system) syncBranding(response.data.data.system);
     return response.data;
   },
   uploadLogo: async (file: File) => {

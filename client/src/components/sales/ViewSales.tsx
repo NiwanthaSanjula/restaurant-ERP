@@ -1,5 +1,6 @@
 import { ArrowUpDown, Calendar, DollarSign, Download, Edit, Eye, FileText, Filter, MoreVertical, Plus, ShoppingCart, Trash2, X } from 'lucide-react';
 import React, { useEffect, useRef, useState } from 'react';
+import { escapeBrandText, getBranding } from '../../services/branding';
 import { createPortal } from 'react-dom';
 import { Link, useNavigate } from 'react-router-dom';
 import { useCurrency } from '../../contexts/CurrencyContext';
@@ -600,6 +601,7 @@ const ViewSales: React.FC = () => {
           <body>
             <div class="header">
               <h1>SALES INVOICE</h1>
+              <div>${escapeBrandText(getBranding().companyName)}</div>
               <div style="display: flex; justify-content: space-between; align-items: center;">
                 <div>
                   <p style="margin: 5px 0;"><strong>Invoice ID:</strong> ${saleData.invoiceId || saleData._id}</p>
@@ -867,6 +869,7 @@ const ViewSales: React.FC = () => {
           <body>
             <div class="header">
               <h1>SALES RECEIPT</h1>
+              <div>${escapeBrandText(getBranding().companyName)}</div>
               <div class="info-row">
                 <span><strong>Invoice ID:</strong> ${saleData.invoiceId || saleData._id}</span>
               </div>
@@ -945,6 +948,10 @@ const ViewSales: React.FC = () => {
                   <span>Payment Method:</span>
                   <span>${paymentMethods.join(', ') || 'N/A'}</span>
                 </div>
+              ` : ''}
+              ${typeof saleData.cashTendered === 'number' && typeof saleData.changeAmount === 'number' ? `
+                <div class="total-row"><span>Cash tendered:</span><span>${currencySymbol}${saleData.cashTendered.toFixed(2)}</span></div>
+                <div class="total-row"><span>Change:</span><span>${currencySymbol}${saleData.changeAmount.toFixed(2)}</span></div>
               ` : ''}
               ${saleData.balance > 0 ? `
                 <div class="total-row">

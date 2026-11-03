@@ -3,18 +3,12 @@ import mongoose from 'mongoose';
 import { authenticate } from '../../middleware/auth';
 import Brand from '../../models/Brand';
 import Category from '../../models/Category';
-import Customer from '../../models/Customer';
-import DailyOrderCounter from '../../models/DailyOrderCounter';
 import PosSession, { IDenominations } from '../../models/PosSession';
 import Product from '../../models/Product';
 import Sale from '../../models/Sale';
-import Warehouse from '../../models/Warehouse';
 import { buildZonedDateRange, getZonedTodayRange } from '../../utils/timezone';
 
-import {
-  applyMainStockDeductionForSale,
-  validateMainStockForCompletedSale,
-} from '../sale';
+import { CheckoutError, checkoutCashSale, checkoutReceipt } from '../../services/posCheckout';
 
 /** Get first warehouse data for a product (optionally by warehouseId). */
 function getFirstWarehouse(product: any, warehouseId?: string): any {
@@ -363,157 +357,14 @@ export const getRegisterReport = [authenticate, async (req: PosUserRequest, res:
 
 export const postSale = [authenticate, async (req: PosUserRequest, res: express.Response): Promise<void> => {
   try {
-    const user = req.user;
-    const {
-      sessionId,
-      items,
-      payments,
-      notes,
-      serviceType,
-      tableId,
-      customerId,
-      discount = 0,
-      discountType = 'fixed',
-      tax = 0,
-      shipping = 0,
-      specialOfferId,
-      specialOfferDiscount = 0
-    } = req.body as any;
-
-    if (!sessionId || !Array.isArray(items) || items.length === 0) {
-      res.status(400).json({ status: 'error', message: 'Invalid sale payload' });
-      return;
-    }
-
-    const validServiceType = serviceType === 'takeaway' || serviceType === 'delivery' || serviceType === 'dine-in' ? serviceType : 'takeaway';
-
-    let invoiceId: string;
-    if (validServiceType === 'dine-in') {
-      invoiceId = typeof tableId === 'string' && tableId.trim() ? tableId.trim() : `DI-${Date.now().toString().slice(-6)}`;
-    } else {
-      const today = new Date();
-      const dateStr = `${today.getFullYear()}${String(today.getMonth() + 1).padStart(2, '0')}${String(today.getDate()).padStart(2, '0')}`;
-      const prefix = validServiceType === 'takeaway' ? 'T' : 'D';
-      const counter = await DailyOrderCounter.findOneAndUpdate(
-        { prefix, date: dateStr },
-        { $inc: { seq: 1 } },
-        { new: true, upsert: true, setDefaultsOnInsert: true }
-      ).lean();
-      const sequence = counter?.seq || 1;
-      invoiceId = `${prefix}-${String(sequence).padStart(3, '0')}`;
-    }
-
-    const session = await PosSession.findOne({ _id: sessionId, userId: user?._id, status: 'OPEN' }).lean();
-    if (!session) {
-      res.status(400).json({ status: 'error', message: 'No active POS session found' });
-      return;
-    }
-
-    const warehouse = await Warehouse.findOne({ isActive: true }).select('_id').lean() || await Warehouse.findOne({}).select('_id').lean();
-    if (!warehouse?._id) {
-      res.status(400).json({ status: 'error', message: 'No warehouse found for POS sale' });
-      return;
-    }
-
-    const walkInCustomer =
-      await Customer.findOne({ name: { $regex: 'walk', $options: 'i' } }).select('_id').lean() ||
-      await Customer.findOne({}).select('_id').lean();
-    if (!walkInCustomer?._id) {
-      res.status(400).json({ status: 'error', message: 'No customer found for POS sale' });
-      return;
-    }
-
-    let resolvedCustomerId = String(walkInCustomer._id);
-    const requestedCustomerId = typeof customerId === 'string' ? customerId.trim() : '';
-    if (requestedCustomerId) {
-      const selectedCustomer = await Customer.findById(requestedCustomerId).select('_id').lean();
-      if (!selectedCustomer?._id) {
-        res.status(404).json({ status: 'error', message: 'Selected customer not found' });
-        return;
-      }
-      resolvedCustomerId = String(selectedCustomer._id);
-    }
-
-    const parsedItems = items.map((it: any) => {
-      const qty = Number(it.qty ?? it.quantity ?? 0);
-      const price = Number(it.price ?? 0);
-      return {
-        productId: String(it.productId || it.id || ''),
-        productName: String(it.productName || it.name || 'POS Item'),
-        variation: typeof it.variation === 'string' && it.variation.trim() ? String(it.variation).trim() : null,
-        batch: null,
-        stockQtyAtSale: 0,
-        qty: Math.max(0, qty),
-        price: Math.max(0, price),
-        discount: 0,
-        discountType: 'fixed' as const,
-        tax: 0,
-        subtotal: Math.max(0, qty * price),
-        cost: 0
-      };
-    }).filter((x: any) => x.productId);
-
-    if (!parsedItems.length) {
-      res.status(400).json({ status: 'error', message: 'No valid items to create POS sale' });
-      return;
-    }
-
-    const subtotal = parsedItems.reduce((sum: number, it: any) => sum + it.subtotal, 0);
-    const discountAmount = discountType === 'percentage' ? ((subtotal - specialOfferDiscount) * discount) / 100 : discount;
-    const taxableBase = subtotal - specialOfferDiscount - discountAmount + shipping;
-    const taxAmount = (Math.max(0, taxableBase) * tax) / 100;
-    const total = Math.max(0, taxableBase + taxAmount);
-
-    const cashAmount = Number((payments || []).filter((p: any) => p?.type === 'cash' || p?.paymentType === 'cash').reduce((s: number, p: any) => s + Number(p.amount || 0), 0));
-    const cardAmount = Number((payments || []).filter((p: any) => p?.type === 'card' || p?.paymentType === 'card').reduce((s: number, p: any) => s + Number(p.amount || 0), 0));
-    const bankTransferAmount = Number((payments || []).filter((p: any) => p?.type === 'bankTransfer' || p?.paymentType === 'bankTransfer').reduce((s: number, p: any) => s + Number(p.amount || 0), 0));
-    const paymentTotal = cashAmount + cardAmount + bankTransferAmount;
-    const paymentStatus: 'paid' | 'partial' | 'unpaid' = paymentTotal >= total ? 'paid' : paymentTotal > 0 ? 'partial' : 'unpaid';
-
-    const sale = await Sale.create({
-      invoiceId,
-      serviceType: validServiceType,
-      tableId: typeof tableId === 'string' ? tableId.trim() : '',
-      warehouseId: String(warehouse._id),
-      customerId: resolvedCustomerId,
-      date: new Date(),
-      businessType: 'restaurant',
-      status: 'completed',
-      paymentStatus,
-      saleType: 'pos',
-      products: parsedItems,
-      saleDiscountValue: discount,
-      saleDiscountType: discountType || 'fixed',
-      saleTaxValue: tax,
-      shippingCost: shipping,
-      total,
-      balance: Math.max(0, total - paymentTotal),
-      profit: 0,
-      cashAmount,
-      cardAmount,
-      bankTransferAmount,
-      createdBy: user?._id,
-      posSessionId: session._id,
-      ...(specialOfferId && mongoose.Types.ObjectId.isValid(specialOfferId) && { specialOfferId: new mongoose.Types.ObjectId(specialOfferId) })
+    const { sale, replayed } = await checkoutCashSale(req.body, String(req.user?._id || ''));
+    res.status(replayed ? 200 : 201).json({ status: 'success', data: checkoutReceipt(sale), replayed });
+  } catch (error) {
+    const known = error instanceof CheckoutError;
+    res.status(known ? error.status : 500).json({
+      status: 'error',
+      message: known ? error.message : 'Checkout could not be confirmed. Retry with the same checkout ID.'
     });
-
-    try {
-      await applyMainStockDeductionForSale(sale);
-    } catch (deductErr: any) {
-      await Sale.findByIdAndDelete(sale._id);
-      res.status(400).json({
-        status: 'error',
-        message: deductErr?.message || 'Failed to deduct stock for POS sale'
-      });
-      return;
-    }
-
-    res.status(201).json({
-      status: 'success',
-      data: { orderId: sale.invoiceId || sale._id, total, payments: payments || [], notes: notes || '', posSessionId: sessionId }
-    });
-  } catch (e: any) {
-    res.status(500).json({ status: 'error', message: 'Internal server error' });
   }
 }];
 

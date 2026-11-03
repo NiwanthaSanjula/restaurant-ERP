@@ -1,3 +1,4 @@
+import { getBranding } from '../../services/branding';
 import {
   ArrowRight, Download,
   Edit2,
@@ -226,7 +227,7 @@ const ViewQuotations: React.FC = () => {
       <div style="color:#334155; line-height:1.6;">${escapeHtml(quotation.notes || 'No notes provided.')}</div>
     </div>
 
-    <div class="footer">Printed from ServeSmart</div>
+    <div class="footer">Printed from ${escapeHtml(getBranding().companyName)}</div>
   </div>
 </body>
 </html>`;

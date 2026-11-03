@@ -5,6 +5,7 @@ import { authenticate } from '../../middleware/auth';
 import { checkPermission } from '../../middleware/permissions';
 import Permission from '../../models/Permission';
 import Role from '../../models/Role';
+import { protectRoleRecovery, RoleRecoveryError } from '../../services/roleRecovery';
 
 const validRolePermissions = (value: unknown) => {
   const normalized = normalizePermissions(value);
@@ -152,13 +153,17 @@ export const updateRole = async (req: express.Request, res: express.Response): P
       }
     }
 
-    const updatedRole = await Role.findByIdAndUpdate(id, updateData, { new: true, runValidators: true });
+    const write = async (session?: import('mongoose').ClientSession) => Role.findByIdAndUpdate(id, updateData, { new: true, runValidators: true, ...(session ? { session } : {}) });
+    const updatedRole = updateData.permissions !== undefined || updateData.isActive !== undefined
+      ? await protectRoleRecovery({ kind: 'role', id, ...updateData }, write)
+      : await write();
     if (!updatedRole) {
       res.status(500).json({ status: 'error', message: 'Failed to update role' });
       return;
     }
     res.json({ status: 'success', data: { id: updatedRole._id, name: updatedRole.name, permissions: updatedRole.permissions } });
   } catch (e) {
+    if (e instanceof RoleRecoveryError) { res.status(e.status).json({ status: 'error', message: e.message }); return; }
     res.status(500).json({ status: 'error', message: 'Failed to update role' });
   }
 };
@@ -173,13 +178,17 @@ export const deleteRole = async (req: express.Request, res: express.Response): P
     
     // Check if role is being used by any user
     const User = require('../../models/User').default;
-    const usersWithRole = await User.find({ roleId: id });
-    if (usersWithRole.length > 0) {
+    const result = await protectRoleRecovery({ kind: 'role', id, deleted: true }, async session => {
+      const usersWithRole = await User.find({ roleId: id }).session(session);
+      if (usersWithRole.length > 0) return { assigned: true, role: null };
+      return { assigned: false, role: await Role.findByIdAndDelete(id, { session }) };
+    });
+    if (result.assigned) {
       res.status(400).json({ status: 'error', message: 'Cannot delete role. It is assigned to one or more users.' });
       return;
     }
 
-    const deletedRole = await Role.findByIdAndDelete(id);
+    const deletedRole = result.role;
     if (!deletedRole) {
       res.status(404).json({ status: 'error', message: 'Role not found' });
       return;
@@ -187,6 +196,7 @@ export const deleteRole = async (req: express.Request, res: express.Response): P
 
     res.json({ status: 'success', message: 'Role deleted successfully' });
   } catch (e) {
+    if (e instanceof RoleRecoveryError) { res.status(e.status).json({ status: 'error', message: e.message }); return; }
     res.status(500).json({ status: 'error', message: 'Failed to delete role' });
   }
 };

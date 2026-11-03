@@ -1,10 +1,13 @@
 import React, { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { usePermissions } from '../../contexts/PermissionContext';
+import { useBranding } from '../../contexts/BrandingProvider';
+import CompanyMark from '../common/CompanyMark';
 
 const validateEmail = (email: string) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
 
 const Login: React.FC = () => {
+  const { companyName } = useBranding();
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
@@ -98,11 +101,11 @@ const Login: React.FC = () => {
           <div className="flex flex-col items-center justify-center mb-8">
             <div className="flex flex-col items-center justify-center mb-4">
               <div className="w-12 h-12 rounded-lg bg-primary flex items-center justify-center transition-transform duration-300 hover:scale-105 opacity-0 animate-login-fade-in-up mb-3" style={{ animationDelay: '0.1s' }}>
-                <span className="text-on-primary font-bold text-lg">SS</span>
+                <CompanyMark className="w-12 h-12 text-lg" />
               </div>
               <div className="text-center opacity-0 animate-login-fade-in-up" style={{ animationDelay: '0.2s' }}>
-                <div className="text-2xl font-semibold text-foreground">ServeSmart</div>
-                <div className="text-sm text-muted">Restaurant POS</div>
+                <div className="ss-heading text-2xl font-semibold text-foreground break-words">{companyName}</div>
+                <div className="ss-subheading text-sm text-muted">Restaurant POS</div>
               </div>
             </div>
             <p className="text-muted text-lg text-center opacity-0 animate-login-fade-in-up" style={{ animationDelay: '0.3s' }}>Sign in to your account to continue</p>

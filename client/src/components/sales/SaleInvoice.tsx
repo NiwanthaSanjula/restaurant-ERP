@@ -2,6 +2,7 @@ import { ArrowLeft, Building2, Edit, Mail, MapPin, Phone, User } from 'lucide-re
 import React, { useEffect, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { useCurrency } from '../../contexts/CurrencyContext';
+import { useBranding } from '../../contexts/BrandingProvider';
 import { getSaleById } from '../../services/saleService';
 import { settingService } from '../../services/settingService';
 import { showErrorToast } from '../../utils/toast';
@@ -63,6 +64,8 @@ interface SaleData {
   cashAmount: number;
   cardAmount: number;
   bankTransferAmount: number;
+  cashTendered?: number;
+  changeAmount?: number;
   payments?: SalePayment[];
   specialOfferId?: SpecialOfferData | string | null;
   createdAt: string;
@@ -79,6 +82,7 @@ interface CompanySettings {
 }
 
 const SaleInvoice: React.FC = () => {
+  const { companyName } = useBranding();
   const { currencySymbol } = useCurrency();
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
@@ -268,7 +272,7 @@ const SaleInvoice: React.FC = () => {
               <div className="space-y-3">
                 <div className="flex items-start gap-3">
                   <Building2 className="text-subtle mt-1" size={18} />
-                  <span className="text-foreground">{companySettings?.companyName || 'General Store'}</span>
+                  <span className="text-foreground">{companyName}</span>
                 </div>
                 <div className="flex items-start gap-3">
                   <Mail className="text-subtle mt-1" size={18} />
@@ -434,6 +438,12 @@ const SaleInvoice: React.FC = () => {
                     <span>Grand Total:</span>
                     <span>{formatCurrency(sale.total)}</span>
                   </div>
+                  {typeof sale.cashTendered === 'number' && typeof sale.changeAmount === 'number' && (
+                    <>
+                      <div className="flex justify-between text-sm"><span>Cash tendered:</span><span>{formatCurrency(sale.cashTendered)}</span></div>
+                      <div className="flex justify-between text-sm"><span>Change:</span><span>{formatCurrency(sale.changeAmount)}</span></div>
+                    </>
+                  )}
                 </div>
               </div>
             </div>

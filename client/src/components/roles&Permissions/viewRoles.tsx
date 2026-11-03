@@ -16,12 +16,7 @@ type RoleRow = {
   description: string;
   permissions: Array<{
     component: string;
-    actions: {
-      create: boolean;
-      read: boolean;
-      update: boolean;
-      delete: boolean;
-    };
+    actions: Record<string, boolean>;
   }>;
   isActive: boolean; 
   createdAt: string;
@@ -257,8 +252,8 @@ const ViewRoles: React.FC = () => {
       </div>
       
       {activeTab === 'roles' ? (
-        <div className="bg-surface border border-line rounded overflow-auto">
-          <table className="min-w-full divide-y divide-line">
+        <div role="region" aria-label="Roles table" tabIndex={0} className="bg-surface border border-line rounded overflow-auto">
+          <table className="min-w-full divide-y divide-line [&_td]:align-top">
             <thead className="bg-primary text-on-primary">
               <tr>
                 <th className="text-left px-6 py-4 text-sm font-semibold">Role Name</th>
@@ -266,7 +261,7 @@ const ViewRoles: React.FC = () => {
                 <th className="text-left px-6 py-4 text-sm font-semibold">Permissions</th>
                 <th className="text-left px-6 py-4 text-sm font-semibold">Status</th>
                 <th className="text-left px-6 py-4 text-sm font-semibold">Created</th>
-                <th className="text-right px-6 py-4 text-sm font-semibold">Action</th>
+                <th className="ss-role-actions text-right px-4 py-4 text-sm font-semibold bg-primary">Actions</th>
               </tr>
             </thead>
             <tbody className="bg-surface divide-y divide-line">
@@ -275,9 +270,10 @@ const ViewRoles: React.FC = () => {
                   <td className="px-6 py-5 text-base font-semibold text-foreground">{role.name}</td>
                   <td className="px-6 py-5 text-base text-muted">{role.description}</td>
                   <td className="px-6 py-5">
-                    <div className="flex flex-wrap">
-                      {getPermissionBadges(role.permissions)}
-                    </div>
+                    <details>
+                      <summary className="cursor-pointer text-sm text-muted">{role.permissions.reduce((count, entry) => count + Object.values(entry.actions).filter(Boolean).length, 0)} stored selections</summary>
+                      <div className="flex flex-wrap max-w-md mt-2">{getPermissionBadges(role.permissions)}</div>
+                    </details>
                   </td>
                   <td className="px-6 py-5">
                     <span className={`px-2 py-1 rounded text-sm font-semibold ${
@@ -291,7 +287,7 @@ const ViewRoles: React.FC = () => {
                   <td className="px-6 py-5 text-base text-muted">
                     {formatDate(role.createdAt)}
                   </td>
-                  <td className="px-6 py-5 text-right space-x-3">
+                  <td className="ss-role-actions px-4 py-5 text-right space-x-3 bg-surface whitespace-nowrap">
                     <PermissionGate component="manageRoles" action="update">
                       <button
                         onClick={() => navigate(`/editRole/${role._id}`)}

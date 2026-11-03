@@ -1,3 +1,5 @@
+import { escapeBrandText, getBranding } from '../services/branding';
+
 type ReportColumn = {
   key: string;
   header: string;
@@ -109,7 +111,7 @@ export const exportReportPdf = ({
       <tbody>${bodyHtml}</tbody>
     </table>
     ${summaryHtml}
-    <div class="footer">Exported from ServeSmart Reports</div>
+    <div class="footer">Exported from ${escapeBrandText(getBranding().companyName)} Reports</div>
   </div>
 </body>
 </html>`;

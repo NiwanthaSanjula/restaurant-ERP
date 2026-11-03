@@ -2,7 +2,7 @@ import { ArrowLeft, BarChart3, Calendar, Layout, Printer, RefreshCcw, Store } fr
 import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useCurrency } from "../../contexts/CurrencyContext";
-import { getSalesReport } from "../../services/saleService";
+import { getSalesReport, getSaleReturnsReport } from "../../services/saleService";
 import { getWarehouses } from "../../services/warehouseService";
 import { showErrorToast } from "../../utils/toast";
 import ExportPDFButton from "../common/ExportPDFButton";
@@ -24,7 +24,7 @@ const SalesReport: React.FC = () => {
     customer: string;
     warehouse: string;
     type: string;
-    total: number;
+    total: number | null;
     status: string;
   };
 
@@ -33,16 +33,23 @@ const SalesReport: React.FC = () => {
     retRef: string;
     saleRef: string;
     customer: string;
-    total: number;
+    total: number | null;
     status: string;
   };
 
-  const [salesData, setSalesData] = useState<SaleRow[]>([]);
-  const [returnsData, setReturnsData] = useState<SaleReturnRow[]>([]);
+  const [loadedSalesData, setSalesData] = useState<SaleRow[]>([]);
+  const [loadedReturnsData, setReturnsData] = useState<SaleReturnRow[]>([]);
   const [loading, setLoading] = useState(false);
   const [loadingReturns, setLoadingReturns] = useState(false);
+  const [salesReady, setSalesReady] = useState<string | null>(null);
+  const [returnsReady, setReturnsReady] = useState<string | null>(null);
+  const [salesError, setSalesError] = useState('');
+  const [returnsError, setReturnsError] = useState('');
+  const [totalSalesAmount, setTotalSalesAmount] = useState<number | null>(null);
+  const [totalReturnsAmount, setTotalReturnsAmount] = useState<number | null>(null);
   const [warehouses, setWarehouses] = useState<Array<{ _id: string; name: string }>>([]);
   const [, setLoadingWarehouses] = useState(false);
+  const filterKey = JSON.stringify([filters.fromDate, filters.toDate, filters.store]);
 
   const fetchWarehousesList = async () => {
     setLoadingWarehouses(true);
@@ -59,71 +66,50 @@ const SalesReport: React.FC = () => {
     }
   };
 
-  const fetchSalesReport = async () => {
-    setLoading(true);
-    try {
-      const response = await getSalesReport({
-        fromDate: filters.fromDate || undefined,
-        toDate: filters.toDate || undefined,
-        warehouseId: !filters.store || filters.store === "All Stores" ? undefined : filters.store,
-      });
-      setSalesData(response.status === "success" && Array.isArray(response.data) ? response.data : []);
-    } catch (error: any) {
-      showErrorToast(error.message || "Failed to load sales report");
-      setSalesData([]);
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const fetchSaleReturns = async () => {
-    setLoadingReturns(true);
-    try {
-      const api = (import.meta.env.VITE_API_URL || "http://localhost:5000/api") as string;
-      const token = localStorage.getItem("token");
-      const params = new URLSearchParams();
-      if (filters.fromDate) params.append("startDate", filters.fromDate);
-      if (filters.toDate) params.append("endDate", filters.toDate);
-      if (filters.store && filters.store !== "All Stores") params.append("warehouseId", filters.store);
-      const url = `${api}/sale-returns?${params.toString()}`;
-      const res = await fetch(url, { headers: token ? { Authorization: `Bearer ${token}` } : {} });
-      const data = await res.json();
-      if (!res.ok) {
-        if (res.status === 404) { setReturnsData([]); return; }
-        showErrorToast(data?.message || "Failed to load sale returns");
-        setReturnsData([]);
-        return;
-      }
-      setReturnsData((data.data || []).map((r: any) => ({
-        date: r.returnDate || r.createdAt,
-        retRef: r.returnId || r._id,
-        saleRef: r.saleId?.invoiceId || r.saleRef || "—",
-        customer: r.customerId?.name || r.customerName || "—",
-        total: r.totalAmount ?? r.total ?? 0,
-        status: r.status || "Completed",
-      })));
-    } catch (error: any) {
-      setReturnsData([]);
-      showErrorToast(error.message || "Failed to load sale returns");
-    } finally {
-      setLoadingReturns(false);
-    }
-  };
-
   useEffect(() => { fetchWarehousesList(); }, []);
   useEffect(() => {
+    let current = true;
+    setSalesData([]); setReturnsData([]);
+    setSalesReady(null); setReturnsReady(null);
+    setTotalSalesAmount(null); setTotalReturnsAmount(null);
+    setSalesError(''); setReturnsError('');
+    setLoading(true); setLoadingReturns(true);
     if (filters.fromDate && filters.toDate && filters.fromDate > filters.toDate) {
-      showErrorToast("From Date cannot be greater than To Date");
-      setSalesData([]);
-      setReturnsData([]);
-      return;
+      const message = 'From Date cannot be greater than To Date';
+      setSalesError(message); setReturnsError(message);
+      setLoading(false); setLoadingReturns(false);
+      showErrorToast(message);
+      return () => { current = false; };
     }
-    fetchSalesReport();
-    fetchSaleReturns();
-  }, [filters.fromDate, filters.toDate, filters.store]);
+    const params = {
+      fromDate: filters.fromDate || undefined,
+      toDate: filters.toDate || undefined,
+      warehouseId: !filters.store || filters.store === 'All Stores' ? undefined : filters.store,
+    };
+    getSalesReport(params).then(response => {
+      if (!current) return;
+      setSalesData(response.data); setTotalSalesAmount(response.totalAmount); setSalesReady(filterKey);
+    }).catch(error => {
+      if (!current) return;
+      const message = error instanceof Error ? error.message : 'Failed to load sales report';
+      setSalesError(message); showErrorToast(message);
+    }).finally(() => { if (current) setLoading(false); });
+    getSaleReturnsReport(params).then(response => {
+      if (!current) return;
+      setReturnsData(response.data); setTotalReturnsAmount(response.totalAmount); setReturnsReady(filterKey);
+    }).catch(error => {
+      if (!current) return;
+      const message = error instanceof Error ? error.message : 'Failed to load sale returns';
+      setReturnsError(message); showErrorToast(message);
+    }).finally(() => { if (current) setLoadingReturns(false); });
+    return () => { current = false; };
+  }, [filters.fromDate, filters.toDate, filters.store, filterKey]);
 
-  const totalSalesAmount = salesData.reduce((acc, curr) => acc + curr.total, 0);
-  const totalReturnsAmount = returnsData.reduce((acc, curr) => acc + curr.total, 0);
+  const salesData = salesReady === filterKey ? loadedSalesData : [];
+  const returnsData = returnsReady === filterKey ? loadedReturnsData : [];
+  const activeError = activeTab === 'sales' ? salesError : returnsError;
+  const formatAmount = (amount: number | null) => amount === null ? 'Unavailable'
+    : `${currencySymbol} ${currencyCode} ${amount.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
 
   return (
     <div className="max-w-7xl mx-auto p-4 md:p-8 bg-canvas min-h-screen">
@@ -148,6 +134,7 @@ const SalesReport: React.FC = () => {
             </button>
 
             <ExportPDFButton
+              disabled={activeTab === 'sales' ? loading || salesReady !== filterKey : loadingReturns || returnsReady !== filterKey}
               columns={activeTab === "sales"
                 ? ["date","ref","customer","warehouse","type","total","status"]
                 : ["date","retRef","saleRef","customer","total","status"]
@@ -159,7 +146,7 @@ const SalesReport: React.FC = () => {
                     customer: s.customer,
                     warehouse: s.warehouse,
                     type: s.type,
-                    total: `${currencySymbol} ${currencyCode} ${s.total.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`,
+                    total: formatAmount(s.total),
                     status: s.status
                   }))
                 : returnsData.map(r => ({
@@ -167,7 +154,7 @@ const SalesReport: React.FC = () => {
                     retRef: r.retRef,
                     saleRef: r.saleRef,
                     customer: r.customer,
-                    total: `${currencySymbol} ${currencyCode} ${r.total.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`,
+                    total: formatAmount(r.total),
                     status: r.status
                   }))
               }
@@ -227,6 +214,7 @@ const SalesReport: React.FC = () => {
         </div>
       </div>
 
+      {activeError && <p role="alert" className="mb-4 rounded-xl border border-danger-line bg-danger-soft p-4 text-danger">{activeError} No incomplete report can be exported.</p>}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
         <div
           className="relative overflow-hidden rounded-[30px] p-8 transition-all duration-300 hover:scale-[1.02] cursor-pointer"
@@ -238,7 +226,7 @@ const SalesReport: React.FC = () => {
             <div>
               <p className="text-foreground text-sm font-bold uppercase tracking-wider mb-1">Total Sales</p>
               <h3 className="text-foreground text-3xl font-black tracking-tighter">
-                {currencySymbol} {currencyCode} {totalSalesAmount.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                {formatAmount(salesReady === filterKey ? totalSalesAmount : null)}
               </h3>
             </div>
             <div className="bg-surface-muted p-4 rounded-2xl backdrop-blur-md">
@@ -258,7 +246,7 @@ const SalesReport: React.FC = () => {
             <div>
               <p className="text-foreground text-sm font-bold uppercase tracking-wider mb-1">Total Returns</p>
               <h3 className="text-foreground text-3xl font-black tracking-tighter">
-                {currencySymbol} {currencyCode} {totalReturnsAmount.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                {formatAmount(returnsReady === filterKey ? totalReturnsAmount : null)}
               </h3>
             </div>
             <div className="bg-surface-muted p-4 rounded-2xl backdrop-blur-md">
@@ -328,7 +316,7 @@ const SalesReport: React.FC = () => {
                   ) : salesData.length === 0 ? (
                     <tr>
                       <td colSpan={7} className="p-6 text-center text-muted">
-                        No sales found for the selected filters.
+                        {salesError ? 'Sales report could not be loaded.' : 'No sales found for the selected filters.'}
                       </td>
                     </tr>
                   ) : (
@@ -342,7 +330,7 @@ const SalesReport: React.FC = () => {
                           <span className="px-3 py-1 bg-surface-muted rounded-lg text-[11px]">{item.type}</span>
                         </td>
                         <td className="p-5 text-sm font-black text-foreground text-right">
-                          {currencySymbol} {currencyCode} {item.total.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                          {formatAmount(item.total)}
                         </td>
                         <td className="p-5 text-center">
                           <span
@@ -367,7 +355,7 @@ const SalesReport: React.FC = () => {
                 ) : returnsData.length === 0 ? (
                   <tr>
                     <td colSpan={6} className="p-6 text-center text-muted">
-                      No sale returns found for the selected filters.
+                      {returnsError ? 'Sale returns report could not be loaded.' : 'No sale returns found for the selected filters.'}
                     </td>
                   </tr>
                 ) : (
@@ -378,7 +366,7 @@ const SalesReport: React.FC = () => {
                       <td className="p-5 text-sm font-medium text-muted">{item.saleRef}</td>
                       <td className="p-5 text-sm font-bold text-foreground">{item.customer}</td>
                       <td className="p-5 text-sm font-black text-foreground text-right">
-                        {currencySymbol} {currencyCode} {item.total.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                        {formatAmount(item.total)}
                       </td>
                       <td className="p-5 text-center">
                         <span
@@ -401,6 +389,8 @@ const SalesReport: React.FC = () => {
           <div className="px-6 py-4 flex flex-col md:flex-row justify-between items-center gap-4 border-t border-line bg-surface">
             <div className="text-sm font-medium text-subtle">
               {(() => {
+                if (activeError) return <span>Report unavailable</span>;
+                if (activeTab === 'sales' ? loading : loadingReturns) return <span>Loading all matching records…</span>;
                 const length = activeTab === "sales" ? salesData.length : returnsData.length;
                 if (length === 0) {
                   return (

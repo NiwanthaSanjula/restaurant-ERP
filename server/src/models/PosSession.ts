@@ -26,6 +26,7 @@ export interface IPosSession extends Document {
   denominations: IDenominations;
   closingDenominations?: IDenominations;
   status: PosStatus;
+  checkoutRevision?: number;
   createdAt: Date;
   updatedAt: Date;
 }
@@ -66,7 +67,8 @@ const posSessionSchema = new Schema<IPosSession>({
   cashVariance: { type: Number },
   denominations: { type: denominationSchema, default: denominationDefaults, required: true },
   closingDenominations: { type: denominationSchema },
-  status: { type: String, enum: ['OPEN', 'CLOSED'], default: 'OPEN', required: true }
+  status: { type: String, enum: ['OPEN', 'CLOSED'], default: 'OPEN', required: true },
+  checkoutRevision: { type: Number, default: 0 }
 }, {
   timestamps: true,
   collection: 'pos_sessions'

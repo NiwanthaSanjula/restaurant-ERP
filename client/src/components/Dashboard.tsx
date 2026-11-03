@@ -21,12 +21,14 @@ import {
   XAxis, YAxis
 } from 'recharts';
 import { useCurrency } from '../contexts/CurrencyContext';
+import { useBranding } from '../contexts/BrandingProvider';
 import { useReducedMotion } from '../hooks/useReducedMotion';
 
 const CHART_COLORS = [1, 2, 3, 4, 5].map(index => `var(--ss-chart-${index})`);
 const chartTooltipStyle = { background: 'var(--ss-surface)', color: 'var(--ss-foreground)', border: '1px solid var(--ss-border)', borderRadius: '12px', boxShadow: 'var(--ss-shadow)' };
 
 const Dashboard: React.FC = () => {
+  const { companyName } = useBranding();
   const { currencyCode } = useCurrency();
   const reducedMotion = useReducedMotion();
   const [data, setData] = useState<any>(null);
@@ -68,7 +70,7 @@ const Dashboard: React.FC = () => {
     fetchData();
   }, [api, token, filter, navigate]);
 
-  if (loading) return <div className="p-10 text-center text-foreground font-semibold italic">Loading ServeSmart...</div>;
+  if (loading) return <div className="p-10 text-center text-foreground font-semibold italic">Loading {companyName}...</div>;
   if (!data) return <div className="p-10 text-center text-danger">Error loading data.</div>;
 
   const StatCard = ({ title, value, unit, icon: Icon, path, tone }: any) => (
@@ -91,7 +93,7 @@ const Dashboard: React.FC = () => {
     <div className="ss-chart bg-canvas min-h-screen space-y-6">
       <div>
         <p className="text-xs font-semibold uppercase tracking-wider text-primary mb-1">Overview</p>
-        <h1 className="text-3xl font-semibold text-foreground">Your restaurant at a glance</h1>
+        <h1 className="text-3xl font-semibold text-foreground uppercase ss-company-name">Your restaurant at a glance</h1>
         <p className="text-muted mt-2">Sales, purchasing, and stock activity.</p>
       </div>
       

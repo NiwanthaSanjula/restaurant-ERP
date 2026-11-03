@@ -6,6 +6,7 @@ import Product from '../../models/Product';
 import Sale from '../../models/Sale';
 import SaleReturn from '../../models/SaleReturn';
 import Warehouse from '../../models/Warehouse';
+import { buildZonedDateRange } from '../../utils/timezone';
 
 // Type definitions for product structures (matching Sale controller)
 interface IVariation {
@@ -179,23 +180,27 @@ export const createSaleReturn = [
 
 export const getSaleReturns = async (req: Request, res: Response): Promise<void> => {
     try {
-      const { page = '1', limit = '10', q, startDate, endDate } = req.query;
+      const { page = '1', limit = '10', q, startDate, endDate, warehouseId } = req.query;
       const pageNum = parseInt(page as string, 10);
       const limitNum = parseInt(limit as string, 10);
       const skip = (pageNum - 1) * limitNum;
 
       const filter: any = {};
       if (startDate || endDate) {
-        filter.returnDate = {};
-        if (startDate) filter.returnDate.$gte = new Date(startDate as string);
-        if (endDate) filter.returnDate.$lte = new Date(endDate as string);
+        const { start, end } = buildZonedDateRange(startDate as string | undefined, endDate as string | undefined);
+        if (startDate && endDate && start > end) { res.status(400).json({ status: 'error', message: 'From date cannot be greater than to date' }); return; }
+        filter.returnDate = { ...(startDate ? { $gte: start } : {}), ...(endDate ? { $lte: end } : {}) };
+      }
+      if (warehouseId) {
+        if (!mongoose.isValidObjectId(warehouseId)) { res.status(400).json({ status: 'error', message: 'Invalid warehouse ID' }); return; }
+        filter.warehouseId = new mongoose.Types.ObjectId(String(warehouseId));
       }
 
       const saleReturns = await SaleReturn.find(filter)
         .populate('saleId', 'invoiceId')
         .populate('customerId', 'name')
         .populate('warehouseId', 'name')
-        .sort({ createdAt: -1 })
+        .sort({ createdAt: -1, _id: -1 })
         .skip(skip)
         .limit(limitNum)
         .lean();

@@ -10,7 +10,7 @@ import SpecialOffer from '../../models/SpecialOffer';
 import User from '../../models/User';
 import Warehouse from '../../models/Warehouse';
 import {
-    parseDateInputAsZonedStart
+    buildZonedDateRange, parseDateInputAsZonedStart
 } from '../../utils/timezone';
 
 import logActivity from '../../services/logActivity';
@@ -208,11 +208,13 @@ async function availableMainStockForLine(
 
 export async function validateMainStockForCompletedSale(
   warehouseId: string,
-  lines: SaleLineForStock[]
+  lines: SaleLineForStock[],
+  session?: mongoose.ClientSession
 ): Promise<void> {
   for (const line of lines) {
     validateMainStockLineShape(line);
-    const product = await Product.findById(line.productId).select('name isInventory warehouse').lean();
+    const query = Product.findById(line.productId).select('name isInventory warehouse');
+    const product = await (session ? query.session(session) : query).lean();
     if (!product) continue;
     if (product.isInventory !== true) continue;
     const available = await availableMainStockForLine(product, warehouseId, line);
@@ -224,7 +226,8 @@ export async function validateMainStockForCompletedSale(
 
 async function decrementMainStockLine(
   warehouseId: string,
-  line: SaleLineForStock
+  line: SaleLineForStock,
+  session?: mongoose.ClientSession
 ): Promise<void> {
   const qty = Number(line.qty);
   const batch = line.batch ? String(line.batch) : '';
@@ -248,7 +251,7 @@ async function decrementMainStockLine(
           [`warehouse.${warehouseId}.batches.$[batch].variationValues.${variation}.productQty`]: -qty
         }
       },
-      { new: true, arrayFilters: [{ 'batch.batchNumber': batch }] }
+      { new: true, arrayFilters: [{ 'batch.batchNumber': batch }], ...(session && { session }) }
     );
   } else if (batch) {
     updated = await Product.findOneAndUpdate(
@@ -259,7 +262,7 @@ async function decrementMainStockLine(
         }
       },
       { $inc: { [`warehouse.${warehouseId}.batches.$[batch].productQty`]: -qty } },
-      { new: true, arrayFilters: [{ 'batch.batchNumber': batch }] }
+      { new: true, arrayFilters: [{ 'batch.batchNumber': batch }], ...(session && { session }) }
     );
   } else if (variation) {
     updated = await Product.findOneAndUpdate(
@@ -268,7 +271,7 @@ async function decrementMainStockLine(
         [`warehouse.${warehouseId}.variationValues.${variation}.productQty`]: { $gte: qty }
       },
       { $inc: { [`warehouse.${warehouseId}.variationValues.${variation}.productQty`]: -qty } },
-      { new: true }
+      { new: true, ...(session && { session }) }
     );
   } else {
     updated = await Product.findOneAndUpdate(
@@ -277,7 +280,7 @@ async function decrementMainStockLine(
         [`warehouse.${warehouseId}.productQty`]: { $gte: qty }
       },
       { $inc: { [`warehouse.${warehouseId}.productQty`]: -qty } },
-      { new: true }
+      { new: true, ...(session && { session }) }
     );
   }
 
@@ -330,13 +333,15 @@ async function incrementMainStockLine(
 }
 
 export async function applyMainStockDeductionForSale(
-  saleRef: string | mongoose.Types.ObjectId | { _id: unknown }
+  saleRef: string | mongoose.Types.ObjectId | { _id: unknown },
+  session?: mongoose.ClientSession
 ): Promise<void> {
   const sid =
     typeof saleRef === 'object' && saleRef !== null && '_id' in saleRef
       ? String(saleRef._id)
       : String(saleRef);
-  const sale = await Sale.findById(sid).lean();
+  const query = Sale.findById(sid);
+  const sale = await (session ? query.session(session) : query).lean();
   if (!sale || sale.status !== 'completed') return;
   if ((sale as any).mainStockDeductionAppliedAt) return;
 
@@ -348,18 +353,21 @@ export async function applyMainStockDeductionForSale(
     qty: Number(x.qty)
   })) as SaleLineForStock[];
 
-  await validateMainStockForCompletedSale(warehouseId, lines);
+  await validateMainStockForCompletedSale(warehouseId, lines, session);
 
   const rolled: SaleLineForStock[] = [];
   try {
     for (const line of lines) {
-      const product = await Product.findById(line.productId).select('isInventory').lean();
+      const productQuery = Product.findById(line.productId).select('isInventory');
+      const product = await (session ? productQuery.session(session) : productQuery).lean();
       if (!product || product.isInventory !== true) continue;
-      await decrementMainStockLine(warehouseId, line);
+      await decrementMainStockLine(warehouseId, line, session);
       rolled.push(line);
     }
-    await Sale.findByIdAndUpdate(sid, { mainStockDeductionAppliedAt: new Date() });
+    await Sale.findByIdAndUpdate(sid, { mainStockDeductionAppliedAt: new Date() }, session ? { session } : {});
   } catch (e) {
+    // The checkout transaction rolls back all writes together.
+    if (session) throw e;
     for (const line of rolled.reverse()) {
       await incrementMainStockLine(warehouseId, line);
     }
@@ -474,17 +482,14 @@ export const getSales = [
       
       // Support single-day and range filters (date + optional dateEnd)
       if (date || dateEnd) {
-        const start = date ? new Date(date) : new Date(dateEnd as string);
-        const end = dateEnd ? new Date(dateEnd) : new Date(date as string);
+        const { start, end } = buildZonedDateRange(date, dateEnd);
         
         if (date && dateEnd && start > end) {
           res.status(400).json({ status: 'error', message: 'From date cannot be greater than to date' });
           return;
         }
 
-        const startOfRange = new Date(start.getFullYear(), start.getMonth(), start.getDate(), 0, 0, 0, 0);
-        const endOfRange = new Date(end.getFullYear(), end.getMonth(), end.getDate(), 23, 59, 59, 999);
-        filter.date = { $gte: startOfRange, $lte: endOfRange };
+        filter.date = { $gte: start, $lte: end };
       }
       
       if (customerId) filter.customerId = customerId;
@@ -497,7 +502,7 @@ export const getSales = [
       const skip = (pageNum - 1) * limitNum;
       
       let salesQuery: any = Sale.find(filter)
-        .sort({ createdAt: -1 })
+        .sort({ createdAt: -1, _id: -1 })
         .skip(skip)
         .limit(limitNum);
       

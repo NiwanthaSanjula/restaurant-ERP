@@ -1,5 +1,6 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import { useCurrency } from '../../contexts/CurrencyContext';
+import { useBranding } from '../../contexts/BrandingProvider';
 import { showErrorToast, showInfoToast } from '../../utils/toast';
 import Loader from '../common/Loader';
 import JsBarcode from 'jsbarcode';
@@ -148,6 +149,7 @@ const calculatePrice = (warehouse: any, targetWarehouseId?: string): number | un
 };
 
 const BarcodePrint: React.FC = () => {
+  const { companyName } = useBranding();
   const [customBarcode, setCustomBarcode] = useState(false);
   const [warehouses, setWarehouses] = useState<WarehouseOption[]>([]);
   const { currencyCode, currencySymbol } = useCurrency();
@@ -848,7 +850,7 @@ const BarcodePrint: React.FC = () => {
                           >
                             {showStoreName && (
                               <div className="text-[10px] font-bold tracking-wider uppercase">
-                                General Store
+                                {companyName}
                               </div>
                             )}
                             {showProductName && (

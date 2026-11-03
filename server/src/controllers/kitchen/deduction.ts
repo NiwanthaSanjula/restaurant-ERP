@@ -25,66 +25,70 @@ function kitchenIngredientId(ref: unknown): string {
   return String(ref);
 }
 
-async function getConversionFactor(recipeUnitShort: string, kitchenUnitShort: string): Promise<number> {
+async function getConversionFactor(recipeUnitShort: string, kitchenUnitShort: string, session?: mongoose.ClientSession): Promise<number> {
   const rUnit = recipeUnitShort.trim().toLowerCase();
   const kUnit = kitchenUnitShort.trim().toLowerCase();
   
   if (rUnit === kUnit) return 1;
 
   // Find units by short name
-  const [uFrom, uTo] = await Promise.all([
-    Unit.findOne({ shortName: { $regex: new RegExp(`^${rUnit}$`, 'i') }, businessType: 'restaurant' }).lean(),
-    Unit.findOne({ shortName: { $regex: new RegExp(`^${kUnit}$`, 'i') }, businessType: 'restaurant' }).lean()
-  ]);
+  // Operations sharing a MongoDB transaction must run sequentially.
+  const uFrom = await inSession(Unit.findOne({ shortName: { $regex: new RegExp(`^${rUnit}$`, 'i') }, businessType: 'restaurant' }), session).lean();
+  const uTo = await inSession(Unit.findOne({ shortName: { $regex: new RegExp(`^${kUnit}$`, 'i') }, businessType: 'restaurant' }), session).lean();
 
   if (!uFrom || !uTo) return 0; // Cannot convert if unit missing
 
-  const conv = await KitchenUnitConversion.findOne({ 
+  const conv = await inSession(KitchenUnitConversion.findOne({
     fromUnitId: uFrom._id, 
     toUnitId: uTo._id 
-  }).lean();
+  }), session).lean();
 
   return conv ? conv.factor : 0;
 }
 
 async function findRecipeForLine(
   productId: string,
-  variationRaw: string | null | undefined
+  variationRaw: string | null | undefined,
+  session?: mongoose.ClientSession
 ): Promise<{ ingredients: Array<{ kitchenProductId: unknown; quantity: number; unit: string }> } | null> {
   const v = variationRaw != null ? String(variationRaw).trim() : '';
   if (v) {
-    const specific = await KitchenRecipe.findOne({
+    const specific = await inSession(KitchenRecipe.findOne({
       productId,
       variationName: v
-    }).lean();
+    }), session).lean();
     if (specific) return specific;
   }
-  const base = await KitchenRecipe.findOne({
+  const base = await inSession(KitchenRecipe.findOne({
     productId,
     $or: [{ variationName: null }, { variationName: '' }, { variationName: { $exists: false } }]
-  }).lean();
+  }), session).lean();
   return base;
 }
 
 /** kitchen ingredient id -> total quantity needed (in kitchen inventory unit) */
-async function aggregateKitchenNeeds(products: SaleLine[]): Promise<Map<string, number>> {
+function inSession<T extends { session(session: mongoose.ClientSession): T }>(query: T, session?: mongoose.ClientSession): T {
+  return session ? query.session(session) : query;
+}
+
+async function aggregateKitchenNeeds(products: SaleLine[], session?: mongoose.ClientSession): Promise<Map<string, number>> {
   const needs = new Map<string, number>();
   for (const line of products) {
     const qty = Number(line.qty);
     if (!Number.isFinite(qty) || qty <= 0) continue;
 
     const pid = String(line.productId);
-    const prod = await Product.findById(pid).select('isInventory name').lean();
+    const prod = await inSession(Product.findById(pid).select('isInventory name'), session).lean();
     if (!prod) continue;
 
     if (prod.isInventory === true) continue;
 
-    const recipe = await findRecipeForLine(pid, line.variation);
+    const recipe = await findRecipeForLine(pid, line.variation, session);
     if (!recipe?.ingredients?.length) {
       throw new Error(`No recipe configured for: ${prod.name || 'product'}`);
     }
 
-    const kidToMeta = await loadKitchenMetaForRecipe(recipe);
+    const kidToMeta = await loadKitchenMetaForRecipe(recipe, session);
     let lineContributed = false;
     for (const ing of recipe.ingredients) {
       const kid = kitchenIngredientId(ing.kitchenProductId);
@@ -99,7 +103,7 @@ async function aggregateKitchenNeeds(products: SaleLine[]): Promise<Map<string, 
         throw new Error('Kitchen ingredient in recipe no longer exists');
       }
       
-      const factor = await getConversionFactor(ing.unit, meta.unitShort);
+      const factor = await getConversionFactor(ing.unit, meta.unitShort, session);
       if (factor === 0) {
         throw new Error(
           `Unit conversion missing for ${meta.name}: cannot convert recipe unit "${ing.unit}" to kitchen unit "${meta.unitShort}"`
@@ -122,12 +126,11 @@ async function aggregateKitchenNeeds(products: SaleLine[]): Promise<Map<string, 
 
 async function loadKitchenMetaForRecipe(recipe: {
   ingredients: Array<{ kitchenProductId: unknown }>;
-}): Promise<Map<string, { name: string; unitShort: string }>> {
+}, session?: mongoose.ClientSession): Promise<Map<string, { name: string; unitShort: string }>> {
   const ids = recipe.ingredients.map((i) => kitchenIngredientId(i.kitchenProductId)).filter(Boolean);
   const oids = ids.map((id) => new mongoose.Types.ObjectId(id));
-  const rows = await KitchenInventoryProduct.find({ _id: { $in: oids } })
-    .populate('unitId', 'shortName unitName')
-    .lean();
+  const rows = await inSession(KitchenInventoryProduct.find({ _id: { $in: oids } })
+    .populate('unitId', 'shortName unitName'), session).lean();
   const m = new Map<string, { name: string; unitShort: string }>();
   for (const r of rows) {
     const row = r as unknown as {
@@ -172,18 +175,20 @@ type ProcessRecipeSaleArg =
 
 export async function processRecipeInventoryDeduction(
   sale: ProcessRecipeSaleArg,
-  userId?: mongoose.Types.ObjectId
+  userId?: mongoose.Types.ObjectId,
+  session?: mongoose.ClientSession
 ): Promise<void> {
   const saleId =
     typeof sale === 'object' && sale !== null && '_id' in sale
       ? String(sale._id)
       : String(sale);
-  await applyKitchenDeductionForSale(saleId, userId);
+  await applyKitchenDeductionForSale(saleId, userId, session);
 }
 
 export async function applyKitchenDeductionForSale(
   saleId: string | mongoose.Types.ObjectId,
-  userId?: mongoose.Types.ObjectId
+  userId?: mongoose.Types.ObjectId,
+  checkoutSession?: mongoose.ClientSession
 ): Promise<void> {
   const sid = typeof saleId === 'string' ? saleId : String(saleId);
   let saleOid: mongoose.Types.ObjectId;
@@ -193,15 +198,15 @@ export async function applyKitchenDeductionForSale(
     throw new Error('Invalid sale id');
   }
 
-  const existing = await KitchenStockMovement.findOne({
+  const existing = await inSession(KitchenStockMovement.findOne({
     saleId: saleOid,
     source: 'sale'
-  })
+  }), checkoutSession)
     .select('_id')
     .lean();
   if (existing) return;
 
-  const sale = await Sale.findById(sid).lean();
+  const sale = await inSession(Sale.findById(sid), checkoutSession).lean();
   if (!sale || sale.status !== 'completed') return;
 
   const lines: SaleLine[] = (sale.products || []).map((x: any) => ({
@@ -210,7 +215,7 @@ export async function applyKitchenDeductionForSale(
     qty: Number(x.qty)
   }));
 
-  const needs = await aggregateKitchenNeeds(lines);
+  const needs = await aggregateKitchenNeeds(lines, checkoutSession);
   const invoiceRef = (sale as { invoiceId?: string }).invoiceId || sid;
   const movementBase = {
     source: 'sale' as const,
@@ -305,6 +310,11 @@ export async function applyKitchenDeductionForSale(
       { session }
     );
   };
+
+  if (checkoutSession) {
+    await applyWithSession(checkoutSession);
+    return;
+  }
 
   const session = await mongoose.startSession();
   try {

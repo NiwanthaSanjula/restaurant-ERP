@@ -86,7 +86,7 @@ const ViewPurchases: React.FC = () => {
     fetchPurchases();
     fetchSuppliers();
     fetchWarehouses();
-  }, [debouncedSearchQuery, filterDate, filterDateEnd, filterSupplier, filterWarehouse, filterStatus, filterPaymentStatus, pagination.page]);
+  }, [debouncedSearchQuery, filterDate, filterDateEnd, filterSupplier, filterWarehouse, filterStatus, filterPaymentStatus, pagination.page, pagination.limit]);
 
   // Handle click outside to close date dropdown
   useEffect(() => {

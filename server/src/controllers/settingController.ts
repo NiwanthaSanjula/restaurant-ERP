@@ -3,6 +3,17 @@ import Setting from '../models/Setting';
 import { checkPermissionInMap, getRolePermissions } from '../config/rbac';
 import { AuthRequest } from '../middleware/auth';
 import { pickSettingsFields, STAFF_SYSTEM_FIELDS, SYSTEM_FIELDS } from '../utils/settingsFields';
+import { readPublicBranding } from '../services/branding';
+
+// Sign-in branding is intentionally separate from authenticated settings reads.
+export const getBranding = async (_req: Request, res: Response) => {
+  res.setHeader('Cache-Control', 'no-store');
+  try {
+    return res.json({ success: true, data: await readPublicBranding() });
+  } catch {
+    return res.status(500).json({ success: false, message: 'Unable to load branding.' });
+  }
+};
 
 export const getSettings = async (req: AuthRequest, res: Response) => {
   try {

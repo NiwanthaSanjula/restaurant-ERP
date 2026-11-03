@@ -71,6 +71,11 @@ export interface ISale extends Document {
   cashAmount: number;
   cardAmount: number;
   bankTransferAmount: number;
+  cashTendered?: number;
+  changeAmount?: number;
+  specialOfferDiscount?: number;
+  checkoutRequestId?: string;
+  checkoutFingerprint?: string;
   specialOfferId?: Types.ObjectId;
   posSessionId?: Types.ObjectId;
   payments?: ISalePayment[];
@@ -107,6 +112,11 @@ const saleSchema = new Schema<ISale>({
   cashAmount: { type: Number, default: 0, min: 0 },
   cardAmount: { type: Number, default: 0, min: 0 },
   bankTransferAmount: { type: Number, default: 0, min: 0 },
+  cashTendered: { type: Number, min: 0 },
+  changeAmount: { type: Number, min: 0 },
+  specialOfferDiscount: { type: Number, min: 0 },
+  checkoutRequestId: { type: String },
+  checkoutFingerprint: { type: String },
   specialOfferId: { type: Schema.Types.ObjectId, ref: 'SpecialOffer' },
   posSessionId: { type: Schema.Types.ObjectId, ref: 'PosSession' },
   referenceQuotationId: { type: Schema.Types.ObjectId, ref: 'Quotation', default: null },

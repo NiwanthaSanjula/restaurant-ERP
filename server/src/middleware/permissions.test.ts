@@ -4,6 +4,7 @@ import { Socket } from 'net';
 import fs from 'fs';
 import path from 'path';
 import ts from 'typescript';
+import mongoose from 'mongoose';
 import { authenticate } from './auth';
 import { requireAnyPermission, requirePermission } from './permissions';
 import { getCurrentUser } from '../controllers/auth/currentUser';
@@ -15,16 +16,17 @@ import { applyPermissionMigration, planPermissionMigration } from '../scripts/mi
 const mocks = {
   roleById: jest.fn(), roleByName: jest.fn(), roleUpdate: jest.fn(), roleCreate: jest.fn(), roleCAS: jest.fn(),
   userById: jest.fn(), userByEmail: jest.fn(), userCount: jest.fn(), userCreate: jest.fn(), metadata: jest.fn(), legacyStore: jest.fn(),
-  sign: jest.fn(), hash: jest.fn()
+  sign: jest.fn(), hash: jest.fn(), roleFind: jest.fn(), userFind: jest.fn(), recoveryLock: jest.fn()
 };
 jest.mock('../models/Role', () => ({ __esModule: true, default: {
   findById: (...args: unknown[]) => mocks.roleById(...args), findOne: (...args: unknown[]) => mocks.roleByName(...args),
   findByIdAndUpdate: (...args: unknown[]) => mocks.roleUpdate(...args), create: (...args: unknown[]) => mocks.roleCreate(...args),
-  updateOne: (...args: unknown[]) => mocks.roleCAS(...args)
+  updateOne: (...args: unknown[]) => mocks.roleCAS(...args), find: (...args: unknown[]) => mocks.roleFind(...args)
 } }));
 jest.mock('../models/User', () => ({ __esModule: true, default: {
   findById: (...args: unknown[]) => mocks.userById(...args), findOne: (...args: unknown[]) => mocks.userByEmail(...args),
-  countDocuments: (...args: unknown[]) => mocks.userCount(...args), create: (...args: unknown[]) => mocks.userCreate(...args)
+  countDocuments: (...args: unknown[]) => mocks.userCount(...args), create: (...args: unknown[]) => mocks.userCreate(...args),
+  find: (...args: unknown[]) => mocks.userFind(...args)
 } }));
 jest.mock('../models/RolePermissions', () => ({ __esModule: true, default: {
   findOne: (...args: unknown[]) => mocks.legacyStore(...args)
@@ -47,7 +49,7 @@ const ADMIN = 'a'.repeat(24), WORKER = 'b'.repeat(24), NEW_ROLE = 'c'.repeat(24)
 let roleDocs: Record<string, RoleDoc>;
 let users: Record<string, UserDoc>;
 function query<T>(value: T) {
-  return { lean: async () => value, select: () => query(value), then: (resolve, reject) => Promise.resolve(value).then(resolve, reject) };
+  return { lean: async () => value, select: () => query(value), session: () => query(value), then: (resolve, reject) => Promise.resolve(value).then(resolve, reject) };
 }
 const app = express();
 app.get('/auth/me', authenticate, getCurrentUser);
@@ -78,6 +80,9 @@ const envKeys = ['INITIAL_RUN_SECRET', 'INITIAL_ADMIN_EMAIL', 'INITIAL_ADMIN_PAS
 let originalEnv: Record<string, string | undefined>;
 beforeEach(() => {
   jest.clearAllMocks();
+  jest.spyOn(mongoose, 'startSession').mockResolvedValue({ withTransaction: async work => work(), endSession: async () => {} } as unknown as mongoose.ClientSession);
+  Object.defineProperty(mongoose.connection, 'db', { configurable: true, value: { collection: () => ({ updateOne: mocks.recoveryLock }) } });
+  mocks.recoveryLock.mockResolvedValue({ matchedCount: 1 });
   originalEnv = Object.fromEntries(envKeys.map(key => [key, process.env[key]]));
   process.env.INITIAL_RUN_SECRET = 'test-only-bootstrap-secret';
   process.env.INITIAL_ADMIN_EMAIL = 'bootstrap@example.invalid';
@@ -93,6 +98,8 @@ beforeEach(() => {
   mocks.userByEmail.mockImplementation(({ email }) => query(Object.values(users).find(entry => entry.email === email) || null));
   mocks.userCount.mockResolvedValue(2);
   mocks.roleById.mockImplementation(id => query(roleDocs[String(id)] || null));
+  mocks.roleFind.mockImplementation(() => query(Object.values(roleDocs)));
+  mocks.userFind.mockImplementation(() => query(Object.values(users).filter(user => user.isActive)));
   mocks.roleByName.mockImplementation(({ name }) => query(Object.values(roleDocs).find(role => role.name === name) || null));
   mocks.roleUpdate.mockImplementation(async (id, update) => Object.assign(roleDocs[id], update));
   mocks.roleCreate.mockImplementation(async data => { roleDocs[NEW_ROLE] = { _id: NEW_ROLE, ...data }; return roleDocs[NEW_ROLE]; });
@@ -102,6 +109,7 @@ beforeEach(() => {
   mocks.legacyStore.mockImplementation(() => { throw new Error('Legacy grants must never authorize requests'); });
 });
 afterEach(() => { for (const key of envKeys) { if (originalEnv[key] === undefined) delete process.env[key]; else process.env[key] = originalEnv[key]; } });
+afterAll(() => { jest.restoreAllMocks(); Object.defineProperty(mongoose.connection, 'db', { configurable: true, value: undefined }); });
 
 describe('actual permission middleware and assigned Role authority', () => {
   it('denies unauthenticated and invalid-token product requests', async () => {

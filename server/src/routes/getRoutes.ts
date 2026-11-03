@@ -36,6 +36,7 @@ import { authenticate } from '../middleware/auth';
 import { requireAnyPermission, requirePermission } from '../middleware/permissions';
 import { SYSTEM_ROLE_DATA } from '../config/rbac';
 import { getCurrentUser } from '../controllers/auth/currentUser';
+import { getBranding } from '../controllers/settingController';
 
 const router = express.Router();
 
@@ -45,6 +46,7 @@ router.get('/health', (req, res) => {
 });
 
 // Auth - Current user
+router.get('/branding', getBranding);
 router.get('/auth/me', authenticate, getCurrentUser);
 
 // POS - catalog (categories, brands, items)

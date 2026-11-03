@@ -75,6 +75,31 @@ operation; earlier successful conversions are retained, never reset. Unassigned
 users and ambiguous administrator roles need a separately reviewed operator repair
 or a currently authorized administrator; the utility does not invent their grants.
 
+## Last role-manager recovery protection
+
+Application role/account updates, deactivations, deletions and reassignments must
+leave at least one active account whose active assigned Role effectively grants
+both `manageRolesAndPermissions:view_role` and `edit_role`. Normalization and
+explicit legacy mappings match request authorization. Names and `User.role`
+labels do not count. Unsupported or conflicting grants confer no recovery rights.
+An existing zero-manager state may be explicitly repaired; the guard invents no grants.
+If existing data has only an API role editor without View Role, its remaining
+edit capability is also protected while an explicit repair adds viewing access.
+
+Sensitive mutations run in a MongoDB transaction. A shared
+`authorization_guards` revision write serializes the check and mutation across
+processes and prevents concurrent changes to different roles/accounts from
+removing both remaining managers. Assigned-role deletion restrictions still apply.
+Failed account-provisioning cleanup also passes through the guard.
+
+Transaction support (replica set or mongos) is required for these access mutations.
+Unsupported deployments fail closed with HTTP 503 and save no access change;
+last-manager removal returns HTTP 409 with an explanation. There is no unsafe
+standalone fallback. The internal guard document is written only by a future
+authorized mutation; no migration, account update or live execution is part of
+this change. Name/description-only role edits and non-access account profile
+edits do not alter recovery eligibility.
+
 ## Remaining endpoint-policy boundaries
 
 This task unifies existing named permission checks. Previously public/authentication-only

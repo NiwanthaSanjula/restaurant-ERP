@@ -1,5 +1,6 @@
 import nodemailer from 'nodemailer';
 import MailSetting from '../models/MailSetting';
+import { brandEmailContent, DEFAULT_COMPANY_NAME, readPublicBranding } from '../services/branding';
 
 export interface SendEmailOptions {
   to: string;
@@ -95,7 +96,10 @@ export const sendEmail = async ({ to, subject, html }: SendEmailOptions): Promis
     auth: { user: smtpConfig.user, pass: smtpConfig.pass }
   });
 
-  await transporter.sendMail({ from: smtpConfig.from, to, subject, html });
+  let companyName = DEFAULT_COMPANY_NAME;
+  try { companyName = (await readPublicBranding()).companyName; } catch { /* Retain the default if branding is unavailable. */ }
+  const content = brandEmailContent({ subject, html }, companyName);
+  await transporter.sendMail({ from: smtpConfig.from, to, ...content });
 };
 
 

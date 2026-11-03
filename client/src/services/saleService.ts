@@ -1,5 +1,7 @@
 // Sale API service functions
 
+import { collectSalesReportPages, reportAmount, reportTotal } from './salesReportData';
+
 const api = (import.meta.env.VITE_API_URL || 'http://localhost:5000/api') as string;
 
 const getAuthHeaders = () => {
@@ -261,7 +263,7 @@ export type SalesReportRow = {
   customer: string;
   warehouse: string;
   type: string;
-  total: number;
+  total: number | null;
   status: string;
 };
 
@@ -304,8 +306,9 @@ export const getSalesReport = async (filters: SalesReportFilters = {}) => {
   else if (filters.fromDate) saleFilters.dateEnd = filters.fromDate;
   if (filters.warehouseId) saleFilters.warehouseId = filters.warehouseId;
 
-  const result = await getSales(saleFilters);
-  const raw = Array.isArray(result?.data) ? result.data : [];
+  const raw = await collectSalesReportPages<Record<string, unknown> & { _id: string }>(
+    (page, limit) => getSales({ ...saleFilters, page, limit }), 500,
+  );
 
   const data: SalesReportRow[] = raw.map((sale: Record<string, unknown>) => {
     const customerId = sale.customerId as { name?: string } | undefined;
@@ -322,11 +325,60 @@ export const getSalesReport = async (filters: SalesReportFilters = {}) => {
       customer: customerId?.name || '—',
       warehouse: warehouseId?.name || '—',
       type: paymentTypeLabel(sale),
-      total: Number(sale.total ?? 0),
+      total: reportAmount(sale.total),
       status: String(sale.paymentStatus || '—'),
     };
   });
 
-  return { status: 'success' as const, data };
+  return { status: 'success' as const, data, totalAmount: reportTotal(data) };
+};
+
+export interface SaleReturnsReportRow {
+  date: string;
+  retRef: string;
+  saleRef: string;
+  customer: string;
+  total: number | null;
+  status: string;
+}
+
+interface SaleReturnReportRecord {
+  _id: string;
+  returnDate?: string;
+  createdAt?: string;
+  returnId?: string;
+  saleId?: { invoiceId?: string };
+  saleRef?: string;
+  customerId?: { name?: string };
+  customerName?: string;
+  totalReturnAmount?: unknown;
+  status?: string;
+}
+
+export const getSaleReturnsReport = async (filters: SalesReportFilters = {}) => {
+  const params = new URLSearchParams();
+  // Match sales' established single-day behavior when only one date is supplied.
+  if (filters.fromDate || filters.toDate) {
+    params.set('startDate', filters.fromDate || filters.toDate || '');
+    params.set('endDate', filters.toDate || filters.fromDate || '');
+  }
+  if (filters.warehouseId) params.set('warehouseId', filters.warehouseId);
+  const rows = await collectSalesReportPages<SaleReturnReportRecord>(async (page, limit) => {
+    params.set('page', String(page));
+    params.set('limit', String(limit));
+    const response = await fetch(`${api}/sale-returns?${params}`, { headers: getAuthHeaders() });
+    const body = await response.json();
+    if (!response.ok) throw new Error(body?.message || 'Failed to fetch sale returns');
+    return body;
+  }, 100);
+  const data: SaleReturnsReportRow[] = rows.map(row => ({
+    date: row.returnDate || row.createdAt || '—',
+    retRef: row.returnId || row._id,
+    saleRef: row.saleId?.invoiceId || row.saleRef || '—',
+    customer: row.customerId?.name || row.customerName || '—',
+    total: reportAmount(row.totalReturnAmount),
+    status: row.status || 'Completed',
+  }));
+  return { status: 'success' as const, data, totalAmount: reportTotal(data) };
 };
 

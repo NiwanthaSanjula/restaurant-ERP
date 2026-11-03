@@ -6,12 +6,17 @@ import Sidebar from '../util/sidebar';
 const DashboardLayout: React.FC = () => {
   const [mobileSidebarOpen, setMobileSidebarOpen] = useState(false);
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
+  const [desktopNavigation, setDesktopNavigation] = useState(() => window.matchMedia('(min-width: 768px)').matches);
   const closeSidebar = useCallback(() => setMobileSidebarOpen(false), []);
   const touchStartRef = useRef<{ x: number; y: number } | null>(null);
 
   useEffect(() => {
     const desktop = window.matchMedia('(min-width: 768px)');
-    const sync = () => { if (desktop.matches) closeSidebar(); };
+    const sync = () => {
+      setDesktopNavigation(desktop.matches);
+      if (desktop.matches) closeSidebar();
+    };
+    sync();
     desktop.addEventListener('change', sync);
     return () => desktop.removeEventListener('change', sync);
   }, [closeSidebar]);
@@ -43,14 +48,15 @@ const DashboardLayout: React.FC = () => {
 
   return (
     <div
-      className="flex min-h-screen items-stretch"
+      className="ss-dashboard-layout flex min-h-screen items-stretch"
+      data-sidebar-collapsed={desktopNavigation && sidebarCollapsed}
       onTouchStart={handleTouchStart}
       onTouchEnd={handleTouchEnd}
     >
       <Sidebar
         mobileOpen={mobileSidebarOpen}
         onClose={closeSidebar}
-        collapsed={sidebarCollapsed}
+        collapsed={desktopNavigation && sidebarCollapsed}
         onToggleCollapse={() => setSidebarCollapsed((prev) => !prev)}
       />
 
@@ -61,10 +67,10 @@ const DashboardLayout: React.FC = () => {
         />
       )}
 
-      <div inert={mobileSidebarOpen} className={`flex-1 min-w-0 min-h-screen bg-canvas transition-[margin] duration-200 ${sidebarCollapsed ? 'md:ml-20' : 'md:ml-72'}`}>
+      <div inert={mobileSidebarOpen} className="ss-app-content flex-1 min-w-0 min-h-screen bg-canvas transition-[margin] duration-200">
         <a href="#main-content" className="ss-skip-link">Skip to content</a>
         <Navbar onMenuToggle={() => setMobileSidebarOpen(true)} mobileMenuOpen={mobileSidebarOpen} />
-        <main id="main-content" tabIndex={-1} className="p-3 sm:p-5 lg:p-7 min-w-0">
+        <main id="main-content" tabIndex={-1} className="pt-4 sm:pt-5 min-w-0">
           <Outlet />
         </main>
       </div>

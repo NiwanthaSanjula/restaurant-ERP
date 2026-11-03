@@ -1,0 +1,46 @@
+@font-face {
+  font-family: "Montserrat";
+  src: url("/fonts/Montserrat-Variable.ttf") format("truetype");
+  font-style: normal;
+  font-weight: 100 900;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Kaushan Script";
+  src: url("/fonts/KaushanScript-Regular.ttf") format("truetype");
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+}
+
+:root {
+  --ss-font-body: "Montserrat", ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif;
+  --ss-font-heading: var(--ss-font-body);
+  --ss-font-brand: "Kaushan Script", cursive;
+}
+
+@theme inline {
+  --font-sans: var(--ss-font-body);
+  --font-serif: var(--ss-font-heading);
+  --font-heading: var(--ss-font-heading);
+}
+
+/* Keep controls in the main face even inside a heading or field label. */
+body, button, input, select, textarea {
+  font-family: var(--ss-font-body);
+}
+
+/* Main typography uses Montserrat, with genuine bold weights for headings. */
+h1, h2, h3, h4, h5, h6,
+[role="heading"], .ss-heading {
+  font-family: var(--ss-font-heading);
+  font-weight: 700;
+}
+
+/* Script lettering is reserved for the company name in shared navigation. */
+.ss-company-name {
+  font-family: var(--ss-font-brand);
+  font-weight: 400;
+  letter-spacing: normal;
+}
