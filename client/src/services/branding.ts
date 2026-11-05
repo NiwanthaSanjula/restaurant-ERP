@@ -1,15 +1,26 @@
-export const DEFAULT_COMPANY_NAME = 'ServeSmart';
+export const DEFAULT_COMPANY_NAME = 'La Tavola';
+export const DEFAULT_COMPANY_LOGO = '/portfolio-assets/la-tavola-logo.jpg';
 export const BRANDING_STORAGE_KEY = 'servesmart.branding';
 const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
 export type Branding = { companyName: string; companyLogo: string };
+const DEFAULT_BRANDING: Branding = { companyName: DEFAULT_COMPANY_NAME, companyLogo: DEFAULT_COMPANY_LOGO };
 
-export function normalizeBranding(value: unknown, previous: Branding = { companyName: DEFAULT_COMPANY_NAME, companyLogo: '' }): Branding {
+export function normalizeBranding(value: unknown, previous: Branding = DEFAULT_BRANDING): Branding {
   if (!value || typeof value !== 'object' || Array.isArray(value)) return previous;
   const source = value as Record<string, unknown>;
   return {
     companyName: typeof source.companyName === 'string' ? source.companyName.trim() || DEFAULT_COMPANY_NAME : previous.companyName,
     companyLogo: typeof source.companyLogo === 'string' ? source.companyLogo.trim() : previous.companyLogo,
   };
+}
+
+/** Ignore only the old unsaved application fallback; live settings still win. */
+export function normalizeCachedBranding(value: unknown): Branding {
+  if (value && typeof value === 'object' && !Array.isArray(value)) {
+    const cached = value as Record<string, unknown>;
+    if (cached.companyName === 'ServeSmart' && !cached.companyLogo) return DEFAULT_BRANDING;
+  }
+  return normalizeBranding(value);
 }
 
 export function brandInitials(name: string): string {
@@ -26,8 +37,8 @@ export function resolveBrandLogo(logo: string): string {
   return `${API_URL.replace(/\/api\/?$/, '')}${logo.startsWith('/') ? '' : '/'}${logo}`;
 }
 
-let branding: Branding = { companyName: DEFAULT_COMPANY_NAME, companyLogo: '' };
-try { branding = normalizeBranding(JSON.parse(localStorage.getItem(BRANDING_STORAGE_KEY) || 'null')); } catch { /* Storage is optional. */ }
+let branding: Branding = DEFAULT_BRANDING;
+try { branding = normalizeCachedBranding(JSON.parse(localStorage.getItem(BRANDING_STORAGE_KEY) || 'null')); } catch { /* Storage is optional. */ }
 let revision = 0;
 const listeners = new Set<() => void>();
 export const getBranding = (): Branding => branding;

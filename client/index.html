@@ -6,7 +6,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <link rel="preload" href="/fonts/Montserrat-Variable.ttf" as="font" type="font/ttf" crossorigin />
     <link rel="preload" href="/fonts/KaushanScript-Regular.ttf" as="font" type="font/ttf" crossorigin />
-    <title>ServeSmart · Restaurant management</title>
+    <title>La Tavola · Restaurant management</title>
+    <link rel="icon" type="image/jpeg" href="/portfolio-assets/la-tavola-logo.jpg" />
     <script>
       // Run before styles or React: honor explicit choice, otherwise device preference.
       (function () {
@@ -14,7 +15,8 @@
         try {
           saved = localStorage.getItem('servesmart.theme');
           var branding = JSON.parse(localStorage.getItem('servesmart.branding') || 'null');
-          if (branding && typeof branding.companyName === 'string' && branding.companyName.trim()) {
+          if (branding && typeof branding.companyName === 'string' && branding.companyName.trim() &&
+              !(branding.companyName === 'ServeSmart' && !branding.companyLogo)) {
             document.title = branding.companyName.trim() + ' · Restaurant management';
           }
         } catch (_) {}

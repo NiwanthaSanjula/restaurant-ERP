@@ -4,8 +4,9 @@ import ts from 'typescript';
 
 const root = path.resolve(__dirname, '../../../client/src/services');
 const compile = (file: string) => ts.transpileModule(fs.readFileSync(path.join(root, file), 'utf8').replace('import.meta.env.VITE_API_URL', 'undefined'), { compilerOptions: { module: ts.ModuleKind.CommonJS, target: ts.ScriptTarget.ES2022 } }).outputText;
-function fixture(storageFails = false) {
+function fixture(storageFails = false, cached?: { companyName: string; companyLogo: string }) {
   const entries = new Map<string, string>();
+  if (cached) entries.set('servesmart.branding', JSON.stringify(cached));
   const storage = { getItem: (key: string) => { if (storageFails) throw Error('Storage blocked'); return entries.get(key) ?? null; },
     setItem: (key: string, value: string) => { if (storageFails) throw Error('Storage blocked'); entries.set(key, value); } };
   const branding = new Function('exports', 'localStorage', compile('branding.ts') + ';return exports;')({}, storage);
@@ -16,6 +17,23 @@ function fixture(storageFails = false) {
 }
 
 describe('shared live business branding', () => {
+  it('starts signed-out browsers with the bundled restaurant identity, including unavailable storage', () => {
+    for (const storageFails of [false, true]) {
+      const { branding } = fixture(storageFails);
+      expect(branding.getBranding()).toEqual({ companyName: 'La Tavola', companyLogo: '/portfolio-assets/la-tavola-logo.jpg' });
+    }
+  });
+  it('replaces only the old empty-logo fallback cache and accepts subsequent configured settings', () => {
+    const { branding } = fixture(false, { companyName: 'ServeSmart', companyLogo: '' });
+    expect(branding.getBranding().companyName).toBe('La Tavola');
+    expect(branding.getBranding().companyLogo).toBe('/portfolio-assets/la-tavola-logo.jpg');
+    branding.syncBranding({ companyName: 'Renamed Restaurant', companyLogo: '/custom-logo.jpg' });
+    expect(branding.getBranding()).toEqual({ companyName: 'Renamed Restaurant', companyLogo: '/custom-logo.jpg' });
+    expect(fixture(false, { companyName: 'Saved Restaurant', companyLogo: '/saved-logo.jpg' }).branding.getBranding())
+      .toEqual({ companyName: 'Saved Restaurant', companyLogo: '/saved-logo.jpg' });
+    branding.syncBranding({ companyName: 'La Tavola', companyLogo: '' });
+    expect(branding.getBranding().companyLogo).toBe('');
+  });
   it('resolves bundled portfolio logos on the client origin without an API uploads dependency', () => {
     expect(fixture().branding.resolveBrandLogo('/portfolio-assets/la-tavola-logo.jpg')).toBe('/portfolio-assets/la-tavola-logo.jpg');
   });
@@ -27,7 +45,7 @@ describe('shared live business branding', () => {
     branding.syncBranding({ companyName: 'Lotus Kitchen', companyLogo: '/logo.png' });
     branding.syncBranding({ currency: 'EUR' });
     expect(branding.getBranding()).toEqual({ companyName: 'Lotus Kitchen', companyLogo: '/logo.png' });
-    branding.syncBranding({ companyName: ' ' }); expect(branding.getBranding().companyName).toBe('ServeSmart');
+    branding.syncBranding({ companyName: ' ' }); expect(branding.getBranding().companyName).toBe('La Tavola');
   });
   it('notifies all consumers immediately only after a successful settings save and persists only public fields', async () => {
     const { branding, entries, api, service } = fixture(), listener = jest.fn();

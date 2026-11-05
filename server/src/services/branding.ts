@@ -1,13 +1,15 @@
 import Setting from '../models/Setting';
 
-export const DEFAULT_COMPANY_NAME = 'ServeSmart';
+export const DEFAULT_COMPANY_NAME = 'La Tavola';
+const DEFAULT_COMPANY_LOGO = '/portfolio-assets/la-tavola-logo.jpg';
 
 /** Only deliberate public display fields may leave this projection. */
 export async function readPublicBranding(): Promise<{ companyName: string; companyLogo: string }> {
   const settings = await Setting.findOne().select('system.companyName system.companyLogo -_id').lean();
+  const companyName = typeof settings?.system?.companyName === 'string' ? settings.system.companyName.trim() || DEFAULT_COMPANY_NAME : DEFAULT_COMPANY_NAME;
   return {
-    companyName: typeof settings?.system?.companyName === 'string' ? settings.system.companyName.trim() || DEFAULT_COMPANY_NAME : DEFAULT_COMPANY_NAME,
-    companyLogo: typeof settings?.system?.companyLogo === 'string' ? settings.system.companyLogo.trim() : ''
+    companyName,
+    companyLogo: typeof settings?.system?.companyLogo === 'string' ? settings.system.companyLogo.trim() : companyName === DEFAULT_COMPANY_NAME ? DEFAULT_COMPANY_LOGO : ''
   };
 }
 

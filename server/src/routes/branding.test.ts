@@ -36,9 +36,9 @@ describe('public display branding without opening protected settings', () => {
   });
   it('uses consistent defaults when the database has no saved branding', async () => {
     mocks.read.mockResolvedValue(null);
-    expect(await readPublicBranding()).toEqual({ companyName: 'ServeSmart', companyLogo: '' });
+    expect(await readPublicBranding()).toEqual({ companyName: 'La Tavola', companyLogo: '/portfolio-assets/la-tavola-logo.jpg' });
     mocks.read.mockResolvedValue({ system: { companyName: ' ', companyLogo: null } });
-    expect(await readPublicBranding()).toEqual({ companyName: 'ServeSmart', companyLogo: '' });
+    expect(await readPublicBranding()).toEqual({ companyName: 'La Tavola', companyLogo: '/portfolio-assets/la-tavola-logo.jpg' });
   });
   it('returns fresh values on the next request and hides storage errors', async () => {
     await request('/api/branding');
@@ -47,6 +47,12 @@ describe('public display branding without opening protected settings', () => {
     mocks.read.mockRejectedValue(new Error('fixture-only-secret'));
     const failed = await request('/api/branding');
     expect(failed.status).toBe(500); expect(JSON.stringify(failed.body)).not.toContain('fixture-only-secret');
+  });
+  it('preserves configured branding and an explicitly cleared logo', async () => {
+    mocks.read.mockResolvedValue({ system: { companyName: 'La Tavola', companyLogo: '' } });
+    expect(await readPublicBranding()).toEqual({ companyName: 'La Tavola', companyLogo: '' });
+    mocks.read.mockResolvedValue({ system: { companyName: 'Renamed Kitchen' } });
+    expect(await readPublicBranding()).toEqual({ companyName: 'Renamed Kitchen', companyLogo: '' });
   });
   it('brands account emails without interpreting business names as HTML or replacement tokens', () => {
     const content = brandEmailContent({ subject: 'Your {{companyName}} password', html: '<p>{{companyName}} Team</p><p>{{companyName}}</p>' }, 'A & B <Kitchen> $&');
