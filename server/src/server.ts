@@ -1,4 +1,5 @@
 import dotenv from 'dotenv';
+import express from 'express';
 import connectDB from './config/database';
 import { createHttpApp } from './httpApp';
 
@@ -13,7 +14,10 @@ if (process.env.VERCEL === '1' || process.env.NODE_ENV === 'production') {
     if (url.protocol !== 'https:' || url.origin !== origin) throw new Error('Hosted frontend origins must be exact HTTPS origins.');
   }
 }
-const app = createHttpApp(process.env.VERCEL === '1' ? connectDB : undefined);
+// Vercel detects Express at its entrypoint; keep the existing HTTP factory mounted.
+const app = express();
+app.disable('x-powered-by');
+app.use(createHttpApp(process.env.VERCEL === '1' ? connectDB : undefined));
 export default app;
 
 // Vercel imports the handler. Only the normal local/long-lived entry opens a port.
