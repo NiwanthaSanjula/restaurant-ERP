@@ -25,7 +25,7 @@ const SpecialOffers: React.FC = () => {
     setLoading(true);
     setError(false);
     try {
-      const res = await fetch(`${apiBase}/special-offers`);
+      const res = await fetch(`${apiBase}/special-offers`, { headers: { Authorization: `Bearer ${localStorage.getItem('token') || ''}` } });
       if (!res.ok) throw new Error('Failed to fetch');
       const result = await res.json();
       if (result.success) {
@@ -54,7 +54,7 @@ const SpecialOffers: React.FC = () => {
 
       const res = await fetch(url, {
         method,
-        headers: { 'Content-Type': 'application/json' },
+        headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${localStorage.getItem('token') || ''}` },
         body: JSON.stringify(formData),
       });
       const result = await res.json();
@@ -90,7 +90,7 @@ const SpecialOffers: React.FC = () => {
   const handleDelete = async (id: string) => {
     if (!window.confirm("Are you sure you want to delete this offer? This action cannot be undone.")) return;
     try {
-      const res = await fetch(`${apiBase}/special-offers/${id}`, { method: 'DELETE' });
+      const res = await fetch(`${apiBase}/special-offers/${id}`, { method: 'DELETE', headers: { Authorization: `Bearer ${localStorage.getItem('token') || ''}` } });
       const result = await res.json();
       if (result.success) {
         toast.success("Offer deleted successfully!");

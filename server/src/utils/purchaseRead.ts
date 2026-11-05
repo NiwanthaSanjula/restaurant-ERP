@@ -4,5 +4,6 @@
  * Do not turn an unverified Paid/Unpaid/Partial label into financial amounts.
  */
 export function purchaseReadResponse<T extends object>(purchase: T) {
-  return { ...purchase, paid: null, due: null };
+  const { createPayloadHash: _internalHash, ...safe } = purchase as T & { createPayloadHash?: string };
+  return { ...safe, paid: null, due: null };
 }

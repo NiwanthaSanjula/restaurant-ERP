@@ -837,3 +837,10 @@ body {
     opacity: 1;
   }
 }
+/* Visitor sessions share the current light/dark tokens in every layout. */
+.ss-demo-badge { display: flex; flex-wrap: wrap; align-items: center; gap: .5rem; padding: .4rem .65rem; border: 1px solid var(--ss-border); border-radius: .75rem; background: var(--ss-surface); color: var(--ss-foreground); font-size: .75rem; line-height: 1.35; }
+.ss-demo-badge > span:first-child { font-weight: 700; }
+.ss-demo-badge button { text-decoration: underline; text-underline-offset: 3px; }
+[data-demo-disabled] { cursor: not-allowed; opacity: .55; }
+@media (max-width: 639px) { .ss-header > .ss-demo-badge { width: 100%; } .pos-header { flex-wrap: wrap; gap: .5rem; } .pos-header-actions { flex-wrap: wrap; } }
+@media print { .ss-demo-badge { display: none; } }

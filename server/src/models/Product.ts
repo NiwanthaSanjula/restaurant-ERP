@@ -140,7 +140,13 @@ const productSchema = new Schema({
   expiryDate: { type: Date },
   
   // Restaurant-specific fields
-  isInventory: { type: Boolean }
+  isInventory: { type: Boolean },
+  // No default on legacy records: unknown selling purpose must be reviewed.
+  isSellable: { type: Boolean },
+  guidedDishDraft: {
+    type: new Schema({ requestId: { type: String, required: true }, ownerId: { type: Schema.Types.ObjectId, ref: 'User', required: true }, fingerprint: { type: String, required: true } }, { _id: false }),
+    default: undefined
+  }
 }, { 
   timestamps: true,
   minimize: false 
@@ -318,6 +324,8 @@ export interface IProduct extends Document {
   
   // Restaurant-specific
   isInventory?: boolean;
+  isSellable?: boolean;
+  guidedDishDraft?: { requestId: string; ownerId: mongoose.Types.ObjectId; fingerprint: string };
   createdAt: Date;
   updatedAt: Date;
 }

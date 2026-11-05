@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 import Loader from '../common/Loader';
 import { showSuccessToast, showErrorToast } from '../../utils/toast';
 
@@ -20,11 +20,16 @@ const Label: React.FC<{ children: React.ReactNode; required?: boolean }> = ({ ch
 );
 
 const CreateKitchenProduct: React.FC = () => {
+  const [params] = useSearchParams();
+  const linkedId = /^[a-f\d]{24}$/i.test(params.get('inventoryProductId') || '') ? params.get('inventoryProductId')! : '';
+  const warehouseId = /^[a-f\d]{24}$/i.test(params.get('returnWarehouseId') || '') ? params.get('returnWarehouseId')! : '';
+  const fromIssue = !!linkedId && !!warehouseId;
+  const returnPath = fromIssue ? `/warehouses/${warehouseId}/stock?issueProductId=${linkedId}` : '/kitchen/inventory';
   const [name, setName] = useState('');
   const [unitId, setUnitId] = useState('');
-  const [inventoryProductId, setInventoryProductId] = useState('');
+  const [inventoryProductId, setInventoryProductId] = useState(linkedId);
   const [minStockLevel, setMinStockLevel] = useState('');
-  const [initialStock, setInitialStock] = useState('');
+  const [initialStock, setInitialStock] = useState(fromIssue ? '0' : '');
   const [description, setDescription] = useState('');
   const [units, setUnits] = useState<UnitOpt[]>([]);
   const [invProducts, setInvProducts] = useState<InvProd[]>([]);
@@ -66,6 +71,11 @@ const CreateKitchenProduct: React.FC = () => {
         const data = await res.json();
         if (res.ok && data.data) {
           const list = (data.data as InvProd[]).filter((p) => p.isInventory === true);
+          if (linkedId && !list.some(item => item._id === linkedId)) {
+            const selected = await fetch(`${api}/products/${linkedId}`, { headers: token ? { Authorization: `Bearer ${token}` } : {} });
+            const result = await selected.json();
+            if (selected.ok && result.data?.isInventory === true) list.push(result.data);
+          }
           setInvProducts(list);
         }
       } catch {
@@ -73,7 +83,7 @@ const CreateKitchenProduct: React.FC = () => {
       }
     };
     loadProducts();
-  }, [api]);
+  }, [api, linkedId]);
 
   const submit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -106,7 +116,7 @@ const CreateKitchenProduct: React.FC = () => {
         return;
       }
       showSuccessToast(data.message || 'Ingredient created');
-      navigate('/kitchen/inventory');
+      navigate(returnPath);
     } catch (err) {
       showErrorToast((err as Error).message);
     } finally {
@@ -123,7 +133,7 @@ const CreateKitchenProduct: React.FC = () => {
           <div className="flex flex-col gap-4 border-b border-line px-5 py-6 sm:flex-row sm:items-start sm:px-8">
             <button
               type="button"
-              onClick={() => navigate('/kitchen/inventory')}
+              onClick={() => navigate(returnPath)}
               className="inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-lg border border-line bg-surface text-muted transition hover:border-line-strong hover:bg-surface-raised hover:text-foreground"
               aria-label="Back to inventory"
             >
@@ -137,8 +147,7 @@ const CreateKitchenProduct: React.FC = () => {
                 Add ingredient
               </h1>
               <p className="mt-2 max-w-2xl text-sm leading-relaxed text-muted">
-                Define how this item is counted and alerted. Set optional opening stock, or start at zero and use{' '}
-                <span className="font-medium text-foreground">Stock In</span> from the inventory list.
+                {fromIssue ? 'Create the linked ingredient at zero stock, choose its recipe unit, then return to the warehouse to configure and review the issue.' : <>Define how this item is counted and alerted. Set optional opening stock, or start at zero and use <span className="font-medium text-foreground">Stock In</span> from the inventory list.</>}
               </p>
             </div>
           </div>
@@ -159,6 +168,7 @@ const CreateKitchenProduct: React.FC = () => {
                   </span>
                   Basics
                 </h2>
+                <p className="mb-4 text-sm text-muted">Inventory only. Ingredients are available for kitchen stock and recipes, and do not appear in POS. Linking a warehouse product does not change that product's separate selling type.</p>
                 <div className="grid gap-5 sm:grid-cols-2">
                   <div className="sm:col-span-2">
                     <Label required>Product name</Label>
@@ -211,12 +221,13 @@ const CreateKitchenProduct: React.FC = () => {
                       step="any"
                       min="0"
                       value={initialStock}
+                      readOnly={fromIssue}
                       onChange={(e) => setInitialStock(e.target.value)}
                       className={fieldClass}
                       placeholder="0"
                     />
                     <p className="mt-1.5 text-xs text-muted">
-                      Logged as <span className="font-medium text-muted">Opening balance</span> in movement history.
+                      {fromIssue ? 'Starts at zero. Issue to Kitchen will move the warehouse stock once.' : <>Logged as <span className="font-medium text-muted">Opening balance</span> in movement history.</>}
                     </p>
                   </div>
                   <div>
@@ -253,6 +264,7 @@ const CreateKitchenProduct: React.FC = () => {
                   <Label>Inventory product</Label>
                   <select
                     value={inventoryProductId}
+                    disabled={fromIssue}
                     onChange={(e) => setInventoryProductId(e.target.value)}
                     className={`${fieldClass} ${selectChevronClass}`}
                   >
@@ -303,7 +315,7 @@ const CreateKitchenProduct: React.FC = () => {
             <div className="mt-8 flex flex-col-reverse gap-3 border-t border-line pt-6 sm:flex-row sm:justify-end">
               <button
                 type="button"
-                onClick={() => navigate('/kitchen/inventory')}
+                onClick={() => navigate(returnPath)}
                 className="rounded-lg border border-line-strong bg-surface px-5 py-2.5 text-sm font-semibold text-foreground transition hover:bg-surface-raised"
               >
                 Cancel

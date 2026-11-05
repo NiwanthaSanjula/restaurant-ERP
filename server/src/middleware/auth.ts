@@ -2,9 +2,14 @@ import { NextFunction, Request, Response } from 'express';
 import jwt from 'jsonwebtoken';
 import User, { IUser } from '../models/User';
 import { resolveRoleAccess } from '../config/rbac';
+import { isPublicDemoUser, validPublicDemoIdentity } from '../config/publicDemo';
+import { demoSessionActive } from '../services/publicDemoSessions';
 
 export interface AuthRequest extends Request {
   user?: IUser;
+  isDemo?: boolean;
+  demoSessionId?: string;
+  demoReadAuthorized?: boolean;
 }
 
 export const authenticate = async (req: AuthRequest, res: Response, next: NextFunction): Promise<void> => {
@@ -38,10 +43,18 @@ export const authenticate = async (req: AuthRequest, res: Response, next: NextFu
       return;
     }
 
-    if (!await resolveRoleAccess(user)) {
+    const access = await resolveRoleAccess(user);
+    if (!access) {
       res.status(403).json({ status: 'error', message: 'An active, valid assigned role is required.' });
       return;
     }
+    const demo = isPublicDemoUser(user);
+    if (demo || decoded.demo === true) {
+      if (!demo || decoded.demo !== true || !validPublicDemoIdentity(user, access) || !await demoSessionActive(decoded.jti)) {
+        res.status(401).json({ status: 'error', message: 'Demo session expired or unavailable. Choose Try Demo again.' }); return;
+      }
+      req.isDemo = true; req.demoSessionId = decoded.jti;
+    } else { req.isDemo = false; }
     req.user = user;
     next();
   } catch (error) {
@@ -61,6 +74,10 @@ export const authorize = (...roles: string[]) => {
       });
       return;
     }
+
+    // Only a canonical read grant already checked by the API boundary can replace
+    // a legacy role-name read policy. Business mutations are rejected before routing.
+    if (req.isDemo && req.demoReadAuthorized && ['GET', 'HEAD'].includes(req.method)) { next(); return; }
 
     if (!roles.includes(req.user.role)) {
       res.status(403).json({

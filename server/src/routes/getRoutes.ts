@@ -1,4 +1,5 @@
 import express from 'express';
+import { getPosLocations } from '../controllers/pos/locations';
 import { downloadActivityLogs, getActivityLogs } from '../controllers/activityLog';
 import { getBaseUnitById, getBaseUnits } from '../controllers/baseUnit';
 import { checkBrandInUse, getBrandById, getBrands } from '../controllers/brand';
@@ -19,6 +20,8 @@ import { getKitchenWasteReport, getLowStockAlerts, getRecipeCostAnalysis } from 
 import { getOrderById, getOrders } from '../controllers/order';
 import { getActiveSession, getCatalog, getRegisterReport, getZBillBySessionId, getZBills } from '../controllers/pos';
 import { getProductById, getProducts } from '../controllers/product';
+import { getWarehouseStock } from '../controllers/warehouse/stock';
+import { getKitchenIssueOptions } from '../controllers/warehouse/kitchenIssue';
 import { getPurchaseById, getPurchases } from '../controllers/purchaseController';
 import { getPurchaseReturnById, getPurchaseReturns } from '../controllers/purchaseReturnController';
 import { getQuotationById, getQuotations } from '../controllers/quotation';
@@ -51,6 +54,10 @@ router.get('/auth/me', authenticate, getCurrentUser);
 
 // POS - catalog (categories, brands, items)
 router.get('/pos/catalog', authenticate, requirePermission('managePOS', 'view_pos'), getCatalog);
+router.get('/pos/locations', authenticate, requireAnyPermission([
+  { component: 'managePOS', action: 'view_pos' },
+  { component: 'manageSettings', action: 'view_settings' }
+]), getPosLocations);
 router.get('/pos/active', authenticate, requirePermission('managePOS', 'view_pos'), getActiveSession);
 router.get('/pos/report/:sessionId', authenticate, requirePermission('managePOS', 'view_cashier_report'), getRegisterReport);
 router.get('/pos/z-bills', authenticate, requirePermission('managePOS', 'view_sales'), getZBills);
@@ -76,6 +83,8 @@ router.get('/permissions/component/:component', authenticate, requirePermission(
 // Warehouses
 router.get('/warehouses', ...getWarehouses);
 router.get('/warehouses/:id', ...getWarehouseById);
+router.get('/warehouses/:id/stock', authenticate, requirePermission('manageProducts', 'read'), getWarehouseStock);
+router.get('/warehouses/:id/kitchen-issue-options', authenticate, requirePermission('manageProducts', 'read'), requirePermission('manageKitchen', 'view_kitchen_inventory'), getKitchenIssueOptions);
 router.get('/products', authenticate, requirePermission('manageProducts', 'read'), getProducts);
 router.get('/products/:id', authenticate, requirePermission('manageProducts', 'read'), getProductById);
 router.get('/baseUnits', getBaseUnits);

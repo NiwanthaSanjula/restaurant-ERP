@@ -4,6 +4,8 @@ import { authenticate, AuthRequest } from '../../middleware/auth';
 import { checkPermission } from '../../middleware/permissions';
 import Product from '../../models/Product';
 import logActivity from '../../services/logActivity';
+import { productSellabilityFilter } from '../../utils/productEligibility';
+import { GuidedDishError, replayGuidedDish, prepareGuidedDish, assertGuidedDishReady } from '../../services/guidedDish';
 
 const escapeRegex = (value: string) => value.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
 
@@ -197,6 +199,8 @@ const validateInventoryQuantityRequired = (productData: any, enforcePositive: bo
         errors.push(`${warehouseId} productQty is required`);
       } else if (enforcePositive && wh.productQty <= 0) {
         errors.push(`${warehouseId} productQty must be greater than 0`);
+      } else if (wh.productQty < 0) {
+        errors.push(`${warehouseId} productQty cannot be negative`);
       }
       continue;
     }
@@ -214,6 +218,8 @@ const validateInventoryQuantityRequired = (productData: any, enforcePositive: bo
           errors.push(`${warehouseId} variation ${variationKey} productQty is required`);
         } else if (enforcePositive && variation.productQty <= 0) {
           errors.push(`${warehouseId} variation ${variationKey} productQty must be greater than 0`);
+        } else if (variation.productQty < 0) {
+          errors.push(`${warehouseId} variation ${variationKey} productQty cannot be negative`);
         }
       }
     }
@@ -225,12 +231,19 @@ const validateInventoryQuantityRequired = (productData: any, enforcePositive: bo
 // Get all products (restaurant-only)
 export const getProducts = async (req: express.Request, res: express.Response): Promise<void> => {
   try {
-    const { category, status, q, isInventory } = req.query;
+    const { category, status, q, isInventory, isSellable } = req.query;
     /** Use $and when combining isInventory + text search so both apply (and treat missing isInventory as non-inventory). */
     const andConditions: Record<string, unknown>[] = [];
 
     if (category) andConditions.push({ category });
     if (status) andConditions.push({ status });
+    if (isSellable !== undefined && isSellable !== '') {
+      if (isSellable !== 'true' && isSellable !== 'false' && isSellable !== 'unclassified') {
+        res.status(400).json({ status: 'error', message: 'isSellable must be true, false or unclassified' });
+        return;
+      }
+      andConditions.push(isSellable === 'unclassified' ? { isSellable: { $nin: [true, false] } } : productSellabilityFilter(isSellable === 'true'));
+    }
 
     if (isInventory !== undefined && isInventory !== '') {
       const inv = String(isInventory).toLowerCase();
@@ -270,7 +283,7 @@ export const getProducts = async (req: express.Request, res: express.Response): 
 
     const [products, total] = await Promise.all([
       Product.find(filter)
-        .select('name code brand category image unit saleUnit ptype status isInventory createdAt warehouse')
+        .select('name code brand category image unit saleUnit ptype status isInventory isSellable createdAt warehouse')
         .sort({ createdAt: -1 })
         .skip(skip)
         .limit(limit)
@@ -400,6 +413,10 @@ export const createProductValidators = [
     if (typeof value === 'string' && /^(true|false)$/i.test(value)) return true;
     throw new Error('isInventory must be a boolean');
   }),
+  body('isSellable').custom(value => {
+    if (typeof value !== 'boolean') throw new Error('Choose Sellable or Inventory only');
+    return true;
+  }),
   body('warehouse').optional().custom(value => {
     if (value === undefined || value === null) return true;
     if (typeof value === 'object' && !Array.isArray(value) && value !== null) return true;
@@ -437,7 +454,13 @@ export const createProduct = async (req: express.Request, res: express.Response)
   }
 
   try {
-    const productData = req.body;
+    if ('guidedDishDraft' in req.body) throw new GuidedDishError(400, 'Draft metadata is managed by New Dish');
+    const actor = String((req as AuthRequest).user?._id || '');
+    if (req.body.dishDraftRequestId !== undefined) {
+      const existing = await replayGuidedDish(req.body, actor);
+      if (existing) { res.json({ status: 'success', replayed: true, data: { id: existing._id, name: existing.name } }); return; }
+    }
+    const productData = req.body.dishDraftRequestId !== undefined ? await prepareGuidedDish(req.body, actor) : req.body;
     console.log('Creating product with data:', JSON.stringify(productData, null, 2));
 
     // Enforce unique product name, ignoring case and whitespace.
@@ -459,8 +482,13 @@ export const createProduct = async (req: express.Request, res: express.Response)
         .lean();
 
       if (existingByName) {
+        if (req.body.dishDraftRequestId !== undefined) {
+          const saved = await replayGuidedDish(req.body, actor);
+          if (saved) { res.json({ status: 'success', replayed: true, data: { id: saved._id, name: saved.name } }); return; }
+        }
         res.status(409).json({
           status: 'error',
+          ...(req.body.dishDraftRequestId !== undefined ? { code: 'dish_details_conflict' } : {}),
           message: 'A product with this name already exists'
         });
         return;
@@ -469,7 +497,8 @@ export const createProduct = async (req: express.Request, res: express.Response)
 
     // Normalize and clean product payload to save only necessary fields
     normalizeAndCleanProductData(productData);
-    const inventoryQtyErrors = validateInventoryQuantityRequired(productData, true);
+    // Creating an item can start at zero; purchase receiving is a separate stock operation.
+    const inventoryQtyErrors = validateInventoryQuantityRequired(productData);
     if (inventoryQtyErrors.length > 0) {
       res.status(400).json({
         status: 'error',
@@ -489,6 +518,13 @@ export const createProduct = async (req: express.Request, res: express.Response)
       data: { id: product._id, name: product.name } 
     });
   } catch (e: any) {
+    if (e instanceof GuidedDishError) { res.status(e.status).json({ status: 'error', code: 'dish_draft_invalid', message: e.message }); return; }
+    if (e.code === 11000 && req.body.dishDraftRequestId !== undefined) {
+      try {
+        const saved = await replayGuidedDish(req.body, String((req as AuthRequest).user?._id || ''));
+        if (saved) { res.json({ status: 'success', replayed: true, data: { id: saved._id, name: saved.name } }); return; }
+      } catch { res.status(409).json({ status: 'error', message: 'Draft creation could not be confirmed. Resume the saved dish before creating another.' }); return; }
+    }
     console.error('Error creating product:', e);
     
     if (e.name === 'ValidationError') {
@@ -501,6 +537,7 @@ export const createProduct = async (req: express.Request, res: express.Response)
     } else if (e.code === 11000) {
       res.status(409).json({ 
         status: 'error', 
+        ...(req.body.dishDraftRequestId !== undefined ? { code: 'dish_details_conflict' } : {}),
         message: 'Product with this code already exists' 
       });
     } else {
@@ -522,6 +559,10 @@ export const updateProductValidators = [
   body('purchase').optional().isString().trim(),
   body('ptype').optional().isIn(['Single', 'Variation']).withMessage('Product type must be Single or Variation'),
   body('status').optional().isIn(['Pending', 'Active', 'Inactive']).withMessage('Invalid status'),
+  body('isSellable').optional().custom(value => {
+    if (typeof value !== 'boolean') throw new Error('Choose Sellable or Inventory only');
+    return true;
+  }),
   body('brand').optional().isString().trim(),
   body('supplier').optional().isString().trim(),
   body('barcode').optional().isString().trim(),
@@ -574,6 +615,7 @@ export const updateProduct = async (req: AuthRequest, res: express.Response): Pr
   try {
     const { id } = req.params as { id: string };
     const updateData = { ...req.body };
+    if ('guidedDishDraft' in updateData || 'dishDraftRequestId' in updateData) throw new GuidedDishError(400, 'Draft metadata is managed by New Dish');
 
     // Check if product exists
     const existingProduct = await Product.findById(id);
@@ -586,17 +628,16 @@ export const updateProduct = async (req: AuthRequest, res: express.Response): Pr
     }
 
     const beforeSnapshot = existingProduct.toObject();
+    if (beforeSnapshot.guidedDishDraft && Object.keys(updateData).some(key => key.startsWith('$') || key.includes('.'))) throw new GuidedDishError(400, 'Use ordinary product fields when editing a guided dish');
 
-    if (updateData.ptype === undefined) {
-      updateData.ptype = existingProduct.ptype;
+    // Classification-only saves must never rebuild warehouse stock or recipe references.
+    const sellingTypeOnly = Object.keys(updateData).length === 1 && typeof updateData.isSellable === 'boolean';
+    if (!sellingTypeOnly) {
+      if (updateData.ptype === undefined) updateData.ptype = existingProduct.ptype;
+      if (updateData.isInventory === undefined) updateData.isInventory = existingProduct.isInventory;
+      normalizeAndCleanProductData(updateData);
     }
-    if (updateData.isInventory === undefined) {
-      updateData.isInventory = existingProduct.isInventory;
-    }
-
-    // Normalize and clean update payload as well
-    normalizeAndCleanProductData(updateData);
-    const inventoryQtyErrors = validateInventoryQuantityRequired(updateData);
+    const inventoryQtyErrors = sellingTypeOnly ? [] : validateInventoryQuantityRequired(updateData);
     if (inventoryQtyErrors.length > 0) {
       res.status(400).json({
         status: 'error',
@@ -635,6 +676,7 @@ export const updateProduct = async (req: AuthRequest, res: express.Response): Pr
       }
     }
 
+    await assertGuidedDishReady({ ...beforeSnapshot, ...updateData });
     const updatedProduct = await Product.findByIdAndUpdate(id, updateData, { new: true });
     if (!updatedProduct) {
       res.status(500).json({
@@ -670,6 +712,7 @@ export const updateProduct = async (req: AuthRequest, res: express.Response): Pr
     });
   } catch (e: any) {
     console.error('Error updating product:', e);
+    if (e instanceof GuidedDishError) { res.status(e.status).json({ status: 'error', message: e.message }); return; }
     
     if (e.name === 'ValidationError') {
       const validationErrors = Object.values(e.errors).map((err: any) => err.message);

@@ -15,6 +15,7 @@ export interface ProductFilters {
   category?: string;
   brand?: string;
   warehouse?: string;
+  isSellable?: boolean;
   page?: number;
   limit?: number;
 }
@@ -26,6 +27,7 @@ export const getProducts = async (filters: ProductFilters = {}) => {
   if (filters.category) params.append('category', filters.category);
   if (filters.brand) params.append('brand', filters.brand);
   if (filters.warehouse) params.append('warehouse', filters.warehouse);
+  if (filters.isSellable !== undefined) params.append('isSellable', String(filters.isSellable));
   if (filters.page) params.append('page', filters.page.toString());
   if (filters.limit) params.append('limit', filters.limit.toString());
   

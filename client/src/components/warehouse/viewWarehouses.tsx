@@ -206,7 +206,9 @@ const ViewWarehouses: React.FC = () => {
                           </div>
                         </div>
                         <div className="ml-4">
-                          <div className="text-base font-semibold text-foreground">{warehouse.name}</div>
+                          <PermissionGate component="manageProducts" action="read" fallback={<span className="text-base font-semibold text-foreground">{warehouse.name}</span>}>
+                            <Link to={`/warehouses/${warehouse.id}/stock`} className="text-base font-semibold text-primary hover:underline">{warehouse.name}</Link>
+                          </PermissionGate>
                         </div>
                       </div>
                     </td>

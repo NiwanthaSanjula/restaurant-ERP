@@ -1,6 +1,6 @@
 import express from 'express';
 import mongoose from 'mongoose';
-import { authenticate } from '../../middleware/auth';
+import { authenticate, AuthRequest } from '../../middleware/auth';
 import Brand from '../../models/Brand';
 import Category from '../../models/Category';
 import PosSession, { IDenominations } from '../../models/PosSession';
@@ -9,6 +9,7 @@ import Sale from '../../models/Sale';
 import { buildZonedDateRange, getZonedTodayRange } from '../../utils/timezone';
 
 import { CheckoutError, checkoutCashSale, checkoutReceipt } from '../../services/posCheckout';
+import { isPosEligibleProduct, posEligibilityFilter } from '../../utils/productEligibility';
 
 /** Get first warehouse data for a product (optionally by warehouseId). */
 function getFirstWarehouse(product: any, warehouseId?: string): any {
@@ -86,23 +87,19 @@ function getCatalogVariations(product: any, warehouseId?: string): Array<{ id: s
 export const getCatalog = async (req: express.Request, res: express.Response): Promise<void> => {
   try {
     const { warehouseId, q } = req.query as { warehouseId?: string; q?: string };
+    const search = q?.trim().replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+    const filter = search ? { $and: [posEligibilityFilter(), { $or: [
+      { name: { $regex: search, $options: 'i' } },
+      { code: { $regex: search, $options: 'i' } },
+      { barcode: q?.trim() },
+      { brand: { $regex: search, $options: 'i' } }
+    ] }] } : posEligibilityFilter();
 
     const [categories, brands, products] = await Promise.all([
       Category.find({}).select('_id category').sort({ category: 1 }).lean(),
       Brand.find({}).select('_id brandName').sort({ brandName: 1 }).lean(),
-      Product.find({
-        status: 'Active',
-        ...(q && q.trim()
-          ? {
-              $or: [
-                { name: { $regex: q.trim(), $options: 'i' } },
-                { code: { $regex: q.trim(), $options: 'i' } },
-                { brand: { $regex: q.trim(), $options: 'i' } }
-              ]
-            }
-          : {})
-      })
-        .select('name code brand category image warehouse ptype hasBatches')
+      Product.find(filter)
+        .select('name code barcode brand category image warehouse ptype hasBatches status isSellable')
         .lean()
     ]);
 
@@ -132,6 +129,8 @@ export const getCatalog = async (req: express.Request, res: express.Response): P
     const items: Array<{
       id: string;
       name: string;
+      code?: string;
+      barcode?: string;
       price: number;
       categoryId: string;
       brandId: string;
@@ -139,6 +138,7 @@ export const getCatalog = async (req: express.Request, res: express.Response): P
       variations?: Array<{ id: string; name: string; price: number }>;
     }> = [];
     for (const p of products) {
+      if (!isPosEligibleProduct(p)) continue;
       const price = getDisplayPrice(p, warehouseId);
       if (price === null) continue;
 
@@ -174,6 +174,8 @@ export const getCatalog = async (req: express.Request, res: express.Response): P
       items.push({
         id: String((p as any)._id),
         name: (p as any).name,
+        code: p.code,
+        barcode: p.barcode,
         price,
         categoryId: catId,
         brandId: brId,
@@ -183,8 +185,8 @@ export const getCatalog = async (req: express.Request, res: express.Response): P
     }
 
     const catalog = {
-      categories: categories.map((c: any) => ({ id: String(c._id), name: c.category })),
-      brands: brands.map((b: any) => ({ id: String(b._id), name: b.brandName })),
+      categories: categories.filter(c => items.some(item => item.categoryId === String(c._id))).map((c: any) => ({ id: String(c._id), name: c.category })),
+      brands: brands.filter(b => items.some(item => item.brandId === String(b._id))).map((b: any) => ({ id: String(b._id), name: b.brandName })),
       items
     };
 
@@ -290,7 +292,7 @@ export const getRegisterReport = [authenticate, async (req: PosUserRequest, res:
 
     const isOwner = String(session.userId) === String(user?._id);
     const isAdmin = String(user?.role || '').toLowerCase() === 'admin';
-    if (!isOwner && !isAdmin) {
+    if (!isOwner && !isAdmin && !((req as AuthRequest).isDemo && (req as AuthRequest).demoReadAuthorized)) {
       res.status(403).json({ status: 'error', message: 'Forbidden' });
       return;
     }
@@ -363,6 +365,7 @@ export const postSale = [authenticate, async (req: PosUserRequest, res: express.
     const known = error instanceof CheckoutError;
     res.status(known ? error.status : 500).json({
       status: 'error',
+      ...(known && error.code ? { code: error.code } : {}),
       message: known ? error.message : 'Checkout could not be confirmed. Retry with the same checkout ID.'
     });
   }

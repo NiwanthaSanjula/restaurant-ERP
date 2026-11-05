@@ -7,7 +7,7 @@ import { usePermissions } from '../../contexts/PermissionContext';
 
 const MailSettings: React.FC = () => {
   const navigate = useNavigate();
-  const { hasPermission } = usePermissions();
+  const { hasPermission, isDemo } = usePermissions();
   const canEdit = hasPermission('manageSettings', 'edit_notification_settings');
   const [formData, setFormData] = useState({
     mailMailer: '',
@@ -87,7 +87,7 @@ const MailSettings: React.FC = () => {
         </div>
         <div>
           <h1 className="text-2xl font-bold text-foreground">Email Configuration</h1>
-          <p className="text-muted text-sm">Configure SMTP settings for system-generated notifications.</p>
+          <p className="text-muted text-sm">{isDemo ? 'Read-only demo: mail credentials and private server configuration are hidden.' : 'Configure SMTP settings for system-generated notifications.'}</p>
         </div></div>
         <div>
         <div className="p-0 max-w-4xl mx-auto">

@@ -17,7 +17,7 @@ const PermissionGate: React.FC<PermissionGateProps> = ({
   fallback = null,
   mode = 'hide'
 }) => {
-  const { hasPermission, loading } = usePermissions();
+  const { hasPermission, loading, isDemo } = usePermissions();
   
   // Show loading state while permissions are being fetched
   if (loading) {
@@ -27,6 +27,7 @@ const PermissionGate: React.FC<PermissionGateProps> = ({
   const hasAccess = hasPermission(component, action);
   
   if (!hasAccess) {
+    if (isDemo) return <span data-demo-write aria-disabled="true" title="Read-only demo: changes are disabled." className="inline-flex opacity-50 [&>*]:pointer-events-none">{children}</span>;
     if (mode === 'disable' && React.isValidElement(children)) {
       // Type-safe cloning with proper type checking
       const element = children as React.ReactElement<any>;

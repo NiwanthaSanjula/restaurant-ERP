@@ -4,6 +4,7 @@ import ActivityLog from '../../models/ActivityLog';
 import Product from '../../models/Product';
 import Purchase from '../../models/Purchase';
 import Sale from '../../models/Sale';
+import { AuthRequest } from '../../middleware/auth';
 // Load pdfkit dynamically to avoid compile/runtime errors when not installed
 let PDFDocument: any = null;
 try {
@@ -70,7 +71,10 @@ export const getActivityLogs = async (req: express.Request, res: express.Respons
     }
 
     const total = await ActivityLog.countDocuments(filter);
-    const docs = await ActivityLog.find(filter).sort({ createdAt: -1 }).skip(skip).limit(lim).lean();
+    const demo = (req as AuthRequest).isDemo === true;
+    const query = ActivityLog.find(filter).sort({ createdAt: -1 }).skip(skip).limit(lim);
+    if (demo) query.select('_id action entityType entityId createdAt');
+    const docs = await query.lean();
 
     // Map entityId to human-friendly identifiers when possible
     const byType: Record<string, Set<string>> = {};
@@ -137,7 +141,7 @@ export const getActivityLogs = async (req: express.Request, res: express.Respons
 
     if (download === 'true' || download === true || String(download).toLowerCase() === 'csv') {
       // Build CSV rows
-      const rows = docs.map((d: any) => ({
+      const rows = docs.map((d: any) => demo ? ({ createdAt: d.createdAt ? new Date(d.createdAt).toISOString() : '', action: d.action, entityType: d.entityType, entityId: d.displayEntityId || d.entityId }) : ({
         createdAt: d.createdAt ? new Date(d.createdAt).toISOString() : '',
         userId: d.userId || '',
         username: d.username || '',

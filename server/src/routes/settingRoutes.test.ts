@@ -11,7 +11,7 @@ const mocks = {
   verify: jest.fn(), user: jest.fn(), permissions: jest.fn(),
   systemRead: jest.fn(), systemWrite: jest.fn(),
   mailRead: jest.fn(), mailWrite: jest.fn(),
-  receiptRead: jest.fn(), receiptWrite: jest.fn(), receiptCreate: jest.fn(), upload: jest.fn()
+  receiptRead: jest.fn(), receiptWrite: jest.fn(), receiptCreate: jest.fn(), upload: jest.fn(), location: jest.fn()
 };
 
 jest.mock('jsonwebtoken', () => ({
@@ -29,6 +29,7 @@ jest.mock('../models/Setting', () => ({
     findOneAndUpdate: (...args: unknown[]) => mocks.systemWrite(...args)
   }
 }));
+jest.mock('../models/Warehouse', () => ({ __esModule: true, default: { findOne: (...args: unknown[]) => mocks.location(...args) } }));
 jest.mock('../models/MailSetting', () => ({
   __esModule: true, default: {
     findOne: (...args: unknown[]) => mocks.mailRead(...args),
@@ -79,6 +80,40 @@ function request(method: string, route: string, role?: string, body: Record<stri
 }
 
 const secret = 'test-only-smtp-value';
+describe('Default POS selling-location settings contract', () => {
+  const id = 'a'.repeat(24);
+  it('lets the existing settings administrator set only the active-location field', async () => {
+    const originalName = system.companyName;
+    const response = await request('PUT', '/system', 'admin', { system: { defaultPosWarehouseId: id } });
+    expect(response.status).toBe(200); expect(system.defaultPosWarehouseId).toBe(id); expect(system.companyName).toBe(originalName);
+    expect(mocks.systemWrite.mock.calls[0][1]).toEqual({ $set: { 'system.defaultPosWarehouseId': id } });
+    expect((await request('GET', '/system', 'staff')).body.data).toMatchObject({ system: { defaultPosWarehouseId: id } });
+  });
+  it('preserves the default when omitted and supports explicit removal', async () => {
+    system.defaultPosWarehouseId = id;
+    expect((await request('PUT', '/system', 'admin', { system: { companyName: 'Fixture restaurant' } })).status).toBe(200);
+    expect(system.defaultPosWarehouseId).toBe(id);
+    expect((await request('PUT', '/system', 'admin', { system: { defaultPosWarehouseId: null } })).status).toBe(200);
+    expect(system.defaultPosWarehouseId).toBeNull();
+  });
+  it('stores a canonical location ID when an administrator provides valid uppercase hex', async () => {
+    expect((await request('PUT', '/system', 'admin', { system: { defaultPosWarehouseId: id.toUpperCase() } })).status).toBe(200);
+    expect(system.defaultPosWarehouseId).toBe(id);
+  });
+  it.each(['not-an-id', false, 42])('rejects invalid location %p without updating settings', async value => {
+    expect((await request('PUT', '/system', 'admin', { system: { defaultPosWarehouseId: value } })).status).toBe(400);
+    expect(mocks.systemWrite).not.toHaveBeenCalled();
+  });
+  it('rejects inactive/missing locations without updating settings', async () => {
+    mocks.location.mockImplementation(() => ({ select: () => ({ lean: async () => null }) }));
+    expect((await request('PUT', '/system', 'admin', { system: { defaultPosWarehouseId: id } })).status).toBe(400);
+    expect(mocks.systemWrite).not.toHaveBeenCalled();
+  });
+  it('rejects ordinary staff setting changes before location lookup or settings writes', async () => {
+    expect((await request('PUT', '/system', 'staff', { system: { defaultPosWarehouseId: id } })).status).toBe(403);
+    expect(mocks.location).not.toHaveBeenCalled(); expect(mocks.systemWrite).not.toHaveBeenCalled();
+  });
+});
 const adminPermissions = {
   view_settings: true, edit_restaurant_settings: true,
   view_mail_settings: true, edit_notification_settings: true
@@ -105,6 +140,7 @@ let receipt: Record<string, unknown>;
 
 beforeEach(() => {
   jest.clearAllMocks();
+  mocks.location.mockImplementation(() => ({ select: () => ({ lean: async () => ({ _id: 'a'.repeat(24) }) }) }));
   system = { ...safeSystem, whatsappNumber: '000', developedBy: 'Example', dateFormat: 'DD/MM/YYYY', password: secret };
   mail = { ...mailInput, password: secret, apiKey: secret, _id: 'mail-id' };
   receipt = { showTax: false, showNote: true, note: 'Sample note', logoUrl: '', password: secret, credentials: { value: secret } };

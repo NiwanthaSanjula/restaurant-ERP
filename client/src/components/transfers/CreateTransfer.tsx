@@ -268,7 +268,7 @@ const CreateTransfer: React.FC = () => {
         status: 'Pending'
       });
       
-      showSuccessToast('Transfer completed successfully');
+      showSuccessToast('Transfer created — Pending');
       navigate('/transfers');
     } catch (e: any) {
       showErrorToast(e.message);

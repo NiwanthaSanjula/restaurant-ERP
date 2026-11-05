@@ -1,8 +1,12 @@
+import HostedFileNotice from '../common/HostedFileNotice';
+import { HOSTED_MODE } from '../../services/hostedMode';
 import React, { useCallback, useEffect, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useLocation, useNavigate } from 'react-router-dom';
+import { PRODUCT_LIST_PATHS, productListPath, productViewForPath } from '../../utils/productRoutes';
 import { showErrorToast, showSuccessToast } from '../../utils/toast';
 import Loader from '../common/Loader';
 import SearchableDropdown from '../common/SearchableDropdown';
+import ProductSellingType from './ProductSellingType';
 
 interface BatchData {
   batchNumber?: string;
@@ -34,6 +38,9 @@ interface WarehouseData {
 }
 
 const CreateProduct: React.FC = () => {
+  const location = useLocation();
+  const view = productViewForPath(location.pathname);
+  const backPath = PRODUCT_LIST_PATHS[view === 'pos' ? 'pos' : 'inventory'];
   const [systemType, setSystemType] = useState<'restaurant' | 'retail'>('restaurant');
   const [name, setName] = useState('');
   const [code, setCode] = useState('');
@@ -56,6 +63,8 @@ const CreateProduct: React.FC = () => {
   
   // Restaurant-specific inventory flag (batches/weight removed)
   const [isInventory, setIsInventory] = useState(true);
+  const [isSellable, setIsSellable] = useState<boolean | null>(() => view === 'pos');
+  const [status, setStatus] = useState('Pending');
   
   // Retail-specific fields
   const [barcodeType, setBarcodeType] = useState<'128' | '39'>('128');
@@ -162,7 +171,7 @@ const CreateProduct: React.FC = () => {
         setAvailableWarehouses((data.data || []).filter((w: any) => w.isActive !== false));
         
         // Pre-select default warehouse
-        const defaultWarehouseId = localStorage.getItem('defaultWarehouse');
+        const defaultWarehouseId = new URLSearchParams(location.search).get('warehouseId') || localStorage.getItem('defaultWarehouse');
         if (defaultWarehouseId) {
           const defaultWarehouse = data.data.find((w: any) => w._id === defaultWarehouseId);
           if (defaultWarehouse) {
@@ -245,6 +254,10 @@ const CreateProduct: React.FC = () => {
 
   const submit = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (isSellable === null) {
+      showErrorToast('Choose Sellable or Inventory only.');
+      return;
+    }
 
     // Minimal guard: ensure core identity fields exist.
     // Category / Unit / Brand / Supplier are validated on the backend.
@@ -331,12 +344,12 @@ const CreateProduct: React.FC = () => {
       const invalidQuantity = ptype === 'Variation'
         ? warehouses.some(warehouse => {
             const combos = (warehouse as any).combos || [];
-            return combos.some((combo: any) => Number(combo.productQty) <= 0);
+            return combos.some((combo: any) => Number(combo.productQty) < 0);
           })
-        : warehouses.some(warehouse => Number(warehouse.productQty) <= 0);
+        : warehouses.some(warehouse => Number(warehouse.productQty) < 0);
 
       if (invalidQuantity) {
-        showErrorToast('Quantity must be greater than 0.');
+        showErrorToast('Opening balance cannot be negative. Use zero when stock will be received through a purchase.');
         return;
       }
     }
@@ -433,6 +446,8 @@ const CreateProduct: React.FC = () => {
       });
 
       const productData: any = {
+        isSellable,
+        status,
         name,
         code,
         brand: brand || undefined,
@@ -486,7 +501,7 @@ const CreateProduct: React.FC = () => {
       }
       
       showSuccessToast(data.message || 'Product created successfully');
-      navigate('/viewProducts');
+      navigate(productListPath(isSellable));
     } catch (e) {
       const errorMessage = (e as Error).message || 'Network error occurred';
       showErrorToast(errorMessage);
@@ -504,7 +519,7 @@ const CreateProduct: React.FC = () => {
         <div className="px-6 py-4">
           <div className="flex items-center">
             <button
-              onClick={() => navigate('/viewProducts')}
+              onClick={() => navigate(backPath)}
               className="mr-4 p-2 text-subtle hover:text-muted hover:bg-surface-muted rounded-lg transition-colors duration-200"
             >
               <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -512,7 +527,7 @@ const CreateProduct: React.FC = () => {
               </svg>
             </button>
             <div>
-              <h1 className="text-2xl font-bold text-foreground">Create Product</h1>
+              <h1 className="text-2xl font-bold text-foreground">{view === 'pos' ? 'Create POS Product' : 'Create Inventory Item'}</h1>
               <p className="text-sm text-muted mt-1">
                 Add a new {systemType} product to your system
               </p>
@@ -526,6 +541,17 @@ const CreateProduct: React.FC = () => {
         <div className="max-w-4xl mx-auto">
           <div className="bg-surface rounded-lg border border-line p-6">
             <form onSubmit={submit} className="space-y-8">
+              <ProductSellingType value={isSellable} onChange={setIsSellable} />
+              {isInventory && <p className="text-sm text-muted">Create Item can start with zero stock. Enter a positive quantity only as an opening balance already on hand; receive purchase orders separately to avoid counting stock twice.</p>}
+              <div>
+                <label htmlFor="product-status" className="block text-sm font-semibold text-foreground mb-2">Status</label>
+                <select id="product-status" required value={status} onChange={event => setStatus(event.target.value)} className="w-full border border-line-strong rounded-lg px-3 py-2 text-sm">
+                  <option value="Pending">Pending</option>
+                  <option value="Active">Active</option>
+                  <option value="Inactive">Inactive</option>
+                </select>
+                <p className="mt-2 text-sm text-muted">POS requires Active status as well as Sellable. Pending remains the default.</p>
+              </div>
               {systemType === 'restaurant' && (
                 <div className="space-y-4">
                   <div className="flex flex-col">
@@ -597,10 +623,12 @@ const CreateProduct: React.FC = () => {
                     <label className="block text-base font-medium text-foreground mb-2">
                       Product Image
                     </label>
+                    <HostedFileNotice />
                     <input
-                      type="file"
+                      type="file" disabled={HOSTED_MODE}
                       accept="image/*"
                       onChange={e => {
+                        if (HOSTED_MODE) return;
                         const file = e.target.files?.[0];
                         if (!file) {
                           setImage('');
@@ -626,7 +654,7 @@ const CreateProduct: React.FC = () => {
                         />
                         <button
                           type="button"
-                          onClick={() => setImage('')}
+                          onClick={() => setImage('')} disabled={HOSTED_MODE}
                           className="px-2 py-1 text-xs font-medium text-danger bg-danger-soft border border-danger-line rounded-lg hover:bg-danger-soft"
                         >
                           Remove
@@ -1031,7 +1059,7 @@ const CreateProduct: React.FC = () => {
                               </div>
                               {isInventory && (
                                 <div>
-                                  <label className="block text-base font-medium text-foreground mb-1">Quantity <span className="text-danger">*</span></label>
+                                  <label className="block text-base font-medium text-foreground mb-1">Quantity (opening balance) <span className="text-danger">*</span></label>
                                   <input 
                                     type="number" 
                                     min={0}
@@ -1161,7 +1189,7 @@ const CreateProduct: React.FC = () => {
                         {isInventory && (
                           <div>
                             <label className="block text-base font-medium text-foreground mb-1">
-                              Quantity <span className="text-danger">*</span>
+                              Quantity (opening balance) <span className="text-danger">*</span>
                             </label>
                             <input
                               type="number"
@@ -1231,7 +1259,7 @@ const CreateProduct: React.FC = () => {
               <div className="flex justify-end space-x-3 pt-6 border-t border-line">
                 <button
                   type="button"
-                  onClick={() => navigate('/viewProducts')}
+                  onClick={() => navigate(backPath)}
                   className="px-4 py-2 text-base font-medium text-foreground bg-surface border border-line-strong rounded-lg hover:bg-surface-raised focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary transition-colors duration-200"
                 >
                   Cancel
@@ -1240,7 +1268,7 @@ const CreateProduct: React.FC = () => {
                   type="submit"
                   className="px-4 py-2 text-base font-medium text-on-primary bg-primary rounded-lg hover:bg-primary-hover focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary transition-colors duration-200"
                 >
-                  Create Product
+                  {view === 'pos' ? 'Create POS Product' : 'Create Inventory Item'}
                 </button>
               </div>
             </form>

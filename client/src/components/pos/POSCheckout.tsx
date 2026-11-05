@@ -1,66 +1,26 @@
+import { POS_PRINT_CSS, printBillHtml } from '../../utils/printDocument';
+import KitchenTicketAction from '../sales/KitchenTicketAction';
+import type { KitchenTicketData } from '../../utils/kitchenTicket';
 import React, { useEffect, useMemo, useState, useRef } from "react";
 import { useCurrency } from '../../contexts/CurrencyContext';
 import { useBranding } from '../../contexts/BrandingProvider';
 import CalculatorModal from "./CalculatorModal";
 import POSLayout from './POSLayout';
+import { usePermissions } from '../../contexts/PermissionContext';
 import { Info, Minus, Plus, Trash2 } from 'lucide-react';
 import { useNavigate } from "react-router-dom";
 import { showInfoToast, showSuccessToast } from "../../utils/toast";
 import { clearPosCheckout, pendingPosCheckout, preparePosCheckout } from '../../services/posCheckoutRequest';
+import { fetchPosLocations, resolvePosLocation, rememberPosLocation, validPosLocation } from '../../services/posLocation';
+import { HOSTED_MODE } from '../../services/hostedMode';
 
 const POS_API_BASE = (import.meta.env.VITE_API_URL || "http://localhost:5000/api") as string;
-const CATALOG_PLACEHOLDER_IMG =
-  "https://images.unsplash.com/photo-1546069901-ba9599a7e63c?w=400&h=300&fit=crop";
+const CATALOG_PLACEHOLDER_IMG = HOSTED_MODE
+  ? '/portfolio-assets/menu-illustration.jpg'
+  : "https://images.unsplash.com/photo-1546069901-ba9599a7e63c?w=400&h=300&fit=crop";
 
 /** Normalize filter values for case-insensitive comparison. */
 const normalizeFilterValue = (val: string): string => String(val || "").toLowerCase().trim();
-
-/** Open print dialog with backend-generated receipt HTML. */
-function printBillHtml(html: string): void {
-  const iframe = document.createElement("iframe");
-  iframe.style.cssText = "position:fixed;right:0;bottom:0;width:0;height:0;border:none;";
-  document.body.appendChild(iframe);
-  const doc = iframe.contentWindow?.document;
-  if (!doc) {
-    document.body.removeChild(iframe);
-    return;
-  }
-  doc.open();
-  doc.write(html);
-  doc.close();
-
-  const doPrint = () => {
-    iframe.contentWindow?.focus();
-    iframe.contentWindow?.print();
-    const remove = () => {
-      if (document.body.contains(iframe)) document.body.removeChild(iframe);
-    };
-    iframe.contentWindow?.addEventListener("afterprint", remove);
-    setTimeout(remove, 3000);
-  };
-
-  const tryPrint = () => {
-    const images = Array.from(doc.images);
-    if (images.length === 0) {
-      setTimeout(doPrint, 100);
-      return;
-    }
-    let loaded = 0;
-    const check = () => {
-      loaded += 1;
-      if (loaded >= images.length) setTimeout(doPrint, 50);
-    };
-    images.forEach((img) => {
-      if (img.complete) check();
-      else {
-        img.onload = check;
-        img.onerror = check;
-      }
-    });
-  };
-
-  setTimeout(tryPrint, 150);
-}
 
 function buildFallbackReceiptHtml(params: {
   companyName: string;
@@ -76,8 +36,9 @@ function buildFallbackReceiptHtml(params: {
   paid: number;
   change: number;
   due: number;
+  date?: string;
 }): string {
-  const now = new Date();
+  const now = params.date ? new Date(params.date) : new Date();
   const companyName = params.companyName.replace(/[&<>"']/g, char => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[char] || char));
   const currency = params.currencyCode.replace(/[<>&"']/g, '');
   const rows = params.items
@@ -86,15 +47,7 @@ function buildFallbackReceiptHtml(params: {
         `<tr><td>${item.name.replace(/[&<>"']/g, char => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[char] || char))}</td><td style="text-align:center">${item.quantity}</td><td style="text-align:right">${currency} ${(item.price * item.quantity).toFixed(2)}</td></tr>`
     )
     .join("");
-  return `<!doctype html><html><head><meta charset="utf-8"/><title>Receipt</title><style>
-    body{font-family:Arial,sans-serif;margin:0;padding:8px;color:#111;background:#fff;color-scheme:light}
-    .r{width:80mm;margin:0 auto}
-    h2,p{margin:0}
-    .c{text-align:center}.mt{margin-top:6px}.line{border-top:1px dashed #000;margin:6px 0}
-    table{width:100%;border-collapse:collapse;font-size:12px}
-    td{padding:2px 0;vertical-align:top}
-    .small{font-size:11px}
-  </style></head><body><div class="r">
+  return `<!doctype html><html><head><meta charset="utf-8"/><title>Receipt</title><style>${POS_PRINT_CSS}</style></head><body><div class="r">
     <h2 class="c">${companyName}</h2>
     <p class="c small">POS Receipt</p>
     <p class="c small mt">${now.toLocaleString()}</p>
@@ -126,6 +79,8 @@ type Variation = {
 type Product = {
   id: string;
   name: string;
+  code?: string;
+  barcode?: string;
   price: number;
   image: string;
   category: string;
@@ -157,7 +112,8 @@ type CartItem = Product & {
 
 const POS_CART_DRAFT_PREFIX = "posCartDraft_v1";
 
-function posCartDraftStorageKey(warehouseId: string): string {
+function posCartDraftStorageKey(warehouseId: string, demo = false): string {
+  if (demo) return `${POS_CART_DRAFT_PREFIX}_public-demo_${warehouseId}`;
   const sessionId =
     typeof sessionStorage !== "undefined"
       ? sessionStorage.getItem("posSessionId") || "no-session"
@@ -327,6 +283,7 @@ const ProductSelectionModal: React.FC<ProductSelectionModalProps> = ({
   onAddToCart,
   currencyCode,
 }) => {
+
   const [selectedVariation, setSelectedVariation] = useState<Variation | null>(null);
   const [quantity, setQuantity] = useState(1);
 
@@ -529,6 +486,7 @@ const CartSidebar: React.FC<CartSidebarProps> = ({
   onPayNow,
   currencyCode,
 }) => {
+  const { isDemo } = usePermissions();
 
   const subtotal = useMemo(
     () =>
@@ -560,12 +518,12 @@ const CartSidebar: React.FC<CartSidebarProps> = ({
   useEffect(() => {
     const checkSession = () => {
       const sid = sessionStorage.getItem("posSessionId");
-      setHasSession(!!sid && sid !== "no-session");
+      setHasSession(isDemo || (!!sid && sid !== "no-session"));
     };
     window.addEventListener("storage", checkSession);
     checkSession();
     return () => window.removeEventListener("storage", checkSession);
-  }, []);
+  }, [isDemo]);
 
   const handlePayNowClick = () => {
     if (!hasSession) {
@@ -597,11 +555,12 @@ const CartSidebar: React.FC<CartSidebarProps> = ({
               onClick={onClearCustomer}
               className="flex-shrink-0 text-xs font-semibold text-primary hover:underline px-1"
             >
-              Change
+              Switch to Walk-in
             </button>
           </div>
         ) : (
           <div className="flex flex-col gap-1.5">
+            <p className="text-xs font-semibold text-foreground">Walk-in · no customer selected</p>
             <div className="relative">
               <svg
                 className="w-4 h-4 text-subtle absolute left-2.5 top-1/2 -translate-y-1/2 pointer-events-none"
@@ -896,6 +855,7 @@ type POSCheckoutProps = {
 };
 
 const POSCheckout: React.FC<POSCheckoutProps> = ({ onSessionClosed }) => {
+  const { isDemo, userId } = usePermissions();
   const { companyName } = useBranding();
   const { currencyCode } = useCurrency();
   const navigate = useNavigate();
@@ -904,6 +864,8 @@ const POSCheckout: React.FC<POSCheckoutProps> = ({ onSessionClosed }) => {
   const [selectedBrand, setSelectedBrand] = useState<string>("all");
   const [warehouses, setWarehouses] = useState<WarehouseOption[]>([]);
   const [selectedWarehouseId, setSelectedWarehouseId] = useState<string>("");
+  const [locationsLoading, setLocationsLoading] = useState(true);
+  const [locationError, setLocationError] = useState('');
   const [catalogItems, setCatalogItems] = useState<Product[]>([]);
   const [uiCategories, setUiCategories] = useState<Category[]>(DEFAULT_CATEGORIES);
   const [uiBrands, setUiBrands] = useState<Brand[]>(DEFAULT_BRANDS);
@@ -915,7 +877,9 @@ const POSCheckout: React.FC<POSCheckoutProps> = ({ onSessionClosed }) => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [showCalculator, setShowCalculator] = useState(false);
   const [showCheckoutModal, setShowCheckoutModal] = useState(false);
+  const [completedPrint, setCompletedPrint] = useState<{ saleId: string; reference: string; receiptHtml: string; kitchenTicket?: KitchenTicketData } | null>(null);
   const [checkoutSubmitting, setCheckoutSubmitting] = useState(false);
+  const [checkoutError, setCheckoutError] = useState<{ message: string; customerUnavailable: boolean } | null>(null);
   const checkoutInFlight = useRef(false);
   const [isFullScreen, setIsFullScreen] = useState(false);
   const [discountType, setDiscountType] = useState<DiscountType>("fixed");
@@ -949,15 +913,15 @@ const POSCheckout: React.FC<POSCheckoutProps> = ({ onSessionClosed }) => {
   const setSelectedOfferId = (id: string) => {
     setSelectedOfferIdState(id);
     if (id) {
-      localStorage.setItem("pos_selected_offer_id", id);
+      localStorage.setItem((isDemo ? "pos_demo_selected_offer_id" : "pos_selected_offer_id"), id);
     } else {
-      localStorage.removeItem("pos_selected_offer_id");
+      localStorage.removeItem((isDemo ? "pos_demo_selected_offer_id" : "pos_selected_offer_id"));
     }
   };
 
   // Restore selectedOfferId from localStorage on mount
   useEffect(() => {
-    const savedOfferId = localStorage.getItem("pos_selected_offer_id");
+    const savedOfferId = localStorage.getItem((isDemo ? "pos_demo_selected_offer_id" : "pos_selected_offer_id"));
     if (savedOfferId) {
       setSelectedOfferIdState(savedOfferId);
     }
@@ -1097,20 +1061,36 @@ const POSCheckout: React.FC<POSCheckoutProps> = ({ onSessionClosed }) => {
   }, [customerQuery]);
 
   useEffect(() => {
-    const token = localStorage.getItem("token");
-    fetch(`${POS_API_BASE}/warehouses`, {
-      headers: { ...(token ? { Authorization: `Bearer ${token}` } : {}) },
-    })
-      .then((r) => r.json())
-      .then((payload) => {
-        const list = Array.isArray(payload?.data)
-          ? (payload.data as WarehouseOption[]).filter((w) => w.isActive !== false)
-          : [];
-        setWarehouses(list);
-        setSelectedWarehouseId((prev) => (prev ? prev : list[0] ? String(list[0]._id) : ""));
-      })
-      .catch(() => setWarehouses([]));
-  }, []);
+    const controller = new AbortController();
+    setLocationsLoading(true); setLocationError('');
+    fetchPosLocations(controller.signal).then(({ locations, defaultWarehouseId }) => {
+      if (controller.signal.aborted) return;
+      setWarehouses(locations);
+      setSelectedWarehouseId(resolvePosLocation(userId, locations, defaultWarehouseId, localStorage));
+    }).catch(error => {
+      if (controller.signal.aborted) return;
+      setWarehouses([]); setSelectedWarehouseId('');
+      setLocationError(error instanceof Error ? error.message : 'Selling locations could not be loaded.');
+    }).finally(() => { if (!controller.signal.aborted) setLocationsLoading(false); });
+    return () => controller.abort();
+  }, [userId]);
+
+  const handleLocationChange = (nextId: string) => {
+    if (nextId === selectedWarehouseId || !validPosLocation(nextId, warehouses)) return;
+    try {
+      const sessionId = sessionStorage.getItem('posSessionId');
+      if (!isDemo && sessionId && pendingPosCheckout(localStorage, sessionId)) {
+        showInfoToast('An unconfirmed payment is tied to the current selling location. Reconcile or retry it before switching.'); return;
+      }
+      if (cartItems.length) {
+        if (!window.confirm('Keep this cart as a draft for the current selling location and switch locations?')) return;
+        localStorage.setItem(posCartDraftStorageKey(selectedWarehouseId, isDemo), JSON.stringify({ cartItems, discountType, discount, tax, shipping, selectedCustomer, customerQuery, selectedOfferId }));
+      }
+    } catch { showInfoToast('The cart could not be saved. Clear it or restore browser storage before changing selling location.'); return; }
+    if (!rememberPosLocation(userId, nextId, warehouses, localStorage)) showInfoToast('This location is selected for this visit, but could not be remembered on this device.');
+    setNameCodeQuery(''); setBarcodeQuery(''); setSelectedCategory('all'); setSelectedBrand('all');
+    setSelectedWarehouseId(nextId);
+  };
 
   useEffect(() => {
     // When the warehouse changes to a different one, clear the cart.
@@ -1122,15 +1102,19 @@ const POSCheckout: React.FC<POSCheckoutProps> = ({ onSessionClosed }) => {
     }
     prevWarehouseRef.current = selectedWarehouseId;
 
-    // Always fetch from the backend:
-    // - No warehouseId → backend returns all active products (real-time prices).
-    // - With warehouseId → backend scopes prices to that warehouse.
+    // Only show the selected warehouse; cancel older catalog requests on change.
     const token = localStorage.getItem("token");
+    const controller = new AbortController();
+    setCatalogFromApi(false);
+    setCatalogItems([]);
+    if (!selectedWarehouseId) {
+      setCatalogLoading(false);
+      return () => controller.abort();
+    }
     setCatalogLoading(true);
-    const url = selectedWarehouseId
-      ? `${POS_API_BASE}/pos/catalog?warehouseId=${encodeURIComponent(selectedWarehouseId)}`
-      : `${POS_API_BASE}/pos/catalog`;
+    const url = `${POS_API_BASE}/pos/catalog?warehouseId=${encodeURIComponent(selectedWarehouseId)}`;
     fetch(url, {
+      signal: controller.signal,
       headers: { ...(token ? { Authorization: `Bearer ${token}` } : {}) },
     })
       .then((r) => r.json())
@@ -1138,12 +1122,15 @@ const POSCheckout: React.FC<POSCheckoutProps> = ({ onSessionClosed }) => {
         if (payload?.status !== "success" || !payload?.data) {
           throw new Error(payload?.message || "Catalog error");
         }
+        if (controller.signal.aborted) return;
         const d = payload.data as {
           categories: Array<{ id: string; name: string }>;
           brands: Array<{ id: string; name: string }>;
           items: Array<{
             id: string;
             name: string;
+            code?: string;
+            barcode?: string;
             price: number;
             categoryId?: string;
             brandId?: string;
@@ -1156,6 +1143,8 @@ const POSCheckout: React.FC<POSCheckoutProps> = ({ onSessionClosed }) => {
         const mapped: Product[] = d.items.map((it) => ({
           id: it.id,
           name: it.name,
+          code: it.code,
+          barcode: it.barcode,
           price: it.price,
           image: it.image?.trim() ? it.image.trim() : CATALOG_PLACEHOLDER_IMG,
           category: catMap.get(it.categoryId || "") || "—",
@@ -1178,6 +1167,7 @@ const POSCheckout: React.FC<POSCheckoutProps> = ({ onSessionClosed }) => {
         setSelectedBrand("all");
       })
       .catch((error) => {
+        if (controller.signal.aborted) return;
         showInfoToast("Could not load catalog. Please try again.");
         console.error("Catalog fetch error:", error);
         setCatalogFromApi(false);
@@ -1187,12 +1177,17 @@ const POSCheckout: React.FC<POSCheckoutProps> = ({ onSessionClosed }) => {
         setSelectedCategory("all");
         setSelectedBrand("all");
       })
-      .finally(() => setCatalogLoading(false));
+      .finally(() => { if (!controller.signal.aborted) setCatalogLoading(false); });
+    return () => controller.abort();
   }, [selectedWarehouseId]);
 
   useEffect(() => {
     if (!selectedWarehouseId) return;
-    const key = posCartDraftStorageKey(selectedWarehouseId);
+    // Never save the previous location's render into the new location's draft.
+    skipNextCartPersistRef.current = true;
+    setCartItems([]); setDiscountType('fixed'); setDiscount(0); setTax(0); setShipping(0);
+    setSelectedCustomer(null); setCustomerQuery(''); setCustomerResults([]); setSelectedOfferIdState('');
+    const key = posCartDraftStorageKey(selectedWarehouseId, isDemo);
     try {
       const raw = localStorage.getItem(key);
       if (!raw) return;
@@ -1251,7 +1246,7 @@ const POSCheckout: React.FC<POSCheckoutProps> = ({ onSessionClosed }) => {
       skipNextCartPersistRef.current = false;
       return;
     }
-    const key = posCartDraftStorageKey(selectedWarehouseId);
+    const key = posCartDraftStorageKey(selectedWarehouseId, isDemo);
     const emptyLine =
       cartItems.length === 0 &&
       discount === 0 &&
@@ -1331,11 +1326,13 @@ const POSCheckout: React.FC<POSCheckoutProps> = ({ onSessionClosed }) => {
 
         const nq = nameCodeQuery.trim().toLowerCase();
         const matchesNameCode =
-          !nq || product.name.toLowerCase().includes(nq);
+          !nq || product.name.toLowerCase().includes(nq) || (product.code || '').toLowerCase().includes(nq);
 
         const bq = barcodeQuery.trim();
         const matchesBarcode =
           !bq ||
+          product.barcode === bq ||
+          (product.code || '').toLowerCase() === bq.toLowerCase() ||
           product.id === bq ||
           product.name.toLowerCase() === bq.toLowerCase();
 
@@ -1416,7 +1413,7 @@ const POSCheckout: React.FC<POSCheckoutProps> = ({ onSessionClosed }) => {
       setCustomerResults([]);
       setSelectedOfferId("");
       try {
-        if (selectedWarehouseId) localStorage.removeItem(posCartDraftStorageKey(selectedWarehouseId));
+        if (selectedWarehouseId) localStorage.removeItem(posCartDraftStorageKey(selectedWarehouseId, isDemo));
       } catch {
         /* ignore */
       }
@@ -1424,11 +1421,13 @@ const POSCheckout: React.FC<POSCheckoutProps> = ({ onSessionClosed }) => {
   };
 
   const handlePayNow = async () => {
+    if (!validPosLocation(selectedWarehouseId, warehouses)) { showInfoToast('Choose an available selling location before checkout.'); return; }
     if (cartItems.length === 0) {
       showInfoToast("Please add items to cart first!");
       return;
     }
     try {
+      if (isDemo) { setShowCheckoutModal(true); return; }
       const sessionId = sessionStorage.getItem('posSessionId');
       const pending = sessionId ? pendingPosCheckout(localStorage, sessionId) : null;
       if (pending && Array.isArray(pending.payload.payments)) {
@@ -1453,6 +1452,7 @@ const POSCheckout: React.FC<POSCheckoutProps> = ({ onSessionClosed }) => {
   };
 
   const handleCheckoutSubmit = async (printBill = false) => {
+    if (isDemo) { showInfoToast('Read-only demo: checkout is a preview. No sale will be submitted.'); return; }
     if (checkoutInFlight.current) return;
     checkoutInFlight.current = true;
     setCheckoutSubmitting(true);
@@ -1512,6 +1512,7 @@ const POSCheckout: React.FC<POSCheckoutProps> = ({ onSessionClosed }) => {
       };
 
       const request = preparePosCheckout(localStorage, payload);
+      setCheckoutError(null);
       const res = await fetch(`${api}/pos/sale`, {
         method: "POST",
         headers: {
@@ -1525,6 +1526,7 @@ const POSCheckout: React.FC<POSCheckoutProps> = ({ onSessionClosed }) => {
         // A validation failure rolls back the transaction and allows correction.
         // Ambiguous failures retain the ID so a retry cannot duplicate a sale.
         if (res.status === 400) clearPosCheckout(localStorage, sessionId, request.checkoutRequestId);
+        setCheckoutError({ message: data?.message || 'Failed to process POS sale', customerUnavailable: data?.code === 'customer_unavailable' });
         throw new Error(data?.message || "Failed to process POS sale");
       }
 
@@ -1534,25 +1536,25 @@ const POSCheckout: React.FC<POSCheckoutProps> = ({ onSessionClosed }) => {
       }
       showSuccessToast(data.replayed ? "Previous payment confirmed." : "Payment processed successfully!");
       const billHtml = data?.billHtml || data?.data?.billHtml;
-      if (printBill) {
-        const htmlToPrint =
-          typeof billHtml === "string" && billHtml.trim()
-            ? billHtml
-            : buildFallbackReceiptHtml({ ...receipt, currencyCode, companyName });
-        printBillHtml(htmlToPrint);
-      }
+      const htmlToPrint =
+        typeof billHtml === "string" && billHtml.trim()
+          ? billHtml
+          : buildFallbackReceiptHtml({ ...receipt, currencyCode, companyName });
+      setCompletedPrint({ saleId: receipt.saleId, reference: receipt.orderId, receiptHtml: htmlToPrint, kitchenTicket: receipt.kitchenTicket });
       setCartItems([]);
       setCashPayment(0);
       setCardPayment(0);
       setBankPayment(0);
       setShowCheckoutModal(false);
+      setCheckoutError(null);
       try {
         clearPosCheckout(localStorage, sessionId, request.checkoutRequestId);
-        if (selectedWarehouseId) localStorage.removeItem(posCartDraftStorageKey(selectedWarehouseId));
+        if (selectedWarehouseId) localStorage.removeItem(posCartDraftStorageKey(selectedWarehouseId, isDemo));
       } catch {
         /* ignore */
       }
       // Discount/shipping reset via useEffect when cart becomes empty
+      if (printBill) printBillHtml(htmlToPrint);
     } catch (e: any) {
       showInfoToast(e?.message || "Failed to process POS payment");
     } finally {
@@ -1683,12 +1685,14 @@ const POSCheckout: React.FC<POSCheckoutProps> = ({ onSessionClosed }) => {
     : Math.max(0, orderGrandTotal - orderPaid);
 
   const handleSelectCustomer = (customer: CustomerSearchItem) => {
+    setCheckoutError(null);
     setSelectedCustomer(customer);
     setCustomerQuery(customer.name);
     setCustomerResults([]);
   };
 
   const handleClearCustomer = () => {
+    setCheckoutError(null);
     setSelectedCustomer(null);
     setCustomerQuery("");
     setCustomerResults([]);
@@ -1701,16 +1705,15 @@ const POSCheckout: React.FC<POSCheckoutProps> = ({ onSessionClosed }) => {
         onCalculator={() => setShowCalculator(true)} onFullScreen={toggleFullScreen} onCloseRegister={handleCloseRegister}
         catalog={<>
           <div className="pos-toolbar">
-            <label className="pos-field"><span>Warehouse</span><select
+            <label className="pos-field"><span>Selling location</span><select
                 value={selectedWarehouseId}
-                onChange={(e) => setSelectedWarehouseId(e.target.value)}
-                disabled={warehouses.length === 0 || catalogLoading}
+                onChange={(e) => handleLocationChange(e.target.value)}
+                disabled={locationsLoading || warehouses.length === 0 || catalogLoading}
                 className="pos-toolbar-input"
-                aria-label="Warehouse"
+                aria-label="Selling location"
               >
-                {warehouses.length === 0 ? (
-                  <option value="">No warehouse</option>
-                ) : (
+                <option value="" disabled>{locationsLoading ? 'Loading locations…' : 'Choose selling location'}</option>
+                {warehouses.length > 0 && (
                   warehouses.map((w) => (
                     <option key={w._id} value={w._id}>
                       {w.name}
@@ -1733,6 +1736,7 @@ const POSCheckout: React.FC<POSCheckoutProps> = ({ onSessionClosed }) => {
                   className="pos-toolbar-input"
                 /></label>
           </div>
+          {(locationError || (!locationsLoading && !selectedWarehouseId)) && <p role="status" className="px-5 pb-3 text-sm text-muted">{locationError || (warehouses.length ? 'No valid saved or default selling location. Choose a location to browse its catalog.' : 'No authorized active selling locations are available. Ask an administrator to review location setup.')}</p>}
           <div className="pos-filters">
             <div className="pos-categories" role="group" aria-label="Product categories">
               {uiCategories.map(category => <button key={category.id} type="button" className="pos-category" aria-pressed={selectedCategory === category.id} onClick={() => setSelectedCategory(category.id)}>{category.name}</button>)}
@@ -1740,7 +1744,7 @@ const POSCheckout: React.FC<POSCheckoutProps> = ({ onSessionClosed }) => {
             <div className="pos-brand-row"><label>Brand <select aria-label="Brand" value={selectedBrand} onChange={event => setSelectedBrand(event.target.value)}>{uiBrands.map(brand => <option key={brand.id} value={brand.id}>{brand.name}</option>)}</select></label><span>{filteredProducts.length} products</span></div>
           </div>
           <div className="pos-products-scroll custom-scrollbar" aria-label="Product catalog">
-            {catalogLoading ? <div className="ss-state" role="status">Loading products…</div> : filteredProducts.length === 0 ? <div className="ss-state"><Info size={24} className="mx-auto mb-3 text-subtle" /><h2 className="font-semibold text-foreground">No products found</h2><p className="mt-1 text-xs">Try another search, category, or warehouse.</p></div> :
+            {catalogLoading || locationsLoading ? <div className="ss-state" role="status">Loading products…</div> : !selectedWarehouseId ? <div className="ss-state"><h2 className="font-semibold">Choose a selling location</h2><p className="mt-1 text-xs text-muted">Use the Selling location selector above to load its catalog.</p></div> : filteredProducts.length === 0 ? <div className="ss-state"><Info size={24} className="mx-auto mb-3 text-subtle" /><h2 className="font-semibold text-foreground">No sellable products found</h2><p className="mt-1 text-xs">Try another search, category, or warehouse. POS requires Active items explicitly marked Sellable; unclassified items need review in Products.</p></div> :
               <div className="pos-product-grid">{filteredProducts.map(product => {
                 const baseItem = cartItems.find(item => item.id === product.id && !item.selectedVariation);
                 const quantity = cartItems.filter(item => item.id === product.id).reduce((sum, item) => sum + item.quantity, 0);
@@ -1800,7 +1804,7 @@ const POSCheckout: React.FC<POSCheckoutProps> = ({ onSessionClosed }) => {
       )}
 
       {showCheckoutModal && (
-        <div role="dialog" aria-modal="true" aria-label="Checkout" data-pos-dialog className="fixed inset-0 z-[120] flex items-center justify-center bg-overlay backdrop-blur-sm p-4">
+        <div role="dialog" aria-modal="true" aria-label={isDemo ? 'Checkout preview' : 'Checkout'} data-pos-dialog className="fixed inset-0 z-[120] flex items-center justify-center bg-overlay backdrop-blur-sm p-4">
           <div className="pos-dialog-panel w-full max-w-4xl min-w-0 rounded-2xl bg-surface-raised border border-line-strong shadow-elevated overflow-hidden">
             <div className="max-h-[78vh] overflow-y-auto custom-scrollbar p-4 sm:p-5 space-y-3">
               <div className="flex items-center gap-3">
@@ -1815,12 +1819,15 @@ const POSCheckout: React.FC<POSCheckoutProps> = ({ onSessionClosed }) => {
                   </svg>
                 </button>
                 <div className="flex-1 h-9 rounded-xl border border-line-strong bg-surface flex items-center justify-center">
-                  <h3 className="text-base font-semibold text-foreground">Checkout</h3>
+                  <h3 className="text-base font-semibold text-foreground">{isDemo ? 'Checkout preview · Read-only demo' : 'Checkout'}</h3>
                 </div>
               </div>
 
               <div className="rounded-xl border border-line-strong bg-surface p-3">
                 <h4 className="text-sm font-semibold text-foreground mb-2.5">Cart Items</h4>
+                {checkoutError && <div role="alert" className="mb-3 rounded-lg border border-danger-line bg-danger-soft p-3 text-sm"><p>{checkoutError.message}</p>{checkoutError.customerUnavailable && <div className="mt-2 flex flex-wrap gap-2"><button type="button" className="ss-button" onClick={handleClearCustomer}>Switch to Walk-in</button><button type="button" className="ss-button" onClick={() => setShowCheckoutModal(false)}>Choose another customer</button></div>}</div>}
+                <p className="mb-2 text-xs text-muted">Customer: {selectedCustomer?.name || 'Walk-in'}</p>
+                <p className="mb-2 text-xs text-muted">Warehouse: {warehouses.find(warehouse => String(warehouse._id) === selectedWarehouseId)?.name || 'Not selected'}</p>
                 <div className="space-y-2">
                 {cartItems.map((item) => (
                   <div key={`${item.id}-${item.selectedVariation?.id || "base"}`} className="flex items-center justify-between rounded-lg border border-line px-2 py-1.5">
@@ -1942,7 +1949,8 @@ const POSCheckout: React.FC<POSCheckoutProps> = ({ onSessionClosed }) => {
               <button
                 type="button"
                 onClick={() => handleCheckoutSubmit(false)}
-                disabled={checkoutSubmitting}
+                disabled={isDemo || checkoutSubmitting}
+                title={isDemo ? 'Read-only demo: payments cannot be submitted.' : undefined}
                 className="h-10 rounded-lg bg-secondary hover:bg-secondary-hover text-on-secondary font-semibold text-sm"
               >
                 Submit Payment
@@ -1950,12 +1958,29 @@ const POSCheckout: React.FC<POSCheckoutProps> = ({ onSessionClosed }) => {
               <button
                 type="button"
                 onClick={() => handleCheckoutSubmit(true)}
-                disabled={checkoutSubmitting}
+                disabled={isDemo || checkoutSubmitting}
+                title={isDemo ? 'Read-only demo: payments cannot be submitted.' : undefined}
                 className="h-10 rounded-lg bg-primary hover:bg-primary-hover text-on-primary font-semibold text-sm"
               >
-                Submit &amp; Print Bill
+                Submit &amp; Print Receipt
               </button>
             </div>
+          </div>
+        </div>
+      )}
+
+      {completedPrint && (
+        <div role="dialog" aria-modal="true" aria-label="Sale saved print actions" data-pos-dialog className="fixed inset-0 z-[120] flex items-center justify-center bg-overlay p-4">
+          <div className="w-full max-w-lg rounded-2xl border border-line bg-surface p-5 space-y-4">
+            <h2 className="text-xl font-bold">Sale saved</h2>
+            <p className="text-sm">Reference: {completedPrint.reference}</p>
+            <p className="text-sm text-muted">Printing uses the saved sale and does not take payment or change stock.</p>
+            <div className="flex flex-wrap gap-3">
+              <button type="button" className="ss-button bg-primary text-on-primary" onClick={() => printBillHtml(completedPrint.receiptHtml)}>Print Receipt</button>
+              <KitchenTicketAction ticket={completedPrint.kitchenTicket} />
+            </div>
+            <button type="button" className="text-sm text-primary underline" onClick={() => navigate(`/saleInvoice/${completedPrint.saleId}`)}>Open saved sale / reprint later</button>
+            <button type="button" className="ss-button w-full" onClick={() => setCompletedPrint(null)}>Done</button>
           </div>
         </div>
       )}

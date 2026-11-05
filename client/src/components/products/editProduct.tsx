@@ -1,8 +1,12 @@
+import HostedFileNotice from '../common/HostedFileNotice';
+import { HOSTED_MODE } from '../../services/hostedMode';
 import React, { useCallback, useEffect, useState } from 'react';
-import { useNavigate, useParams } from 'react-router-dom';
+import { useLocation, useNavigate, useParams } from 'react-router-dom';
+import { PRODUCT_LIST_PATHS, productListPath, productViewForPath } from '../../utils/productRoutes';
 import { showErrorToast, showSuccessToast } from '../../utils/toast';
 import Loader from '../common/Loader';
 import SearchableDropdown from '../common/SearchableDropdown';
+import ProductSellingType from './ProductSellingType';
 
 interface BatchData {
   batchNumber?: string;
@@ -26,6 +30,10 @@ interface WarehouseData {
 }
 
 const EditProduct: React.FC = () => {
+  const location = useLocation();
+  const view = productViewForPath(location.pathname);
+  const backPath = view === 'inventory' && new URLSearchParams(location.search).get('review') === '1'
+    ? PRODUCT_LIST_PATHS.review : PRODUCT_LIST_PATHS[view === 'pos' ? 'pos' : 'inventory'];
   const { id } = useParams<{ id: string }>();
   const [systemType, setSystemType] = useState<'restaurant' | 'retail'>('restaurant');
   const [name, setName] = useState('');
@@ -52,6 +60,9 @@ const EditProduct: React.FC = () => {
   const [hasBatches, setHasBatches] = useState(false); // kept only to read old data but not used in UI
   const [, setIsWeight] = useState(false); // kept only to read old data but not used in UI
   const [isInventory, setIsInventory] = useState(true);
+  const [isSellable, setIsSellable] = useState<boolean | null>(null);
+  const [status, setStatus] = useState('');
+  const [sellingTypeSaving, setSellingTypeSaving] = useState(false);
   const [batchNumber, setBatchNumber] = useState('');
   const [batchExpiryDate, setBatchExpiryDate] = useState('');
   
@@ -163,7 +174,7 @@ const EditProduct: React.FC = () => {
       if (!res.ok) {
         const errorMessage = data?.message || 'Failed to load product';
         showErrorToast(errorMessage);
-        navigate('/viewProducts');
+        navigate(backPath);
         return;
       }
       
@@ -206,6 +217,8 @@ const EditProduct: React.FC = () => {
       setHasBatches(hasBatchesValue);
       setIsWeight(isWeightValue);
       setIsInventory(isInventoryValue);
+      setIsSellable(typeof product.isSellable === 'boolean' ? product.isSellable : null);
+      setStatus(product.status);
       
       // Retail-specific fields
       setBarcodeType(product.barcodeType || '128');
@@ -350,7 +363,7 @@ const EditProduct: React.FC = () => {
     } catch (e) {
       const errorMessage = (e as Error).message || 'Network error occurred';
       showErrorToast(errorMessage);
-      navigate('/viewProducts');
+      navigate(backPath);
     } finally {
       setLoading(false);
     }
@@ -426,17 +439,22 @@ const EditProduct: React.FC = () => {
 
   const submit = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (loading || sellingTypeSaving) return;
+    if (isSellable === null) {
+      showErrorToast('Choose Sellable or Inventory only.');
+      return;
+    }
 
     if (isInventory) {
       const invalidQuantity = ptype === 'Variation'
         ? warehouses.some(warehouse => {
             const combos = (warehouse as any).combos || [];
-            return combos.some((combo: any) => Number(combo.productQty) <= 0);
+            return combos.some((combo: any) => Number(combo.productQty) < 0);
           })
-        : warehouses.some(warehouse => Number(warehouse.productQty) <= 0);
+        : warehouses.some(warehouse => Number(warehouse.productQty) < 0);
 
       if (invalidQuantity) {
-        showErrorToast('Quantity must be greater than 0.');
+        showErrorToast('On-hand quantity cannot be negative. Use Receive Stock for purchases.');
         return;
       }
     }
@@ -533,6 +551,8 @@ const EditProduct: React.FC = () => {
       });
 
       const productData: any = {
+        isSellable,
+        status,
         name,
         code,
         brand: brand || undefined,
@@ -578,13 +598,33 @@ const EditProduct: React.FC = () => {
       }
       
       showSuccessToast(data.message || 'Product updated successfully');
-      navigate('/viewProducts');
+      navigate(productListPath(isSellable));
     } catch (e) {
       const errorMessage = (e as Error).message || 'Network error occurred';
       showErrorToast(errorMessage);
     } finally {
       setLoading(false);
     }
+  };
+
+  const saveSellingTypeOnly = async () => {
+    if (loading || sellingTypeSaving || isSellable === null || !id) return;
+    const token = localStorage.getItem('token');
+    if (!token) { showErrorToast('Session expired. Please log in again.'); return; }
+    setSellingTypeSaving(true);
+    try {
+      const response = await fetch(`${api}/products/${id}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
+        body: JSON.stringify({ isSellable })
+      });
+      const result = await response.json();
+      if (!response.ok) throw new Error(result.message || 'Failed to save selling type');
+      showSuccessToast('Selling type saved. Stock and other details were unchanged.');
+      navigate(productListPath(isSellable));
+    } catch (error) {
+      showErrorToast(error instanceof Error ? error.message : 'Failed to save selling type');
+    } finally { setSellingTypeSaving(false); }
   };
 
   return (
@@ -596,7 +636,7 @@ const EditProduct: React.FC = () => {
         <div className="px-6 py-4">
           <div className="flex items-center">
             <button
-              onClick={() => navigate('/viewProducts')}
+              onClick={() => navigate(backPath)}
               className="mr-4 p-2 text-subtle hover:text-muted hover:bg-surface-muted rounded-lg transition-colors duration-200"
             >
               <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -618,6 +658,17 @@ const EditProduct: React.FC = () => {
         <div className="max-w-4xl mx-auto">
           <div className="bg-surface rounded-lg border border-line p-6">
             <form onSubmit={submit} className="space-y-8">
+              <ProductSellingType value={isSellable} onChange={setIsSellable} onSave={saveSellingTypeOnly} saving={sellingTypeSaving} disabled={loading} />
+              <div>
+                <label htmlFor="product-status" className="block text-sm font-semibold text-foreground mb-2">Status</label>
+                <select id="product-status" required value={status} onChange={event => setStatus(event.target.value)} disabled={loading || sellingTypeSaving} className="w-full border border-line-strong rounded-lg px-3 py-2 text-sm">
+                  <option value="" disabled>Select status</option>
+                  <option value="Pending">Pending</option>
+                  <option value="Active">Active</option>
+                  <option value="Inactive">Inactive</option>
+                </select>
+                <p className="mt-2 text-sm text-muted">Update Product saves status and other form changes. Save selling type only preserves the existing status and stock.</p>
+              </div>
               <div className="space-y-4">
                 <div className="flex flex-col">
                   <span className="block text-base font-medium text-foreground mb-1">
@@ -687,10 +738,12 @@ const EditProduct: React.FC = () => {
                     <label className="block text-base font-medium text-foreground mb-2">
                       Product Image
                     </label>
+                    <HostedFileNotice />
                     <input
-                      type="file"
+                      type="file" disabled={HOSTED_MODE}
                       accept="image/*"
                       onChange={e => {
+                        if (HOSTED_MODE) return;
                         const file = e.target.files?.[0];
                         if (!file) return;
                         const reader = new FileReader();
@@ -713,7 +766,7 @@ const EditProduct: React.FC = () => {
                         />
                         <button
                           type="button"
-                          onClick={() => setImage('')}
+                          onClick={() => setImage('')} disabled={HOSTED_MODE}
                           className="px-2 py-1 text-xs font-medium text-danger bg-danger-soft border border-danger-line rounded-lg hover:bg-danger-soft"
                         >
                           Remove
@@ -1279,13 +1332,14 @@ const EditProduct: React.FC = () => {
               <div className="flex justify-end space-x-3 pt-6 border-t border-line">
                 <button
                   type="button"
-                  onClick={() => navigate('/viewProducts')}
+                  onClick={() => navigate(backPath)}
                   className="px-4 py-2 text-base font-medium text-foreground bg-surface border border-line-strong rounded-lg hover:bg-surface-raised focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary transition-colors duration-200"
                 >
                   Cancel
                 </button>
                 <button
                   type="submit"
+                  disabled={loading || sellingTypeSaving}
                   className="px-4 py-2 text-base font-medium text-on-primary bg-primary rounded-lg hover:bg-primary-hover focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary transition-colors duration-200"
                 >
                   Update Product

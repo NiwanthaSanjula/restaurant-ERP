@@ -1,14 +1,18 @@
 import React from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useBranding } from '../../contexts/BrandingProvider';
+import { DEFAULT_COMPANY_NAME } from '../../services/branding';
 import CompanyMark from '../common/CompanyMark';
 import { showErrorToast, showSuccessToast } from '../../utils/toast';
 import CashInModal from '../pos/CashInModal';
 import { Menu, MonitorCheck } from 'lucide-react';
 import ThemeToggle from '../common/ThemeToggle';
+import { DemoBadge } from '../common/DemoMode';
+import { usePermissions } from '../../contexts/PermissionContext';
 
 const Navbar: React.FC<{ onMenuToggle?: () => void; mobileMenuOpen?: boolean }> = ({ onMenuToggle, mobileMenuOpen = false }) => {
   const navigate = useNavigate();
+  const { isDemo } = usePermissions();
   const headerRef = React.useRef<HTMLElement>(null);
   React.useLayoutEffect(() => {
     const header = headerRef.current;
@@ -40,6 +44,9 @@ const Navbar: React.FC<{ onMenuToggle?: () => void; mobileMenuOpen?: boolean }> 
   }, []);
 
   const { companyName } = useBranding();
+  const displayName = user?.name?.trim() === `${DEFAULT_COMPANY_NAME} Admin`
+    ? `${companyName} Admin`
+    : user?.name || 'User';
   const [showCashInModal, setShowCashInModal] = React.useState(false);
   const [hasActiveSession, setHasActiveSession] = React.useState<boolean>(
     Boolean(sessionStorage.getItem('posSessionId'))
@@ -51,6 +58,7 @@ const Navbar: React.FC<{ onMenuToggle?: () => void; mobileMenuOpen?: boolean }> 
     let mounted = true;
 
     const checkSession = async () => {
+      if (isDemo) return;
       const token = localStorage.getItem('token');
       if (!token) return;
       try {
@@ -79,9 +87,10 @@ const Navbar: React.FC<{ onMenuToggle?: () => void; mobileMenuOpen?: boolean }> 
     return () => {
       mounted = false;
     };
-  }, [apiBase]);
+  }, [apiBase, isDemo]);
 
   const handlePosClick = () => {
+    if (isDemo) { navigate('/pos'); return; }
     const sessId = sessionStorage.getItem('posSessionId');
     if (sessId || hasActiveSession) {
       navigate('/pos');
@@ -148,6 +157,7 @@ const handleOpenSession = async (
   return (
     <>
       <header ref={headerRef} className="ss-header flex flex-wrap items-center justify-between gap-2 px-3 py-3 sm:px-4 lg:px-5 shadow-sm">
+        <DemoBadge />
         <div className="flex items-center gap-2 sm:gap-3 min-w-0 shrink-0">
           <button type="button" onClick={onMenuToggle} aria-label="Open navigation" aria-controls="primary-navigation" aria-expanded={mobileMenuOpen} className="ss-icon-button md:hidden"><Menu size={21} aria-hidden="true" /></button>
           <Link to="/dashboard" className="flex items-center gap-3 min-w-0" aria-label={`${companyName} home`}>
@@ -159,8 +169,8 @@ const handleOpenSession = async (
           <ThemeToggle />
           <button type="button" onClick={handlePosClick} className="ss-button"><MonitorCheck size={18} aria-hidden="true" /><span>OPEN  POS</span></button>
           <div className="flex items-center gap-2 border-l border-line pl-2 sm:pl-4">
-            <div className="w-9 h-9 rounded-full bg-secondary-soft text-secondary flex items-center justify-center font-semibold" aria-hidden="true">{user?.name ? user.name[0]?.toUpperCase() : 'U'}</div>
-            <div className="hidden lg:block"><div className="text-sm font-medium text-foreground max-w-32 truncate" title={user?.name || 'User'}>{user?.name || 'User'}</div><div className="text-xs text-muted">{user?.role || 'staff'}</div></div>
+            <div className="w-9 h-9 rounded-full bg-secondary-soft text-secondary flex items-center justify-center font-semibold" aria-hidden="true">{displayName[0]?.toUpperCase()}</div>
+            <div className="hidden lg:block"><div className="text-sm font-medium text-foreground max-w-32 truncate" title={displayName}>{displayName}</div><div className="text-xs text-muted">{user?.role || 'staff'}</div></div>
           </div>
         </div>
       </header>

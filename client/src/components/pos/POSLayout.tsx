@@ -1,6 +1,8 @@
 import { useEffect, useRef, useState, useSyncExternalStore, type ReactNode } from 'react';
 import { Calculator, LayoutDashboard, Maximize, Minimize, MoreHorizontal, Power, ReceiptText, ShoppingBag, X } from 'lucide-react';
 import ThemeToggle from '../common/ThemeToggle';
+import { DemoBadge } from '../common/DemoMode';
+import { usePermissions } from '../../contexts/PermissionContext';
 import { useBranding } from '../../contexts/BrandingProvider';
 import CompanyMark from '../common/CompanyMark';
 import './pos.css';
@@ -26,6 +28,7 @@ interface Props {
 }
 
 export default function POSLayout(props: Props) {
+  const { isDemo } = usePermissions();
   const { companyName } = useBranding();
   const [orderOpen, setOrderOpen] = useState(false);
   const desktop = useSyncExternalStore(subscribe, () => window.matchMedia(desktopQuery).matches, () => true);
@@ -80,13 +83,14 @@ export default function POSLayout(props: Props) {
       <header className="pos-header">
         <div className="min-w-0"><p className="pos-eyebrow truncate max-w-56" title={companyName}>{companyName}</p><h1>POINT OF SALE</h1></div>
         <div className="pos-header-actions">
+          <DemoBadge />
           <ThemeToggle />
           <details className="pos-tools" ref={tools} onKeyDown={event => { if (event.key === 'Escape') { event.currentTarget.removeAttribute('open'); event.currentTarget.querySelector('summary')?.focus(); } }}>
             <summary aria-label="More POS tools" title="More POS tools"><MoreHorizontal size={22} /></summary>
             <div className="pos-tools-menu" aria-label="Secondary POS tools">
               <button type="button" onClick={() => tool(props.onCalculator)}><Calculator size={17} />Calculator</button>
               <button type="button" onClick={() => tool(props.onFullScreen)}>{props.isFullScreen ? <Minimize size={17} /> : <Maximize size={17} />}{props.isFullScreen ? 'Exit fullscreen' : 'Enter fullscreen'}</button>
-              <button type="button" onClick={() => tool(props.onCloseRegister)}><Power size={17} />Close register</button>
+              <button type="button" disabled={isDemo} title={isDemo ? 'Read-only demo: register changes are disabled.' : undefined} onClick={() => tool(props.onCloseRegister)}><Power size={17} />Close register</button>
               <div className="pos-unavailable"><span>Hold order</span><small>Unavailable — saving held orders is not implemented.</small></div>
               <div className="pos-unavailable"><span>View menu</span><small>Unavailable — this destination is not connected.</small></div>
             </div>
@@ -101,6 +105,7 @@ export default function POSLayout(props: Props) {
     {modal && <button type="button" className="pos-drawer-backdrop" aria-label="Close order backdrop" tabIndex={-1} onClick={() => setOrderOpen(false)} />}
     <aside ref={drawer} id="pos-order-panel" className={`pos-order ${modal ? 'is-open' : ''}`} inert={!desktop && !orderOpen}
       role={modal ? 'dialog' : undefined} aria-modal={modal ? true : undefined} aria-label="Current order">
+      {modal && isDemo && <div className="px-4 pt-3"><DemoBadge /></div>}
       <div className="pos-order-heading"><div><span className="pos-eyebrow">Current order</span><h2>Order details <span>{props.quantity}</span></h2></div>
         <button type="button" className="pos-order-close" aria-label="Close order" onClick={() => setOrderOpen(false)}><X size={21} /><span className="sr-only">Back to catalog</span></button>
       </div>

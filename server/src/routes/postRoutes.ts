@@ -13,7 +13,7 @@ import { normalizeRecipeBody, upsertRecipe, upsertRecipeValidators } from '../co
 import { createOrder, createOrderValidators } from '../controllers/order';
 import { bulkDeleteZBills, postCloseSession, postOpenSession, postSale } from '../controllers/pos';
 import { createProduct, createProductValidators } from '../controllers/product';
-import { createPurchase, createQuickProductForPurchase } from '../controllers/purchaseController';
+import { createPurchase, createQuickProductForPurchase, receivePurchase } from '../controllers/purchaseController';
 import { createPurchaseReturn } from '../controllers/purchaseReturnController';
 import { createQuotation, createQuotationValidators } from '../controllers/quotation';
 import { createPermission, createPermissionValidators, createRole, createRoleValidators } from '../controllers/roles&Permissions';
@@ -26,6 +26,7 @@ import { createVariation, createVariationValidators } from '../controllers/varia
 import { createWarehouse, createWarehouseValidators } from '../controllers/warehouse';
 import { approveAdjustmentValidators, createAdjustmentValidators } from '../middleware/adjustmentValidation';
 import { authenticate } from '../middleware/auth';
+import { previewIssue, postIssue } from '../controllers/warehouse/kitchenIssue';
 import { requirePermission } from '../middleware/permissions';
 
 const router = express.Router();
@@ -59,6 +60,8 @@ router.post('/permissions', authenticate, requirePermission('manageRolesAndPermi
 
 // Master Data
 router.post('/warehouses', ...createWarehouseValidators, createWarehouse);
+router.post('/warehouses/:id/kitchen-issues/preview', authenticate, requirePermission('manageProducts', 'read'), requirePermission('manageKitchen', 'view_kitchen_inventory'), previewIssue);
+router.post('/warehouses/:id/kitchen-issues', authenticate, requirePermission('manageProducts', 'update'), requirePermission('manageKitchen', 'edit_kitchen_inventory'), postIssue);
 router.post('/products', ...createProductValidators, createProduct);
 router.post('/baseUnits', ...createBaseUnitValidators, createBaseUnit);
 router.post('/units', ...createUnitValidators, createUnit);
@@ -76,8 +79,9 @@ router.post('/sales', ...createSaleValidators, createSale);
 router.post('/orders', authenticate, requirePermission('manageOrders', 'create_order'), createOrderValidators, createOrder);
 
 // Purchase
-router.post('/purchases', createPurchase);
-router.post('/purchases/quick-product', authenticate, createQuickProductForPurchase);
+router.post('/purchases', authenticate, requirePermission('managePurchases', 'read'), requirePermission('manageProducts', 'update'), createPurchase);
+router.post('/purchases/quick-product', authenticate, requirePermission('manageProducts', 'create'), createQuickProductForPurchase);
+router.post('/purchases/:id/receive', authenticate, requirePermission('managePurchases', 'read'), requirePermission('manageProducts', 'update'), receivePurchase);
 
 // Purchase Return
 router.post('/purchase-returns', authenticate, createPurchaseReturn);

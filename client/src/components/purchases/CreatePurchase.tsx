@@ -1,8 +1,14 @@
 import axios from 'axios';
+import ProductSellingType from '../products/ProductSellingType';
+import PermissionGate from '../common/PermissionGate';
+import CreateSupplier from '../suppliers/createSupplier';
+import { completePurchase, pendingPurchase, preparePurchase } from '../../services/purchaseSubmission';
+import type { PurchaseSubmission } from '../../services/purchaseSubmission';
+import { purchaseReorderDraft } from '../../services/purchaseReorder';
 import { escapeBrandText, getBranding } from '../../services/branding';
 import { ArrowLeft, Calendar, Loader2, PackagePlus, Plus, Save, Trash2, Users, Warehouse, X } from 'lucide-react';
-import React, { useEffect, useMemo, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import React, { useEffect, useMemo, useRef, useState } from 'react';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 import { useCurrency } from '../../contexts/CurrencyContext';
 import { toBusinessDateInputValue } from '../../utils/date';
 import SearchableDropdown from '../common/SearchableDropdown';
@@ -11,6 +17,12 @@ import { blockInvalidNumericKeys } from '../../utils/numericInput';
 
 const CreatePurchase = () => {
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
+  const reorderProductId = searchParams.get('reorderProductId') || '';
+  const reorderWarehouseId = searchParams.get('warehouseId') || '';
+  const [reorderLoading, setReorderLoading] = useState(!!reorderProductId);
+  const [reorderMessage, setReorderMessage] = useState('');
+  const [reorderError, setReorderError] = useState('');
   const { currencyCode } = useCurrency();
   const [selectedSupplier, setSelectedSupplier] = useState('');
   const [selectedWarehouseId, setSelectedWarehouseId] = useState('');
@@ -23,7 +35,15 @@ const CreatePurchase = () => {
   const [, setProducts] = useState<any[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [submittedPurchase, setSubmittedPurchase] = useState<any>(null);
+  const [purchaseRequestId, setPurchaseRequestId] = useState(() => crypto.randomUUID());
   const [showConfirmModal, setShowConfirmModal] = useState(false);
+  const [saveAndReceive, setSaveAndReceive] = useState(false);
+  const [pendingSubmission, setPendingSubmission] = useState<PurchaseSubmission | null>(null);
+  const [submissionError, setSubmissionError] = useState('');
+  const [showSupplierModal, setShowSupplierModal] = useState(false);
+  const supplierDialog = useRef<HTMLDialogElement>(null);
+  const submissionInFlight = useRef(false);
+  const quickQuantityFocus = useRef<number | null>(null);
 
   // Quick product (Create Purchase shortcut only — uses POST /purchases/quick-product)
   const [showQuickProductModal, setShowQuickProductModal] = useState(false);
@@ -34,6 +54,7 @@ const CreatePurchase = () => {
   const [qpCode, setQpCode] = useState('');
   const [qpCategory, setQpCategory] = useState('');
   const [qpUnit, setQpUnit] = useState('');
+  const [qpIsSellable, setQpIsSellable] = useState<boolean | null>(null);
   const [qpCost, setQpCost] = useState('');
   const [qpPrice, setQpPrice] = useState('');
   const [qpProductType, setQpProductType] = useState<'Single' | 'Variation'>('Single');
@@ -56,7 +77,7 @@ const CreatePurchase = () => {
   ]);
   const [qpErrors, setQpErrors] = useState<Record<string, string>>({});
 
-  const [purchaseStatus, setPurchaseStatus] = useState<'Received' | 'Ordered' | 'Pending' | 'Draft'>('Received');
+  const [purchaseStatus, setPurchaseStatus] = useState<'Received' | 'Ordered' | 'Pending'>('Ordered');
   const [showHistorySidebar, setShowHistorySidebar] = useState(false);
   const [supplierHistory, setSupplierHistory] = useState<any[]>([]);
   const [isHistoryLoading, setIsHistoryLoading] = useState(false);
@@ -75,6 +96,14 @@ const CreatePurchase = () => {
   const [paymentMethod, setPaymentMethod] = useState<string>('');
 
   const API_BASE = 'http://localhost:5000/api';
+  const actorId = (() => { try { const user = JSON.parse(localStorage.getItem('user') || '{}'); return String(user.id || user._id || ''); } catch { return ''; } })();
+  useEffect(() => { if (actorId) { try { setPendingSubmission(pendingPurchase(localStorage, actorId)); } catch (error) { setSubmissionError((error as Error).message); } } }, [actorId]);
+  useEffect(() => { if (showSupplierModal) supplierDialog.current?.showModal(); }, [showSupplierModal]);
+  useEffect(() => {
+    if (showQuickProductModal || quickQuantityFocus.current === null) return;
+    document.getElementById(`purchase-quantity-${quickQuantityFocus.current}`)?.focus();
+    quickQuantityFocus.current = null;
+  }, [items, showQuickProductModal]);
   
   // Payment method options
   const paymentMethods = ['Cash', 'Card', 'Bank Transfer', 'Cheque', 'Mobile Payment', 'Other'];
@@ -113,6 +142,8 @@ const CreatePurchase = () => {
   }, [showHistorySidebar, selectedSupplier]);
 
   useEffect(() => {
+    let cancelled = false;
+    setReorderLoading(!!reorderProductId); setReorderError('');
     const fetchData = async () => {
       try {
         const token = localStorage.getItem('token') || localStorage.getItem('accessToken'); 
@@ -131,15 +162,33 @@ const CreatePurchase = () => {
         
         const suppliersData = supRes.data?.data || supRes.data || [];
         const warehousesData = warRes.data?.data || warRes.data || [];
+        if (cancelled) return;
         
         setSuppliers(Array.isArray(suppliersData) ? suppliersData : []);
         setWarehouses(Array.isArray(warehousesData) ? warehousesData : []);
+        if (reorderProductId) {
+          // Existing durable purchase recovery takes precedence over a new reorder link.
+          if (actorId && pendingPurchase(localStorage, actorId)) { setReorderMessage('A saved purchase is awaiting confirmation. Resolve that operation before starting this reorder.'); return; }
+          const warehouse = Array.isArray(warehousesData) ? warehousesData.find((row: any) => String(row._id || row.id) === reorderWarehouseId) : null;
+          if (!warehouse) throw new Error('The reorder location is unavailable. Return to warehouse stock and choose an available location.');
+          const productResponse = await axios.get(`${API_BASE}/products/${encodeURIComponent(reorderProductId)}`, config);
+          if (cancelled) return;
+          const draft = purchaseReorderDraft(productResponse.data?.data, warehouse, Array.isArray(suppliersData) ? suppliersData : []);
+          setSelectedWarehouseId(draft.warehouseId); setSelectedWarehouseName(draft.warehouseName); setSelectedSupplier(draft.supplierId);
+          const rowId = Date.now(); quickQuantityFocus.current = rowId;
+          setItems([{ id: rowId, ...draft.item }]); setPurchaseStatus('Ordered');
+          setReorderMessage(`Reorder: ${draft.item.name} into ${draft.warehouseName}. Review purchase quantity and unit cost. ${draft.supplierNote}`);
+        }
       } catch (err: any) { 
-        console.error("Fetch error:", err);
+        if (reorderProductId && !cancelled) setReorderError(err.response?.data?.message || err.message || 'Could not prepare this reorder. No order was created.');
+        else if (!reorderProductId) console.error("Fetch error:", err);
+      } finally {
+        if (!cancelled) setReorderLoading(false);
       }
     };
     fetchData();
-  }, []);
+    return () => { cancelled = true; };
+  }, [reorderProductId, reorderWarehouseId]);
 
   useEffect(() => {
     if (!showQuickProductModal) return;
@@ -177,6 +226,7 @@ const CreatePurchase = () => {
   }, [showQuickProductModal]);
 
   const openQuickProductModal = () => {
+    setQpIsSellable(null);
     if (!selectedWarehouseId) {
       showInfoToast('Select a warehouse first.');
       return;
@@ -227,6 +277,7 @@ const CreatePurchase = () => {
 
   const handleQuickProductSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (qpIsSellable === null) { showErrorToast('Choose Sellable or Inventory only.'); return; }
     const nextErrors: Record<string, string> = {};
     if (!selectedWarehouseId) {
       showErrorToast('Select a warehouse first.');
@@ -237,7 +288,7 @@ const CreatePurchase = () => {
     if (!qpCategory.trim()) nextErrors.category = 'Category is required';
     if (!qpUnit.trim()) nextErrors.unit = 'Unit is required';
     const costNum = parseFloat(String(qpCost)) || 0;
-    const priceNum = qpPrice.trim() === '' ? costNum : parseFloat(String(qpPrice)) || 0;
+    const priceNum = qpIsSellable === false ? 0 : qpPrice.trim() === '' ? costNum : parseFloat(String(qpPrice)) || 0;
     if (qpProductType === 'Single') {
       if (costNum < 0 || priceNum < 0) {
         nextErrors.cost = 'Cost and price must be 0 or more';
@@ -286,7 +337,8 @@ const CreatePurchase = () => {
           name: qpName.trim(),
           code: qpCode.trim(),
           category: qpCategory.trim(),
-          unit: qpUnit.trim() || 'pcs',
+          unit: qpUnit.trim(),
+          isSellable: qpIsSellable,
           ptype: qpProductType,
           variationAttributes: qpVariationAttributes,
           variationType: qpVariationAttributes[0] || 'Size',
@@ -358,10 +410,12 @@ const CreatePurchase = () => {
           idx = next.length - 1;
         }
         const row = next[idx];
+        quickQuantityFocus.current = row.id;
         next[idx] = {
           ...row,
           productId: String(prod._id ?? prod.id ?? ''),
           name: prod.name ?? '',
+          stockUnit: prod.unit,
           variation: qpProductType === 'Variation' ? firstVariationName : undefined,
           stock: displayStock,
           cost: pickedCost ? pickedCost.toFixed(2) : '0.00',
@@ -607,6 +661,7 @@ const CreatePurchase = () => {
       ...updatedItems[index],
       productId: prod._id,
       name: displayName,
+      stockUnit: prod.unit,
       variation: variationName || undefined,
       stock: displayStock,
       cost: productCost ? productCost.toFixed(2) : '0.00',
@@ -719,7 +774,7 @@ const CreatePurchase = () => {
   }, [discount, tax, discountType, taxType, paymentStatus, paymentMethod]);
 
   // Show confirmation modal before submitting
-  const handleSubmitClick = () => {
+  const handleSubmitClick = (receive: boolean) => {
     // Prevent duplicate submissions
     if (isLoading) {
       return;
@@ -768,132 +823,75 @@ const CreatePurchase = () => {
     }
     
     // Show confirmation modal
+    setSaveAndReceive(receive);
     setShowConfirmModal(true);
   };
 
-  // 4. Submit purchase to API (after confirmation)
+  const finishSubmission = async () => {
+    const token = localStorage.getItem('token') || localStorage.getItem('accessToken');
+    if (!token || !actorId) throw new Error('Please log in to continue.');
+    const result = await completePurchase(localStorage, actorId, async (path, body) => {
+      const response = await axios.post(API_BASE + path, body, { headers: { Authorization: 'Bearer ' + token } });
+      return response.data?.data;
+    });
+    setSubmittedPurchase({ ...result.display, purchaseStatus: result.purchase.purchaseStatus, purchaseId: result.purchase.purchaseId, id: result.purchase._id });
+    setPendingSubmission(null); setSubmissionError('');
+    showSuccessToast(result.purchase.purchaseStatus === 'Received' ? 'Purchase saved and stock received in ' + String(result.display.warehouseName) + '.' : 'Order saved. No stock received yet.');
+    setItems([]); setSelectedSupplier(''); setSelectedWarehouseId(''); setSelectedWarehouseName('');
+    setPurchaseDate(toBusinessDateInputValue()); setDiscount(0); setDiscountType('fixed'); setTax(0); setTaxType('fixed');
+    setPaymentStatus('Unpaid'); setPaymentMethod(''); setPurchaseStatus('Ordered');
+  };
+  const submissionFailed = (error: unknown) => {
+    const failure = error as { response?: { data?: { message?: string } }; message?: string };
+    const message = failure.response?.data?.message || failure.message || 'Purchase could not be confirmed. Retry the saved operation.';
+    setSubmissionError(message); showErrorToast(message);
+    try { setPendingSubmission(pendingPurchase(localStorage, actorId)); } catch { /* Preserve the existing recovery notice. */ }
+  };
+  // A saved order ID is checkpointed before receiving; retries cannot create another order.
   const handleSubmit = async () => {
+    if (submissionInFlight.current) return;
     setShowConfirmModal(false);
-
-    // Recompute valid items here as well (used to build payload)
     const validItems = items.filter(i => i.productId && (parseFloat(String(i.qty)) || 0) > 0 && (i.cost || 0) > 0);
-    if (validItems.length === 0) {
-      showErrorToast("Each item needs product, qty, and cost.");
-      return;
-    }
-
-    setIsLoading(true);
+    if (!validItems.length) { showErrorToast('Each item needs product, purchase quantity, and unit cost.'); return; }
+    submissionInFlight.current = true; setIsLoading(true); setSubmissionError('');
     try {
-      const token = localStorage.getItem('token') || localStorage.getItem('accessToken');
-      if (!token) {
-        showErrorToast("Please log in to continue.");
-        setIsLoading(false);
-        return;
-      }
-      
-      const authUser = JSON.parse(localStorage.getItem('user') || '{}');
-      const createdBy = authUser.id || authUser._id;
-      
-      if (!createdBy) {
-        showErrorToast("User info missing. Log in again.");
-        setIsLoading(false);
-        return;
-      }
-      
+      if (!actorId) throw new Error('User info missing. Log in again.');
       const payload = {
-        supplierId: selectedSupplier,
-        warehouseId: selectedWarehouseId,
-        warehouseName: selectedWarehouseName,
-        purchaseDate,
-        subtotal,
-        discount: discount || 0,
-        discountType: discountType || 'fixed',
-        tax: tax || 0,
-        taxType: taxType || 'fixed',
-        grandTotal,
-        paymentStatus,
-        paymentMethod: paymentMethod || undefined,
-        purchaseStatus, // Updated to use state
-        createdBy,
-        items: validItems.map((i: any) => ({
-          productId: i.productId,
-          quantity: parseFloat(String(i.qty)) || 0,
-          cost: i.cost || 0,
-          subTotal: (parseFloat(String(i.qty)) || 0) * (i.cost || 0)
-        }))
+        createRequestId: purchaseRequestId, supplierId: selectedSupplier, warehouseId: selectedWarehouseId,
+        warehouseName: selectedWarehouseName, purchaseDate, subtotal, discount: discount || 0,
+        discountType, tax: tax || 0, taxType, grandTotal, paymentStatus, paymentMethod: paymentMethod || undefined,
+        purchaseStatus: purchaseStatus === 'Pending' ? 'Pending' : 'Ordered', createdBy: actorId,
+        items: validItems.map(i => ({ productId: i.productId, quantity: parseFloat(String(i.qty)), cost: Number(i.cost), subTotal: parseFloat(String(i.qty)) * Number(i.cost) }))
       };
-      
-      const res = await axios.post(`${API_BASE}/purchases`, payload, {
-        headers: { Authorization: `Bearer ${token}` }
-      });
-      
-      const created = res.data?.data || res.data;
-      const supplierName = suppliers.find((s: any) => s._id === selectedSupplier)?.name || 'N/A';
-      const warehouseNameForList = selectedWarehouseName || 'N/A';
-      
-      setSubmittedPurchase({
-        purchaseId: created?.purchaseId || `PUR-${Date.now()}`,
-        purchaseDate: purchaseDate,
-        supplierName,
-        warehouseName: warehouseNameForList,
-        items: validItems.map((i: any) => ({ name: i.name, qty: i.qty, cost: i.cost, subTotal: (i.qty || 0) * (i.cost || 0) })),
-        subtotal,
-        discount: discountAmount,
-        tax: taxAmount,
-        grandTotal
-      });
-      showSuccessToast('Purchase saved.');
-      
-      // Reset form (but don't navigate automatically - let user choose via modal buttons)
-      setItems([]);
-      setSelectedSupplier('');
-      setSelectedWarehouseId('');
-      setSelectedWarehouseName('');
-      setPurchaseDate(toBusinessDateInputValue());
-      setDiscount(0);
-      setDiscountType('fixed');
-      setTax(0);
-      setTaxType('fixed');
-      setPaymentStatus('Unpaid');
-      setPaymentMethod('');
-    } catch (err: any) {
-      console.error('Purchase submission error:', err);
-      console.error('Error response:', err.response?.data);
-      
-      let errorMessage = "Failed to create purchase";
-      const failedProducts = err.response?.data?.failedProducts;
-      
-      if (err.response?.data) {
-        // Try multiple possible error message fields
-        errorMessage = err.response.data.message || 
-                      err.response.data.error || 
-                      err.response.data.error?.message ||
-                      JSON.stringify(err.response.data);
-      } else if (err.message) {
-        errorMessage = err.message;
-      }
-      
-      // Show detailed error message
-      if (failedProducts && failedProducts.length > 0) {
-        showErrorToast(`Failed products: ${failedProducts.join(', ')}`);
-      } else {
-        // Show full error details for debugging
-        const fullError = err.response?.data ? JSON.stringify(err.response.data, null, 2) : errorMessage;
-        showErrorToast(`${errorMessage}${fullError ? ' (see console for details)' : ''}`);
-        if (fullError) console.error('Purchase error details:', fullError);
-      }
-    } finally {
-      setIsLoading(false);
-    }
+      const display = {
+        warehouseId: selectedWarehouseId, warehouseName: selectedWarehouseName,
+        supplierName: suppliers.find(s => (s._id || s.id) === selectedSupplier)?.name || 'Not available', purchaseDate,
+        items: validItems.map(i => ({ name: i.name, qty: i.qty, cost: i.cost, subTotal: Number(i.qty) * Number(i.cost) })),
+        subtotal, discount: discountAmount, tax: taxAmount, grandTotal
+      };
+      setPendingSubmission(preparePurchase(localStorage, actorId, payload, saveAndReceive, display));
+      await finishSubmission();
+    } catch (error) { submissionFailed(error); }
+    finally { submissionInFlight.current = false; setIsLoading(false); }
+  };
+  const retrySubmission = async () => {
+    if (submissionInFlight.current) return;
+    submissionInFlight.current = true; setIsLoading(true); setSubmissionError('');
+    try { await finishSubmission(); } catch (error) { submissionFailed(error); }
+    finally { submissionInFlight.current = false; setIsLoading(false); }
   };
 
   const handleNewPurchase = () => {
+    if (reorderProductId) navigate('/createPurchase', { replace: true });
     setSubmittedPurchase(null);
+    setPurchaseRequestId(crypto.randomUUID());
+    setItems([{ id: Date.now(), productId: '', name: '', stock: 0, qty: 0, cost: 0, subTotal: 0 }]);
   };
 
   // Open a dedicated print window with only the receipt content
   const handlePrintReceipt = () => {
     if (!submittedPurchase) return;
+    const documentTitle = submittedPurchase.purchaseStatus === 'Received' ? 'Purchase Receipt' : 'Purchase Order';
 
     const printWindow = window.open('', '_blank', 'width=800,height=1000');
     if (!printWindow) return;
@@ -915,7 +913,7 @@ const CreatePurchase = () => {
     printWindow.document.write(`
       <html>
         <head>
-          <title>Purchase Receipt - ${submittedPurchase.purchaseId}</title>
+          <title>${documentTitle} - ${submittedPurchase.purchaseId}</title>
           <style>
             body {
               font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
@@ -1008,7 +1006,7 @@ const CreatePurchase = () => {
           <div class="card">
             <div class="card-header">
               <div>
-                <h1>Purchase Receipt</h1>
+                <h1>${documentTitle}</h1>
                 <div style="font-size:11px; opacity:0.85;">${escapeBrandText(getBranding().companyName)}</div>
               </div>
               <div class="badge">Recorded</div>
@@ -1096,12 +1094,14 @@ const CreatePurchase = () => {
             </div>
             <h2 className="text-2xl font-black text-foreground mb-1 flex items-center gap-2">
               <PackagePlus size={22} className="text-primary" />
-              New product
+              Create Item
             </h2>
             <p className="text-xs font-bold text-muted mb-5 leading-5">
-              Creates an inventory product in <span className="text-primary">{selectedWarehouseName || 'selected warehouse'}</span> and adds it to a line.
+              Creates an item record with zero stock in <span className="text-primary">{selectedWarehouseName || 'selected warehouse'}</span> and adds it to the order. Stock increases only when the purchase is received.
             </p>
             <form onSubmit={handleQuickProductSubmit} className="space-y-4 sm:space-y-5">
+              <ProductSellingType value={qpIsSellable} onChange={setQpIsSellable} />
+              <p className="text-sm text-muted">Choose the stock unit used by purchase quantities, for example bags or kilograms. Pack sizes are not inferred from item names and recipe conversion is not automatic.</p>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-3 sm:gap-4">
               <div>
                 <label className="text-[10px] font-black text-muted uppercase tracking-widest">Product type</label>
@@ -1111,7 +1111,7 @@ const CreatePurchase = () => {
                   onChange={(e) => setQpProductType(e.target.value as 'Single' | 'Variation')}
                 >
                   <option value="Single">Single</option>
-                  <option value="Variation">Variation</option>
+                  <option value="Variation" disabled>Variation (receipt identity support pending)</option>
                 </select>
               </div>
               <div>
@@ -1163,7 +1163,7 @@ const CreatePurchase = () => {
                 {qpErrors.category && <p className="mt-1 text-[11px] text-danger font-semibold">{qpErrors.category}</p>}
               </div>
               <div>
-                <label className="text-[10px] font-black text-muted uppercase tracking-widest">Unit</label>
+                <label className="text-[10px] font-black text-muted uppercase tracking-widest">Stock unit</label>
                 {unitsForQuickProduct.length > 0 ? (
                   <select
                     className={`w-full mt-1 px-3 py-2.5 border-2 rounded-xl font-bold text-foreground bg-surface focus:outline-none focus:ring-2 transition-all ${qpErrors.unit ? 'border-danger-line focus:ring-danger-line focus:border-danger-line' : 'border-line-strong focus:ring-primary focus:border-primary'}`}
@@ -1193,7 +1193,7 @@ const CreatePurchase = () => {
                 <>
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4 bg-surface-raised/70 border border-line rounded-2xl p-3">
                     <div>
-                      <label className="text-[10px] font-black text-muted uppercase tracking-widest">Cost (LKR)</label>
+                      <label className="text-[10px] font-black text-muted uppercase tracking-widest">Unit Cost ({currencyCode})</label>
                       <input
                         type="number"
                         min={0}
@@ -1204,8 +1204,8 @@ const CreatePurchase = () => {
                         required
                       />
                     </div>
-                    <div>
-                      <label className="text-[10px] font-black text-muted uppercase tracking-widest">Sale price (LKR)</label>
+                    {qpIsSellable !== false && <div>
+                      <label className="text-[10px] font-black text-muted uppercase tracking-widest">Sale price ({currencyCode})</label>
                       <input
                         type="number"
                         min={0}
@@ -1214,7 +1214,7 @@ const CreatePurchase = () => {
                         value={qpPrice}
                         onChange={(e) => setQpPrice(e.target.value)}
                       />
-                    </div>
+                    </div>}
                   </div>
                   {qpErrors.cost && <p className="mt-1 text-[11px] text-danger font-semibold">{qpErrors.cost}</p>}
                 </>
@@ -1504,6 +1504,9 @@ const CreatePurchase = () => {
 
             {/* Action Buttons (hidden on print) */}
             <div className="flex flex-col gap-3 no-print">
+              <p className="text-sm text-muted text-center">{submittedPurchase.purchaseStatus === 'Received' ? 'Stock received in the purchase warehouse.' : 'Order only: no stock received yet. Use Receive Stock in Purchases.'}</p>
+              <a href={`/purchases?warehouseId=${submittedPurchase.warehouseId}`} className="ss-button text-center">View Orders / Receive Stock</a>
+              {submittedPurchase.purchaseStatus === 'Received' && <a href={`/warehouses/${submittedPurchase.warehouseId}/stock`} className="ss-button text-center">View Warehouse Stock</a>}
               <p className="text-sm text-muted font-bold text-center">✓ Purchase saved successfully!</p>
               <div className="flex gap-4">
                 <button
@@ -1537,19 +1540,28 @@ const CreatePurchase = () => {
       </div>
       
       {/* Header Fields */}
+      {reorderProductId && <section aria-label="Reorder setup" className="mb-5 rounded-xl border border-line bg-surface p-4 space-y-2">
+        {reorderLoading ? <p role="status">Preparing reorder from saved stock details…</p> : reorderError ? <p role="alert" className="text-danger">{reorderError}</p> : <p>{reorderMessage}</p>}
+        <p className="text-sm text-muted">Save Order increases Incoming only. On Hand changes only after Receive Stock.</p>
+        <a href={`/warehouses/${encodeURIComponent(reorderWarehouseId)}/stock`} className="text-sm text-primary underline">Back to warehouse stock</a>
+      </section>}
+      {showSupplierModal && <dialog ref={supplierDialog} aria-label="New Supplier" onCancel={() => setShowSupplierModal(false)} className="m-auto w-[calc(100%-2rem)] max-w-xl max-h-[90dvh] overflow-y-auto rounded-2xl border border-line bg-surface text-foreground p-0 backdrop:bg-black/50"><CreateSupplier onCancel={() => setShowSupplierModal(false)} onCreated={supplier => { setSuppliers(current => [...current.filter(item => item._id !== supplier._id), supplier]); setSelectedSupplier(supplier._id); setShowSupplierModal(false); }} /></dialog>}
+      {submissionError && <p role="alert" className="mb-4 rounded-xl border border-danger-line bg-danger-soft p-4 text-sm">{submissionError}</p>}
+      {pendingSubmission && <section aria-label="Purchase recovery" className="mb-5 rounded-xl border border-warning-line bg-warning-soft p-4 space-y-3"><h2 className="font-bold">{pendingSubmission.purchase ? `Order ${pendingSubmission.purchase.purchaseId} saved — receipt awaiting confirmation` : 'Purchase awaiting confirmation'}</h2><p className="text-sm">Destination: {String(pendingSubmission.display.warehouseName)}. {pendingSubmission.purchase ? 'Retry receiving this saved order. Do not create another purchase.' : 'Retry the original request to recover its result. The form is locked to preserve that request.'}</p><button type="button" className="ss-button" disabled={isLoading} onClick={retrySubmission}>{isLoading ? 'Confirming…' : pendingSubmission.purchase ? 'Retry Receive Stock' : 'Retry saved purchase'}</button><a className="ss-button ml-2" href={`/purchases?warehouseId=${String(pendingSubmission.display.warehouseId)}`}>View saved orders</a></section>}
+      <fieldset disabled={isLoading || reorderLoading || !!reorderError || !!pendingSubmission || !!submittedPurchase} className="min-w-0">
       <div className="bg-surface p-8 rounded-2xl border border-line mb-8">
         <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
           <div className="space-y-3">
-            <label className="text-[10px] font-black text-muted uppercase tracking-widest flex items-center gap-2"><Users size={14} /> Supplier</label>
-            <select className="w-full p-4 border-2 border-line-strong rounded-2xl font-bold text-foreground" value={selectedSupplier} onChange={(e) => setSelectedSupplier(e.target.value)}>
+            <div className="flex items-center justify-between gap-2"><label htmlFor="purchase-supplier" className="text-[10px] font-black text-muted uppercase tracking-widest flex items-center gap-2"><Users size={14} /> Supplier</label><button type="button" className="text-sm font-semibold text-primary whitespace-nowrap" onClick={() => setShowSupplierModal(true)}>+ New Supplier</button></div>
+            <select id="purchase-supplier" className="w-full p-4 border-2 border-line-strong rounded-2xl font-bold text-foreground" value={selectedSupplier} onChange={(e) => setSelectedSupplier(e.target.value)}>
               <option value="">{suppliers.length === 0 ? 'Loading suppliers...' : 'Select Supplier'}</option>
               {suppliers.map(s => <option key={s._id || s.id} value={s._id || s.id}>{s.name}</option>)}
             </select>
           </div>
 
           <div className="space-y-3">
-            <label className="text-[10px] font-black text-muted uppercase tracking-widest flex items-center gap-2"><Warehouse size={14} /> Warehouse</label>
-            <select className="w-full p-4 border-2 border-line-strong rounded-2xl font-bold text-foreground" value={selectedWarehouseId} onChange={handleWarehouseChange}>
+            <label htmlFor="purchase-warehouse" className="text-[10px] font-black text-muted uppercase tracking-widest flex items-center gap-2"><Warehouse size={14} /> Warehouse</label>
+            <select id="purchase-warehouse" className="w-full p-4 border-2 border-line-strong rounded-2xl font-bold text-foreground" value={selectedWarehouseId} onChange={handleWarehouseChange}>
               <option value="">{warehouses.length === 0 ? 'Loading warehouses...' : 'Select Warehouse'}</option>
               {warehouses.map(w => <option key={w._id || w.id} value={w._id || w.id}>{w.name}</option>)}
             </select>
@@ -1567,10 +1579,8 @@ const CreatePurchase = () => {
               value={purchaseStatus} 
               onChange={(e) => setPurchaseStatus(e.target.value as any)}
             >
-              <option value="Received">Received</option>
               <option value="Ordered">Ordered</option>
               <option value="Pending">Pending</option>
-              <option value="Draft">Draft</option>
             </select>
           </div>
         </div>
@@ -1595,29 +1605,29 @@ const CreatePurchase = () => {
             <Warehouse size={20} className="text-primary" />
             Product Info
           </h3>
-          <button
+          <PermissionGate component="manageProducts" action="create"><button
             type="button"
             onClick={openQuickProductModal}
             className="group relative flex items-center gap-2 text-on-primary font-black text-xs uppercase tracking-wider rounded-xl px-4 py-2.5 hover:-translate-y-0.5 active:translate-y-0 transition-all duration-300 overflow-hidden bg-primary"
-            title="Create a new product for this warehouse without leaving this page"
+            title="Create an item with zero stock; receiving the purchase is separate"
           >
             {/* Animated background shine */}
             <div className="absolute inset-0 w-1/2 h-full bg-surface-muted skew-x-[-25deg] -translate-x-full group-hover:animate-[shine_1s_ease-in-out_infinite]" />
             
             <PackagePlus size={16} className="group-hover:scale-110 transition-transform duration-300" />
-            <span>New product</span>
+            <span>+ New Item</span>
             
             {/* Pulse ring animation */}
             <div className="absolute inset-0 rounded-xl ring-2 ring-primary/50 animate-pulse group-hover:animate-none" />
-          </button>
+          </button></PermissionGate>
         </div>
-        <table className="w-full text-left">
+        <div role="region" aria-label="Purchase items" tabIndex={0} className="overflow-x-auto custom-scrollbar"><table className="w-full min-w-[52rem] text-left">
           <thead className="bg-surface-raised text-muted text-[10px] font-black uppercase tracking-widest border-b border-line">
             <tr>
               <th className="p-6">Product Info</th>
               <th className="p-6 text-center">Variation</th>
-              <th className="p-6 text-center">Stock</th>
-              <th className="p-6 text-center">Qty</th>
+              <th className="p-6 text-center">On Hand</th>
+              <th className="p-6 text-center">Purchase Quantity</th>
               <th className="p-6 text-center">Unit Cost</th>
               <th className="p-6 text-right">Sub Total</th>
               <th className="p-6 text-center">Action</th>
@@ -1639,11 +1649,13 @@ const CreatePurchase = () => {
                   {item.variation || '—'}
                 </td>
                 <td className="p-6 text-center text-primary font-black">
-                  {Number((Math.max(0, item.stock || 0)).toFixed(2))}
+                  {Number((Math.max(0, item.stock || 0)).toFixed(2))}<span className="block text-xs text-muted">{item.stockUnit || ''}</span>
                 </td>
                 <td className="p-6 text-center">
                   <input 
                     type="number" 
+                    id={`purchase-quantity-${item.id}`}
+                    aria-label={`Purchase quantity for ${item.name || 'new item'}`}
                     step="any" 
                     min="0" 
                     className="w-20 p-2 border border-line rounded-lg text-center"
@@ -1789,7 +1801,7 @@ const CreatePurchase = () => {
               </tr>
             ))}
           </tbody>
-        </table>
+        </table></div>
         <div className="p-6">
           <button type="button" onClick={addItemRow} className="flex items-center gap-2 text-primary font-bold text-sm">
             <Plus size={16} /> Add Item
@@ -1948,7 +1960,7 @@ const CreatePurchase = () => {
             </div>
           </div>
           <button 
-            onClick={handleSubmitClick} 
+            onClick={() => handleSubmitClick(false)}
             disabled={isLoading || !isFormValid} 
             className={`w-full py-4 rounded-2xl font-black flex items-center justify-center gap-2 transition-all ${
               isLoading || !isFormValid
@@ -1969,8 +1981,10 @@ const CreatePurchase = () => {
                 : ''
             }
           >
-            {isLoading ? <Loader2 className="animate-spin" /> : <Save size={20} />} SUBMIT PURCHASE
+            {isLoading ? <Loader2 className="animate-spin" /> : <Save size={20} />} Save Order
           </button>
+          <button type="button" onClick={() => handleSubmitClick(true)} disabled={isLoading || !isFormValid} className="ss-button w-full mt-3 bg-secondary text-on-secondary disabled:opacity-50">Save &amp; Receive</button>
+          <p className="mt-2 text-xs text-center">Save Order adds no stock. Save &amp; Receive saves the order, then posts stock into {selectedWarehouseName || 'the selected warehouse'}.</p>
           {!isFormValid && (
             <p className="text-xs text-warning mt-2 text-center">
               ⚠ Please fill all required fields correctly before submitting
@@ -1980,12 +1994,13 @@ const CreatePurchase = () => {
       </div>
 
 
+      </fieldset>
       {/* Review & Confirm Modal */}
       {showConfirmModal && (
         <div className="fixed inset-0 bg-overlay flex items-center justify-center z-50 p-4">
           <div className="bg-surface rounded-2xl shadow-elevated max-w-2xl w-full p-8">
             <div className="flex justify-between items-center mb-6">
-              <h3 className="text-2xl font-black text-foreground">Review Purchase Details</h3>
+              <h3 className="text-2xl font-black text-foreground">{saveAndReceive ? 'Save & Receive Purchase' : 'Save Purchase Order'}</h3>
               <button onClick={() => setShowConfirmModal(false)} className="text-muted hover:text-primary">
                 <X size={24} />
               </button>
@@ -2078,7 +2093,7 @@ const CreatePurchase = () => {
                 disabled={isLoading}
                 className="flex-1 py-3 bg-primary text-on-primary rounded-2xl font-bold hover:bg-primary-hover transition-all flex items-center justify-center gap-2 disabled:opacity-50"
               >
-                {isLoading ? <Loader2 className="animate-spin" /> : <Save size={20} />} Confirm & Submit
+                {isLoading ? <Loader2 className="animate-spin" /> : <Save size={20} />} {saveAndReceive ? 'Confirm Save & Receive' : 'Confirm Save Order'}
               </button>
             </div>
           </div>

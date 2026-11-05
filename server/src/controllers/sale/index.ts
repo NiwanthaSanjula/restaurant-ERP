@@ -5,7 +5,9 @@ import { authenticate, AuthRequest } from '../../middleware/auth';
 import Customer from '../../models/Customer';
 import PosSession from '../../models/PosSession';
 import Product from '../../models/Product';
+import { isPosEligibleProduct, isProductSellable } from '../../utils/productEligibility';
 import Sale from '../../models/Sale';
+import { kitchenTicketForSale } from '../../utils/kitchenTicket';
 import SpecialOffer from '../../models/SpecialOffer';
 import User from '../../models/User';
 import Warehouse from '../../models/Warehouse';
@@ -594,7 +596,7 @@ export const getSales = [
       
       (sales as any[]).forEach((sale: any) => {
         sale.invoiceId = formatSaleReference(String(sale.invoiceId || sale._id || ''));
-        sale.customerId = customerMap[String(sale.customerId)] || { name: null, mobile: null };
+        sale.customerId = customerMap[String(sale.customerId)] || { name: sale.saleType === 'pos' && !sale.customerId ? 'Walk-in' : null, mobile: null };
         sale.warehouseId = warehouseMap[String(sale.warehouseId)] || { name: null };
         sale.createdBy = sale.createdBy ? (userMap[String(sale.createdBy)] || { name: null, email: null }) : { name: null, email: null };
       });
@@ -633,6 +635,7 @@ export const getSaleById = [
       }
       
       const saleObj = sale as any;
+      saleObj.kitchenTicket = kitchenTicketForSale(saleObj);
       saleObj.invoiceId = formatSaleReference(String(saleObj.invoiceId || saleObj._id || ''));
       const customerId = saleObj.customerId;
       const warehouseId = saleObj.warehouseId;
@@ -643,7 +646,7 @@ export const getSaleById = [
         toObjectId(warehouseId) ? Warehouse.findById(warehouseId).select('name location').lean() : null
       ]);
       
-      saleObj.customerId = customer ? { _id: (customer as any)._id, name: (customer as any).name, mobile: (customer as any).mobile, address: (customer as any).address, email: (customer as any).email, NIC: (customer as any).NIC } : { name: null, mobile: null, address: null, email: null };
+      saleObj.customerId = customer ? { _id: (customer as any)._id, name: (customer as any).name, mobile: (customer as any).mobile, address: (customer as any).address, email: (customer as any).email, NIC: (customer as any).NIC } : { name: saleObj.saleType === 'pos' && !customerId ? 'Walk-in' : null, mobile: null, address: null, email: null };
       saleObj.warehouseId = warehouse ? { _id: (warehouse as any)._id, name: (warehouse as any).name, location: (warehouse as any).location } : { name: null, location: null };
       
       res.json({ status: 'success', data: saleObj });
@@ -760,6 +763,10 @@ export const createSale = [
         const product = await Product.findById(p.productId);
         if (!product) {
           res.status(404).json({ status: 'error', message: `Product ${p.productId} not found` });
+          return;
+        }
+        if (!isProductSellable(product) || (saleType === 'pos' && !isPosEligibleProduct(product))) {
+          res.status(400).json({ status: 'error', message: 'Sales require explicitly Sellable items, and POS also requires Active status. Inventory-only or unclassified items cannot be checked out.' });
           return;
         }
         
@@ -1047,7 +1054,7 @@ export const updateSale = [
       // Process update similar to create (no inventory adjustments in restaurant-only mode)
       const {
         warehouseId = sale.warehouseId.toString(),
-        customerId = sale.customerId.toString(),
+        customerId = sale.customerId?.toString() ?? null,
         date,
         status,
         products,
@@ -1069,8 +1076,8 @@ export const updateSale = [
       }
       
       // Validate customer exists
-      const customer = await Customer.findById(customerId);
-      if (!customer) {
+      const customer = customerId ? await Customer.findById(customerId) : null;
+      if (!customer && (customerId || sale.saleType !== 'pos')) {
         res.status(404).json({ status: 'error', message: 'Customer not found' });
         return;
       }

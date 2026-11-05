@@ -6,6 +6,9 @@ import { useCurrency } from '../../contexts/CurrencyContext';
 import { currencyService } from '../../services/currencyService';
 import { settingService } from '../../services/settingService';
 import { usePermissions } from '../../contexts/PermissionContext';
+import { fetchPosLocations, type PosLocation } from '../../services/posLocation';
+import { HOSTED_MODE } from '../../services/hostedMode';
+import HostedFileNotice from '../common/HostedFileNotice';
 
 const SystemSettings: React.FC = () => {
   const navigate = useNavigate();
@@ -23,6 +26,7 @@ const SystemSettings: React.FC = () => {
     symbol: '',
   });
   const [creatingCurrency, setCreatingCurrency] = useState(false);
+  const [sellingLocations, setSellingLocations] = useState<PosLocation[]>([]);
   const [formData, setFormData] = useState({
     companyLogo: '',
     defaultEmail: '',
@@ -35,12 +39,14 @@ const SystemSettings: React.FC = () => {
     city: '',
     dateFormat: 'DD/MM/YYYY',
     postalCode: '',
-    address: ''
+    address: '',
+    defaultPosWarehouseId: ''
   });
 
   useEffect(() => {
     fetchSettings();
     refreshCurrencies().catch(() => undefined);
+    fetchPosLocations().then(result => setSellingLocations(result.locations)).catch(() => undefined);
   }, []);
 
   useEffect(() => {
@@ -80,7 +86,7 @@ const SystemSettings: React.FC = () => {
   try {
       const response = await settingService.getSettings();
     if (response.success && response.data?.system) {
-      setFormData(response.data.system);
+      setFormData({ ...response.data.system, defaultPosWarehouseId: response.data.system.defaultPosWarehouseId || '' });
       setOriginalData(response.data.system);
       if (response.data.system.companyLogo) {
         setPreview(response.data.system.companyLogo);
@@ -120,6 +126,7 @@ const SystemSettings: React.FC = () => {
   };
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (HOSTED_MODE) return;
     if (e.target.files && e.target.files[0]) {
       const file = e.target.files[0];
       setLogoFile(file);
@@ -259,12 +266,13 @@ const SystemSettings: React.FC = () => {
                     </div>
                   )}
                   <input 
-                    type="file" 
+                    type="file" disabled={HOSTED_MODE}
                     onChange={handleFileChange} 
                     className="absolute inset-0 opacity-0 cursor-pointer" 
                     accept="image/*" 
                   />
                 </div>
+                <HostedFileNotice />
                 <p className="text-[10px] md:text-xs text-subtle text-center px-4">Recommended: Square PNG or SVG (Max 2MB)</p>
               </div>
             </div>
@@ -345,6 +353,15 @@ const SystemSettings: React.FC = () => {
           </h3>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6">
+            <div className="space-y-2 md:col-span-2">
+              <label htmlFor="default-pos-location" className="text-sm font-semibold text-muted">Default POS selling location</label>
+              <select id="default-pos-location" name="defaultPosWarehouseId" value={formData.defaultPosWarehouseId || ''} onChange={handleChange} disabled={!canEdit} className="w-full px-4 py-2.5 border border-line rounded-xl">
+                <option value="">Require staff to choose a selling location</option>
+                {formData.defaultPosWarehouseId && !sellingLocations.some(location => location._id === formData.defaultPosWarehouseId) && <option value={formData.defaultPosWarehouseId} disabled>Configured location is unavailable</option>}
+                {sellingLocations.map(location => <option key={location._id} value={location._id}>{location.name}</option>)}
+              </select>
+              <p className="text-xs text-muted">Used when this user has no valid saved location on this device. Only active locations can be selected.</p>
+            </div>
             <div className="space-y-2">
               <label className="text-sm font-semibold text-muted">Country (Optional)</label>
               <input

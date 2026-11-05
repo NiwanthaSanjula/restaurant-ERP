@@ -251,6 +251,17 @@ describe('frontend and migration compatibility', () => {
     expect(routes.permissionForPath('/%76iewProducts')).toEqual(view);
     expect(frontend.checkEffectivePermission(readOnly, view.component, view.action)).toBe(true);
     expect(frontend.checkEffectivePermission(readOnly, create.component, create.action)).toBe(false);
+    for (const [path, action] of [
+      ['/pos-products', 'read'], ['/inventory-items', 'read'], ['/inventory-items/needs-review', 'read'],
+      ['/pos-products/new', 'create'], ['/inventory-items/new', 'create'],
+      ['/pos-products/id/edit', 'update'], ['/inventory-items/id/edit', 'update']
+    ]) {
+      const requirement = routes.permissionForPath(path);
+      expect(requirement).toEqual({ component: 'manageProducts', action });
+      expect(canonicalPermission(requirement.component, requirement.action)).not.toBeNull();
+      expect(frontend.checkEffectivePermission(readOnly, requirement.component, requirement.action)).toBe(action === 'read');
+      expect(routes.permissionForPath(path.toUpperCase() + '/')).toEqual(requirement);
+    }
   });
   it('plans lossless legacy mappings, reports conflicts/unassigned users, and never merges privileges', async () => {
     const plan = planPermissionMigration({ roles: [{ id: WORKER, name: 'Reader', isActive: true, permissions: [{ component: 'manageUsers', actions: { read: true } }] }], legacyRoles: [], users: [{ id: 'unassigned', role: 'admin' }] });

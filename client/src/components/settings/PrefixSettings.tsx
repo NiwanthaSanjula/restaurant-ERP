@@ -67,7 +67,7 @@ const PrefixSettings: React.FC = () => {
     try {
       const res = await fetch(`${apiBase}/settings/prefixes`, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${localStorage.getItem('token') || ''}` },
         body: JSON.stringify(payload),
       });
       const result = await res.json().catch(() => null) as PrefixSaveResponse | null;
@@ -89,7 +89,7 @@ const PrefixSettings: React.FC = () => {
   };
 
   useEffect(() => {
-    fetch(`${apiBase}/settings/prefixes`)
+    fetch(`${apiBase}/settings/prefixes`, { headers: { Authorization: `Bearer ${localStorage.getItem('token') || ''}` } })
       .then(async res => {
         if (!res.ok) return null;
         return res.json();

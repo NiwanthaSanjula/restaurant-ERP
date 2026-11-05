@@ -7,6 +7,7 @@ import DeleteConfirmModal from '../common/DeleteConfirmModal';
 import Loader from '../common/Loader';
 import PermissionGate from '../common/PermissionGate';
 import SearchBar from '../common/SearchBar';
+import { usePermissions } from '../../contexts/PermissionContext';
 
 import { formatDate } from '../../utils/date.ts';
 
@@ -24,6 +25,7 @@ type RoleRow = {
 };
 
 const ViewRoles: React.FC = () => {
+  const { isDemo } = usePermissions();
   const [roles, setRoles] = useState<RoleRow[]>([]);
   const [permissions, setPermissions] = useState<any[]>([]);
   const [filteredPermissions, setFilteredPermissions] = useState<any[]>([]);
@@ -288,6 +290,7 @@ const ViewRoles: React.FC = () => {
                     {formatDate(role.createdAt)}
                   </td>
                   <td className="ss-role-actions px-4 py-5 text-right space-x-3 bg-surface whitespace-nowrap">
+                    {isDemo && <button type="button" data-demo-allow onClick={() => navigate(`/editRole/${role._id}`)} className="ss-button" title="Inspect the saved permission matrix without saving changes">View permissions</button>}
                     <PermissionGate component="manageRoles" action="update">
                       <button
                         onClick={() => navigate(`/editRole/${role._id}`)}

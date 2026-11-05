@@ -37,6 +37,7 @@ import {
 } from 'lucide-react';
 import { usePermissions } from '../../contexts/PermissionContext';
 import { permissionForPath } from '../../utils/permissionRoutes';
+import { PRODUCT_LIST_PATHS } from '../../utils/productRoutes';
 import { useBranding } from '../../contexts/BrandingProvider';
 import CompanyMark from '../common/CompanyMark';
 
@@ -54,6 +55,8 @@ type MenuItem = {
 const menuIcons: Record<string, LucideIcon> = {
   Home: House,
   Products: Package,
+  'POS Products': Package,
+  'Inventory Items': Boxes,
   Units: Boxes,
   'Kitchen inventory': CookingPot,
   Inventory: Boxes,
@@ -111,7 +114,8 @@ const isMenuGroup = (child: MenuChild): child is { label: string; children: Menu
 const buildUnifiedMenu = (): MenuItem[] => [
   { label: 'Home', to: '/dashboard' },
   { label: 'Products ', children: [
-    { label: 'Products', to: '/viewProducts' },
+    { label: 'POS Products', to: PRODUCT_LIST_PATHS.pos },
+    { label: 'Inventory Items', to: PRODUCT_LIST_PATHS.inventory },
     { label: 'Units', to: '/viewUnits' },
     {
       label: 'Kitchen inventory',
@@ -178,7 +182,7 @@ const buildRestaurantMenu = (): MenuItem[] => {
     'Combos / Meal Deals', 'Happy Hours'
   ]);
   const restaurantProductItems = new Set([
-    'Products', 'Base Units', 'Units', 'Kitchen inventory', 'Categories', 'Variations', 'Brands', 'Barcode Print'
+    'POS Products', 'Inventory Items', 'Base Units', 'Units', 'Kitchen inventory', 'Categories', 'Variations', 'Brands', 'Barcode Print'
   ]);
   const retailOnlyExclusions = new Set([
     'POS Sales Screen', 'Sales History', 'Returns', 'Transfers', 'Loyalty Programs'
@@ -226,7 +230,11 @@ const Sidebar: React.FC<SidebarProps> = ({
 
   const toggle = (label: string) => setOpen(prev => ({ ...prev, [label]: !prev[label] }));
 
-  const isPathActive = (path?: string) => path === location.pathname;
+  const isPathActive = (path?: string) => {
+    const pathname = location.pathname.toLowerCase().replace(/\/+$/, '');
+    return path?.toLowerCase() === pathname ||
+      ((path === PRODUCT_LIST_PATHS.pos || path === PRODUCT_LIST_PATHS.inventory) && pathname.startsWith(`${path}/`));
+  };
   const isChildActive = (child: MenuChild): boolean =>
     isMenuGroup(child)
       ? child.children.some(sub => isPathActive(sub.to))

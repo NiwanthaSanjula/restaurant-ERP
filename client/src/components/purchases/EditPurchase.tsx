@@ -38,6 +38,7 @@ const EditPurchase = () => {
   // Payment fields
   const [paymentStatus, setPaymentStatus] = useState<'Paid' | 'Partial' | 'Unpaid'>('Unpaid');
   const [paymentMethod, setPaymentMethod] = useState<string>('');
+  const [purchaseStatus, setPurchaseStatus] = useState('Ordered');
 
   const API_BASE = 'http://localhost:5000/api';
   
@@ -110,6 +111,7 @@ const EditPurchase = () => {
         setTaxType(purchase.taxType || 'fixed');
         setPaymentStatus(purchase.paymentStatus || 'Unpaid');
         setPaymentMethod(purchase.paymentMethod || '');
+        setPurchaseStatus(purchase.purchaseStatus || 'Ordered');
         
         // Load items
         if (purchase.items && purchase.items.length > 0) {
@@ -494,7 +496,7 @@ const EditPurchase = () => {
         grandTotal,
         paymentStatus,
         paymentMethod: paymentMethod || undefined,
-        purchaseStatus: 'Received',
+        purchaseStatus,
         items: validItems.map((i: any) => ({
           productId: i.productId,
           quantity: parseFloat(String(i.qty)) || 0,

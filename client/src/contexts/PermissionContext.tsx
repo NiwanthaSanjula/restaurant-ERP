@@ -2,11 +2,13 @@ import type { ReactNode } from 'react';
 import React, { createContext, useCallback, useContext, useEffect, useRef, useState } from 'react';
 import { checkEffectivePermission, parseEffectivePermissions, type PermissionMap } from '../utils/permissions';
 
-interface UserPermissions { permissions: PermissionMap; roleName?: string }
+interface UserPermissions { permissions: PermissionMap; roleName?: string; isDemo?: boolean; userId?: string }
 interface PermissionContextType {
   permissions: UserPermissions | null;
   hasPermission: (component: string, action: string) => boolean;
   loading: boolean;
+  isDemo: boolean;
+  userId: string | null;
   refreshPermissions: () => Promise<void>;
 }
 const PermissionContext = createContext<PermissionContextType | undefined>(undefined);
@@ -36,7 +38,7 @@ export const PermissionProvider: React.FC<{ children: ReactNode }> = ({ children
       if (!response.ok) throw new Error('Unable to load permissions');
       const result = await response.json();
       const grants = parseEffectivePermissions(result?.data?.user?.permissions);
-      if (requestId === generation.current.id) setPermissions({ permissions: grants, roleName: result?.data?.user?.roleName });
+      if (requestId === generation.current.id) setPermissions({ permissions: grants, roleName: result?.data?.user?.roleName, isDemo: result?.data?.user?.isDemo === true, userId: result?.data?.user?.id });
     } catch {
       if (requestId === generation.current.id) setPermissions(null);
     } finally {
@@ -57,5 +59,5 @@ export const PermissionProvider: React.FC<{ children: ReactNode }> = ({ children
   }, [refreshPermissions]);
   const hasPermission = (component: string, action: string) =>
     checkEffectivePermission(permissions?.permissions, component, action);
-  return <PermissionContext.Provider value={{ permissions, hasPermission, loading, refreshPermissions }}>{children}</PermissionContext.Provider>;
+  return <PermissionContext.Provider value={{ permissions, hasPermission, loading, refreshPermissions, isDemo: permissions?.isDemo === true, userId: permissions?.userId || null }}>{children}</PermissionContext.Provider>;
 };

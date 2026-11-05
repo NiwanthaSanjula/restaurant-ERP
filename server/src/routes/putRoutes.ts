@@ -24,6 +24,8 @@ import { updateVariation, updateVariationValidators } from '../controllers/varia
 import { updateWarehouse, updateWarehouseValidators } from '../controllers/warehouse';
 import { cancelAdjustmentValidators, updateAdjustmentValidators } from '../middleware/adjustmentValidation';
 import { authenticate } from '../middleware/auth';
+import { putKitchenIssueConversion } from '../controllers/warehouse/kitchenIssue';
+import { putWarehouseStockAlert } from '../controllers/warehouse/stock';
 import { checkPermission, requirePermission } from '../middleware/permissions';
 
 const router = express.Router();
@@ -36,7 +38,9 @@ router.put('/roles/:id', authenticate, requirePermission('manageRolesAndPermissi
 router.put('/permissions/:id', authenticate, requirePermission('manageRolesAndPermissions', 'edit_role'), updatePermissionValidators, updatePermission);
 
 // Warehouses
+router.put('/warehouses/:id/stock/:productId/alert', authenticate, requirePermission('manageProducts', 'update'), putWarehouseStockAlert);
 router.put('/warehouses/:id', authenticate, requirePermission('manageSettings', 'edit_restaurant_settings'), updateWarehouseValidators, updateWarehouse);
+router.put('/products/:id/kitchen-issue-conversion', authenticate, requirePermission('manageProducts', 'update'), requirePermission('manageKitchen', 'edit_kitchen_inventory'), putKitchenIssueConversion);
 router.put('/users/:id', authenticate, requirePermission('manageUsers', 'edit_user'), updateUserValidators, updateUser);
 router.put('/products/:id', ...updateProductValidators, updateProduct);
 router.put('/baseUnits/:id', ...updateBaseUnitValidators, updateBaseUnit);
@@ -58,7 +62,7 @@ router.patch('/sales/:id/payments/:index', authenticate, requirePermission('mana
 router.put('/orders/:id/status', authenticate, requirePermission('manageOrders', 'edit_order'), updateOrderStatusValidators, updateOrderStatus);
 
 // Purchases
-router.put('/purchases/:id', authenticate, updatePurchase);
+router.put('/purchases/:id', authenticate, requirePermission('managePurchases', 'read'), requirePermission('manageProducts', 'update'), updatePurchase);
 
 // Purchase Returns
 router.put('/purchase-returns/:id', authenticate, updatePurchaseReturn);

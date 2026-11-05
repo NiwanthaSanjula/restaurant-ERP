@@ -5,6 +5,7 @@ import DeleteConfirmModal from '../common/DeleteConfirmModal';
 import Loader from '../common/Loader';
 import PermissionGate from '../common/PermissionGate';
 import SearchBar from '../common/SearchBar';
+import { HOSTED_MODE, HOSTED_FILE_MESSAGE } from '../../services/hostedMode';
 
 type CustomerRow = { 
   id: string; 
@@ -101,10 +102,10 @@ const ViewCustomers: React.FC = () => {
         <div className="flex gap-3">
           <PermissionGate component="manageCustomers" action="update">
             <Link 
-              to="/importCustomer" 
-              className="px-4 py-2 rounded bg-primary text-on-primary hover:bg-primary-hover transition-colors duration-200"
+              to="/importCustomer" aria-disabled={HOSTED_MODE} title={HOSTED_MODE ? HOSTED_FILE_MESSAGE : undefined} onClick={event => { if (HOSTED_MODE) event.preventDefault(); }}
+              className={`px-4 py-2 rounded bg-primary text-on-primary transition-colors duration-200 ${HOSTED_MODE ? 'opacity-50 cursor-not-allowed' : 'hover:bg-primary-hover'}`}
             >
-              Import Customer
+              {HOSTED_MODE ? 'Import unavailable in hosted portfolio' : 'Import Customer'}
             </Link>
           </PermissionGate>
           <PermissionGate component="manageCustomers" action="create">

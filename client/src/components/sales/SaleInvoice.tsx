@@ -8,6 +8,9 @@ import { settingService } from '../../services/settingService';
 import { showErrorToast } from '../../utils/toast';
 import Loader from '../common/Loader';
 import { formatDate } from '../../utils/date.ts';
+import KitchenTicketAction from './KitchenTicketAction';
+import type { KitchenTicketData } from '../../utils/kitchenTicket';
+import { usePermissions } from '../../contexts/PermissionContext';
 
 interface SaleProduct {
   productId: string;
@@ -37,6 +40,8 @@ interface SpecialOfferData {
 }
 
 interface SaleData {
+  saleType?: 'pos' | 'non-pos';
+  kitchenTicket?: KitchenTicketData;
   _id: string;
   invoiceId?: string;
   warehouseId: {
@@ -82,6 +87,7 @@ interface CompanySettings {
 }
 
 const SaleInvoice: React.FC = () => {
+  const { isDemo } = usePermissions();
   const { companyName } = useBranding();
   const { currencySymbol } = useCurrency();
   const { id } = useParams<{ id: string }>();
@@ -199,14 +205,14 @@ const SaleInvoice: React.FC = () => {
   }
 
   const companyAddress = companySettings 
-    ? `${companySettings.address}${companySettings.city ? `, ${companySettings.city}` : ''}${companySettings.country ? `, ${companySettings.country}` : ''}${companySettings.postalCode ? ` - ${companySettings.postalCode}` : ''}`
+    ? [companySettings.address, companySettings.city, companySettings.country, companySettings.postalCode].filter(Boolean).join(', ')
     : '';
 
   return (
     <div className="min-h-screen bg-canvas">
       {/* Header */}
       <div className="bg-surface border-b border-line px-6 py-4">
-        <div className="max-w-7xl mx-auto flex justify-between items-center">
+        <div className="max-w-7xl mx-auto flex flex-wrap justify-between items-center gap-3">
           <div className="flex items-center gap-3">
             <button
               onClick={() => navigate('/viewSales')}
@@ -217,13 +223,16 @@ const SaleInvoice: React.FC = () => {
             </button>
             <h1 className="text-2xl font-bold text-foreground">Sale Details</h1>
           </div>
-          <button
-            onClick={() => navigate(`/editSale/${sale._id}`)}
-            className="px-4 py-2 bg-primary text-on-primary rounded-lg hover:bg-primary-hover font-medium transition flex items-center gap-2"
-          >
-            <Edit size={16} />
-            Edit
-          </button>
+          <div className="flex flex-wrap items-center gap-3">
+            {sale.saleType === 'pos' && <KitchenTicketAction ticket={sale.kitchenTicket} />}
+            <button
+              onClick={() => navigate(`/editSale/${sale._id}`)}
+              className="px-4 py-2 bg-primary text-on-primary rounded-lg hover:bg-primary-hover font-medium transition flex items-center gap-2"
+            >
+              <Edit size={16} />
+              Edit
+            </button>
+          </div>
         </div>
       </div>
 
@@ -276,11 +285,11 @@ const SaleInvoice: React.FC = () => {
                 </div>
                 <div className="flex items-start gap-3">
                   <Mail className="text-subtle mt-1" size={18} />
-                  <span className="text-foreground">{companySettings?.defaultEmail || 'support@infypos.com'}</span>
+                  <span className="text-foreground">{isDemo ? 'Hidden in public demo' : companySettings?.defaultEmail || 'support@infypos.com'}</span>
                 </div>
                 <div className="flex items-start gap-3">
                   <Phone className="text-subtle mt-1" size={18} />
-                  <span className="text-foreground">{companySettings?.companyMobile || '1234567890'}</span>
+                  <span className="text-foreground">{isDemo ? 'Hidden in public demo' : companySettings?.companyMobile || '1234567890'}</span>
                 </div>
                 {companyAddress && (
                   <div className="flex items-start gap-3">

@@ -3,6 +3,8 @@ import { formatDateOnlyParts, getZonedParts } from '../utils/timezone';
 
 // Product item schema (stored inside sale document)
 interface ISaleProduct {
+  /** Server snapshot at POS checkout; absent on unclassified historical sales. */
+  isPrepared?: boolean;
   productId: string;
   productName: string;
   variation: string | null;
@@ -33,6 +35,7 @@ const salePaymentSchema = new Schema<ISalePayment>({
 }, { _id: false });
 
 const saleProductSchema = new Schema<ISaleProduct>({
+  isPrepared: { type: Boolean },
   productId: { type: String, required: true },
   productName: { type: String, required: true },
   variation: { type: String, default: null },
@@ -53,7 +56,8 @@ export interface ISale extends Document {
   serviceType?: 'dine-in' | 'takeaway' | 'delivery';
   tableId?: string;
   warehouseId: string;
-  customerId: string;
+  /** A POS Walk-in sale deliberately has no customer record. */
+  customerId: string | null;
   referenceQuotationId?: Types.ObjectId | string | null;
   date: Date;
   businessType: 'restaurant';
@@ -95,7 +99,7 @@ const saleSchema = new Schema<ISale>({
   serviceType: { type: String, enum: ['dine-in', 'takeaway', 'delivery'], default: 'takeaway' },
   tableId: { type: String, default: '' },
   warehouseId: { type: String, required: true },
-  customerId: { type: String, required: true },
+  customerId: { type: String, required: function(this: ISale) { return this.saleType !== 'pos'; } },
   date: { type: Date, required: true, default: Date.now },
   businessType: { type: String, enum: ['restaurant'], required: true, default: 'restaurant' },
   status: { type: String, enum: ['ordered', 'pending', 'completed', 'draft', 'cancelled', 'returned'], required: true, default: 'ordered' },

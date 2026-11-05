@@ -10,9 +10,11 @@ import Warehouse from '../models/Warehouse';
 import { applyMainStockDeductionForSale } from '../controllers/sale';
 import { processRecipeInventoryDeduction } from '../controllers/kitchen/deduction';
 import { formatDateOnlyParts, getZonedParts, getZonedTodayRange } from '../utils/timezone';
+import { isPosEligibleProduct, isProductSellable } from '../utils/productEligibility';
+import { kitchenTicketForSale } from '../utils/kitchenTicket';
 
 export class CheckoutError extends Error {
-  constructor(public status: number, message: string) { super(message); }
+  constructor(public status: number, message: string, public code?: string) { super(message); }
 }
 const reject = (message: string): never => { throw new CheckoutError(400, message); };
 const money = (value: number): number => Math.round((value + Number.EPSILON) * 100) / 100;
@@ -23,6 +25,11 @@ function amount(value: unknown, label: string): number {
 function objectId(value: unknown, label: string): string {
   if (typeof value !== 'string' || !/^[a-f0-9]{24}$/i.test(value)) reject(`Invalid ${label}`);
   return value as string;
+}
+function customerReference(value: unknown): string | null {
+  if (value === undefined || value === null) return null;
+  if (typeof value === 'string' && /^[a-f0-9]{24}$/i.test(value)) return value;
+  throw new CheckoutError(400, 'Selected customer is unavailable. Choose another customer or switch to Walk-in. Your cart has been preserved.', 'customer_unavailable');
 }
 function record(value: unknown): Record<string, unknown> {
   if (!value || typeof value !== 'object' || Array.isArray(value)) return reject('Invalid sale payload');
@@ -58,7 +65,7 @@ function parseCheckout(raw: unknown) {
   const discountType = body.discountType ?? 'fixed';
   if ((discountType !== 'fixed' && discountType !== 'percentage') || (discountType === 'percentage' && discount > 100) || tax > 100) reject('Invalid discount or tax');
   return { checkoutRequestId: body.checkoutRequestId as string, warehouseId, sessionId, items, tender, discount, discountType: discountType as 'fixed' | 'percentage', tax, shipping,
-    customerId: body.customerId ? objectId(body.customerId, 'customerId') : null,
+    customerId: customerReference(body.customerId),
     specialOfferId: body.specialOfferId ? objectId(body.specialOfferId, 'specialOfferId') : null,
     serviceType: body.serviceType === 'dine-in' || body.serviceType === 'delivery' ? body.serviceType : 'takeaway' as const,
     tableId: typeof body.tableId === 'string' ? body.tableId.trim() : '' };
@@ -70,6 +77,7 @@ export function checkoutReceipt(sale: ISale) {
   const discountAmount = money(sale.saleDiscountType === 'percentage' ? (subtotal - specialOfferDiscount) * sale.saleDiscountValue / 100 : sale.saleDiscountValue);
   const paid = money((sale.cashTendered ?? sale.cashAmount) + sale.cardAmount + sale.bankTransferAmount);
   return { orderId: sale.invoiceId || String(sale._id), saleId: String(sale._id), warehouseId: sale.warehouseId, posSessionId: String(sale.posSessionId),
+    kitchenTicket: kitchenTicketForSale(sale), date: sale.date,
     items: sale.products.map(line => ({ name: line.productName, quantity: line.qty, price: line.price })),
     subtotal, specialOfferDiscount, discountAmount, shipping: sale.shippingCost,
     taxAmount: money(Math.max(0, subtotal - specialOfferDiscount - discountAmount + sale.shippingCost) * sale.saleTaxValue / 100),
@@ -108,13 +116,18 @@ export async function checkoutCashSale(raw: unknown, actorId: string): Promise<{
       if (!warehouse) reject('Selected warehouse is unavailable');
       const customer = input.customerId
         ? await Customer.findById(input.customerId).session(session).lean()
-        : await Customer.findOne({ name: { $regex: 'walk', $options: 'i' } }).session(session).lean()
-          || await Customer.findOne({}).session(session).lean();
-      if (!customer) reject('Selected customer is unavailable');
+        : null;
+      if (input.customerId && (!customer || ('isActive' in customer && customer.isActive === false))) {
+        throw new CheckoutError(400, 'Selected customer is unavailable. Choose another customer or switch to Walk-in. Your cart has been preserved.', 'customer_unavailable');
+      }
       const products: ISale['products'] = [];
       for (const line of input.items) {
         const product = await Product.findById(line.productId).session(session).lean();
-        if (!product || product.status !== 'Active') reject('Selected product is unavailable');
+        if (!product) reject('Selected product is unavailable');
+        if (!isProductSellable(product)) reject(product.isSellable === false
+          ? 'Inventory-only items cannot be sold in POS. Remove the item from the cart.'
+          : 'This item needs a selling type review before it can be sold in POS.');
+        if (!isPosEligibleProduct(product)) reject('Selected product is unavailable');
         const wh = record(mapValue(product.warehouse, input.warehouseId) ?? reject('Product is unavailable in selected warehouse'));
         const batches = Array.isArray(wh.batches) ? wh.batches : [];
         // Match catalog precedence: direct warehouse price/variations, then first legacy batch.
@@ -131,7 +144,8 @@ export async function checkoutCashSale(raw: unknown, actorId: string): Promise<{
         const batchNumber = batch ? record(batch).batchNumber : null;
         if (batch && (typeof batchNumber !== 'string' || !batchNumber)) reject('Product batch has no stock identity');
         products.push({ ...line, batch: typeof batchNumber === 'string' ? batchNumber : null,
-          productName: product.name, price, cost, stockQtyAtSale: Number(priceSource.productQty ?? 0),
+          productName: product.name, isPrepared: product.isInventory === false ? true : product.isInventory === true ? false : undefined,
+          price, cost, stockQtyAtSale: Number(priceSource.productQty ?? 0),
           discount: 0, discountType: 'fixed', tax: 0, subtotal: money(price * line.qty) });
       }
       const subtotal = money(products.reduce((sum, line) => sum + line.subtotal, 0));
@@ -157,7 +171,7 @@ export async function checkoutCashSale(raw: unknown, actorId: string): Promise<{
       const [sale] = await Sale.create([{
         _id: id, checkoutRequestId: input.checkoutRequestId, checkoutFingerprint: fingerprint,
         invoiceId: `${prefix}-${day}-${String(counter.seq).padStart(3, '0')}`,
-        serviceType: input.serviceType, tableId: input.tableId, warehouseId: input.warehouseId, customerId: String(customer._id),
+        serviceType: input.serviceType, tableId: input.tableId, warehouseId: input.warehouseId, customerId: customer ? String(customer._id) : null,
         date, businessType: 'restaurant', status: 'completed', paymentStatus: 'paid', saleType: 'pos', products,
         saleDiscountValue: input.discount, saleDiscountType: input.discountType, saleTaxValue: input.tax, shippingCost: input.shipping,
         specialOfferDiscount, ...(input.specialOfferId && { specialOfferId: input.specialOfferId }), total, balance: 0, profit: 0,

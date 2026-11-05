@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link, useLocation, useNavigate } from 'react-router-dom';
+import { PRODUCT_LIST_PATHS, productViewForPath } from '../../utils/productRoutes';
 import { useCurrency } from '../../contexts/CurrencyContext';
 import { showErrorToast, showSuccessToast } from '../../utils/toast';
 import DeleteConfirmModal from '../common/DeleteConfirmModal';
@@ -25,6 +26,8 @@ type ProductRow = {
   inStock?: number;
   /** false / undefined = prepared (POS) product — eligible for recipes */
   isInventory?: boolean;
+  isSellable?: boolean;
+  guidedDishDraft?: unknown;
 };
 
 type ProductDetails = {
@@ -64,9 +67,17 @@ type ProductFinancialEntry = {
 };
 
 const ViewProducts: React.FC = () => {
+  const location = useLocation();
+  const view = productViewForPath(location.pathname);
+  const sellingType = view === 'pos' ? 'true' : view === 'inventory' ? 'false' : 'unclassified';
+  const listTitle = view === 'pos' ? 'POS Products' : 'Inventory Items';
+  const addLabel = view === 'pos' ? 'Add POS Product' : 'Add Inventory Item';
+  const listPath = PRODUCT_LIST_PATHS[view === 'review' ? 'inventory' : view];
+  const createPath = `${listPath}/new`;
   const { currencyCode } = useCurrency();
   const [products, setProducts] = useState<ProductRow[]>([]);
   const [loading, setLoading] = useState(false);
+  const [loadError, setLoadError] = useState<string | null>(null);
   const [toDelete, setToDelete] = useState<string | null>(null);
   const [viewingProduct, setViewingProduct] = useState<ProductDetails | null>(null);
   const [loadingDetails, setLoadingDetails] = useState(false);
@@ -76,6 +87,7 @@ const ViewProducts: React.FC = () => {
   const api = (import.meta.env.VITE_API_URL || 'http://localhost:5000/api') as string;
   const productTableHeaders = [
     'Product',
+    'Selling type',
     'Price',
     'Unit',
     'In Stock',
@@ -335,9 +347,12 @@ const ViewProducts: React.FC = () => {
       return;
     }
     setLoading(true);
+    setLoadError(null);
     try {
-      const searchParam = searchQuery ? `?q=${encodeURIComponent(searchQuery)}` : '';
-      const url = `${api}/products${searchParam}`;
+      const params = new URLSearchParams();
+      if (searchQuery) params.set('q', searchQuery);
+      params.set('isSellable', sellingType);
+      const url = `${api}/products?${params}`;
       console.log(`[ViewProducts] Fetching from URL: ${url}`);
       
       const res = await fetch(url, {
@@ -353,6 +368,7 @@ const ViewProducts: React.FC = () => {
         const errorMessage = data?.message || 'Failed to load products';
         console.error(`[ViewProducts] API error:`, errorMessage);
         showErrorToast(errorMessage);
+        setLoadError(errorMessage);
         setProducts([]);
         return;
       }
@@ -395,7 +411,9 @@ const ViewProducts: React.FC = () => {
             warehouse: p.warehouse,
             price,
             inStock,
-            isInventory: p.isInventory
+            isInventory: p.isInventory,
+            guidedDishDraft: p.guidedDishDraft,
+            isSellable: p.isSellable
           };
         } catch (error) {
           console.error(`[ViewProducts] Error processing product ${p.name}:`, error);
@@ -415,7 +433,9 @@ const ViewProducts: React.FC = () => {
             warehouse: p.warehouse,
             price: 0,
             inStock: 0,
-            isInventory: p.isInventory
+            isInventory: p.isInventory,
+            guidedDishDraft: p.guidedDishDraft,
+            isSellable: p.isSellable
           };
         }
       });
@@ -424,6 +444,8 @@ const ViewProducts: React.FC = () => {
     } catch (e) {
       const errorMessage = (e as Error).message || 'Network error occurred';
       showErrorToast(errorMessage);
+      setLoadError(errorMessage);
+      setProducts([]);
     } finally {
       setLoading(false);
     }
@@ -461,7 +483,7 @@ const ViewProducts: React.FC = () => {
   useEffect(() => { 
     console.log(`[ViewProducts] useEffect triggered - searchQuery: ${debouncedSearchQuery}`);
     fetchProducts(debouncedSearchQuery);
-  }, [debouncedSearchQuery]);
+  }, [debouncedSearchQuery, sellingType]);
   
   const handleSearch = (query: string) => {
     setSearchQuery(query);
@@ -503,22 +525,23 @@ const ViewProducts: React.FC = () => {
       {/* Header Section */}
       <div className="bg-surface border-b">
         <div className="px-6 py-4">
-          <div className="flex items-center justify-between">
+          <div className="flex flex-wrap gap-3 items-center justify-between">
     <div>
-              <h1 className="text-2xl font-bold text-foreground">Products</h1>
+              <h1 className="text-2xl font-bold text-foreground">{listTitle}</h1>
               <p className="text-sm text-muted mt-1">
-                Manage your restaurant products
+                {view === 'pos' ? 'Sellable menu items and stocked products, including bottled drinks.' : 'Inventory-only warehouse items for purchases, stock and ingredient links.'}
               </p>
             </div>
             <PermissionGate component="manageProducts" action="create">
+              {view === 'pos' && <Link to="/pos-products/new-dish" className="ss-button mr-3">New Dish</Link>}
               <Link 
-                to="/createProduct" 
+                to={createPath}
                 className="inline-flex items-center px-4 py-2 bg-primary text-on-primary rounded-lg hover:bg-primary-hover transition-colors duration-200 font-medium"
               >
                 <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
                 </svg>
-                Add Product
+                {addLabel}
               </Link>
             </PermissionGate>
           </div>
@@ -527,13 +550,28 @@ const ViewProducts: React.FC = () => {
 
       {/* Main Content */}
       <div className="p-6">
-        <div className="mb-4">
+        <div className="mb-4 flex flex-wrap items-end gap-3">
           <SearchBar 
             onSearch={handleSearch}
             placeholder="Search products by name, code, or brand..."
             className="max-w-md"
           />
+          {view !== 'pos' && (
+            <nav aria-label="Inventory item views" className="flex flex-wrap gap-2">
+              {(['inventory', 'review'] as const).map(tab => (
+                <Link key={tab} to={PRODUCT_LIST_PATHS[tab]} aria-current={view === tab ? 'page' : undefined}
+                  className={`rounded-lg border px-3 py-2 text-sm font-medium ${view === tab ? 'border-primary bg-primary-soft text-primary' : 'border-line bg-surface text-muted hover:bg-surface-raised'}`}>
+                  {tab === 'inventory' ? 'Inventory only' : 'Needs Review'}
+                </Link>
+              ))}
+            </nav>
+          )}
         </div>
+        <p className="mb-4 text-sm text-muted">{view === 'pos'
+          ? 'Only Sellable items are listed here. POS also requires Active status and a price in the selected warehouse. Stock tracking is available for sellable stocked items.'
+          : view === 'review'
+            ? 'These existing items have no selling classification. Edit an item and use Save selling type only to classify it without changing stock, IDs or links.'
+            : 'These items stay out of POS and remain available for purchasing and stock operations. Review unclassified records in Needs Review. Kitchen ingredient quantities are managed in Kitchen Inventory.'}</p>
         <div className="bg-surface rounded-lg border border-line overflow-hidden">
           <div className="overflow-x-auto">
             <table className="min-w-full divide-y divide-line">
@@ -581,13 +619,9 @@ const ViewProducts: React.FC = () => {
                       </div>
                     </td>
                     <td className="px-6 py-5 whitespace-nowrap">
-                      <div className="text-base font-semibold text-foreground">{product.name}</div>
-                    </td>
-                    <td className="px-6 py-5 whitespace-nowrap">
-                      <div className="text-base text-foreground">{product.code}</div>
-                    </td>
-                    <td className="px-6 py-5 whitespace-nowrap">
-                      <div className="text-base text-foreground">{product.brand || '-'}</div>
+                      <span className={`inline-flex rounded-full px-2.5 py-1 text-xs font-medium ${product.isSellable === true ? 'bg-success-soft text-success' : product.isSellable === false ? 'bg-surface-muted text-muted' : 'bg-warning-soft text-warning'}`}>
+                        {product.isSellable === true ? 'Sellable' : product.isSellable === false ? 'Inventory only' : 'Needs review'}
+                      </span>
                     </td>
                     <td className="px-6 py-5 whitespace-nowrap">
                       <div className="text-base font-medium text-foreground">{currencyCode} {product.price?.toFixed(2) || '0.00'}</div>
@@ -603,6 +637,7 @@ const ViewProducts: React.FC = () => {
                     </td>
                     <td className="px-6 py-5 whitespace-nowrap text-right text-base font-medium">
                       <div className="flex items-center justify-end space-x-3">
+                        {!!product.guidedDishDraft && product.status === 'Pending' && <PermissionGate component="manageProducts" action="create"><Link to={`/pos-products/new-dish?productId=${product.id}`} className="text-sm font-semibold text-primary underline">Resume dish</Link></PermissionGate>}
                         {!product.isInventory && (
                           <button
                             type="button"
@@ -648,7 +683,7 @@ const ViewProducts: React.FC = () => {
                         </button>
                         <PermissionGate component="manageProducts" action="update">
                         <button
-                          onClick={() => navigate(`/editProduct/${product.id}`)}
+                          onClick={() => navigate(`${listPath}/${product.id}/edit${view === 'review' ? '?review=1' : ''}`)}
                           className="inline-flex items-center p-2.5 text-primary hover:text-primary hover:bg-surface-muted rounded-lg transition-colors duration-200"
                           title="Edit product"
                         >
@@ -672,24 +707,30 @@ const ViewProducts: React.FC = () => {
                     </td>
                   </tr>
                 ))}
-                {products.length === 0 && (
+                {loadError && (
+                  <tr><td colSpan={tableColumnCount} className="px-6 py-8 text-center">
+                    <p role="alert" className="text-danger">{loadError}</p>
+                    <button type="button" onClick={() => fetchProducts(debouncedSearchQuery)} className="ss-button mt-3">Retry loading items</button>
+                  </td></tr>
+                )}
+                {products.length === 0 && !loading && !loadError && (
                   <tr>
                     <td colSpan={tableColumnCount} className="px-6 py-12 text-center">
                       <div className="flex flex-col items-center">
                         <svg className="w-12 h-12 text-subtle mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4" />
                         </svg>
-                        <h3 className="text-lg font-medium text-foreground mb-2">No products found</h3>
-                        <p className="text-muted mb-4">Get started by creating your first product.</p>
+                        <h3 className="text-lg font-medium text-foreground mb-2">{view === 'review' ? 'No items need review' : `No ${view === 'pos' ? 'sellable products' : 'inventory-only items'} found`}</h3>
+                        <p className="text-muted mb-4">{searchQuery ? 'Try another name, code or brand.' : view === 'review' ? 'All existing items have a selling classification.' : 'Create an item using the button below.'}</p>
                         <PermissionGate component="manageProducts" action="create">
                           <Link 
-                            to="/createProduct" 
+                            to={createPath}
                             className="inline-flex items-center px-4 py-2 bg-primary text-on-primary rounded-lg hover:bg-primary-hover transition-colors duration-200"
                           >
                             <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
                             </svg>
-                            Add Product
+                            {addLabel}
                           </Link>
                         </PermissionGate>
                       </div>

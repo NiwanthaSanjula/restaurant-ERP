@@ -7,6 +7,10 @@ export function permissionForPath(path: string): RoutePermission | null {
     [/^\/(viewProducts|barcode-print)\/?$/, 'manageProducts', 'read'],
     [/^\/createProduct\/?$/, 'manageProducts', 'create'],
     [/^\/editProduct\//, 'manageProducts', 'update'],
+    [/^\/(pos-products|inventory-items(?:\/needs-review)?)$/, 'manageProducts', 'read'],
+    [/^\/(pos-products|inventory-items)\/new$/, 'manageProducts', 'create'],
+    [/^\/pos-products\/new-dish$/, 'manageProducts', 'create'],
+    [/^\/(pos-products|inventory-items)\/[^/]+\/edit$/, 'manageProducts', 'update'],
     [/^\/(viewRoles|viewPermissions)\/?$/, 'manageRolesAndPermissions', 'view_role'],
     [/^\/(createRole|createPermission)\/?$/, 'manageRolesAndPermissions', 'create_role'],
     [/^\/(editRole|editPermission)\//, 'manageRolesAndPermissions', 'edit_role'],
@@ -17,7 +21,9 @@ export function permissionForPath(path: string): RoutePermission | null {
     [/^\/mail-settings\/?$/, 'manageSettings', 'view_mail_settings'],
     [/^\/(pos|pos-checkout)\/?$/, 'managePOS', 'view_pos'],
     [/^\/(purchases|reports\/purchase|viewPurchaseReturns|return_to_supplier)\/?$/, 'managePurchases', 'read'],
-    [/^\/purchaseReturnDetails\//, 'managePurchases', 'read']
+    [/^\/purchaseReturnDetails\//, 'managePurchases', 'read'],
+    [/^\/warehouses\/[^/]+\/stock$/, 'manageProducts', 'read'],
+    [/^\/(createPurchase|editPurchase\/[^/]+)$/, 'manageProducts', 'update']
   ];
   const matched = rules.find(([pattern]) => new RegExp(pattern.source, 'i').test(pathname));
   return matched ? { component: matched[1], action: matched[2] } : null;

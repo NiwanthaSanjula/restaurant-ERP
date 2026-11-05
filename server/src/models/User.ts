@@ -12,12 +12,14 @@ export interface IUser extends Document {
   mobileNumber?: string; 
   image?: string;        
   isActive: boolean;
+  isPublicDemo?: boolean;
   createdAt: Date;
   updatedAt: Date;
   comparePassword(candidatePassword: string): Promise<boolean>;
 }
 
 const UserSchema = new Schema<IUser>({
+  isPublicDemo: { type: Boolean, immutable: true },
   name: {
     type: String,
     required: [true, 'Name is required'],

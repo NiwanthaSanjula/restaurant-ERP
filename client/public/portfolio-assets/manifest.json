@@ -1,0 +1,20 @@
+{
+  "approvedAssets": [
+    {
+      "name": "bottled-water.jpg",
+      "bytes": 23194,
+      "sha256": "d5634c18d4c6054d1a338ddd172cadd48e31fde7f3afabde78a0f022af227e46"
+    },
+    {
+      "name": "la-tavola-logo.jpg",
+      "bytes": 106526,
+      "sha256": "5b8a63e8f25ba057740788f382c68e7899b21aaca6614ecbcc77a0f1c2f382e0"
+    },
+    {
+      "name": "menu-illustration.jpg",
+      "bytes": 36808,
+      "sha256": "9fb8a2b53132a75240a5e229d379e0d81d74a76c5fbaf0ee52c38f7831f04285"
+    }
+  ],
+  "itemCount": 16
+}

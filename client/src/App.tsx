@@ -1,5 +1,5 @@
 import React from 'react';
-import { BrowserRouter, Navigate, Route, Routes, useLocation } from 'react-router-dom';
+import { BrowserRouter, Link, Navigate, Route, Routes, useLocation } from 'react-router-dom';
 import { ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import SpecialOffers from './components/SpecialOffers';
@@ -7,6 +7,7 @@ import SpecialOffers from './components/SpecialOffers';
 // Contexts
 import { CurrencyProvider } from './contexts/CurrencyContext';
 import { PermissionProvider, usePermissions } from './contexts/PermissionContext';
+import { DemoInteractions } from './components/common/DemoMode';
 import { permissionForPath } from './utils/permissionRoutes';
 import ThemeToggle from './components/common/ThemeToggle';
 
@@ -26,7 +27,6 @@ import { showSuccessToast } from './utils/toast';
 // POS Components
 import CashInModal from './components/pos/CashInModal';
 import POSGate from './components/pos/POSGate';
-import POSScreen from './components/pos/POSScreen';
 
 // Layout & Dashboard
 import Dashboard from './components/Dashboard';
@@ -48,10 +48,12 @@ import ViewPermissions from './components/roles&Permissions/viewPermissions';
 import CreateWarehouse from './components/warehouse/createWarehouse';
 import EditWarehouse from './components/warehouse/editWarehouse';
 import ViewWarehouses from './components/warehouse/viewWarehouses';
+import NewDish from './components/products/NewDish';
 
 import CreateProduct from './components/products/createProduct';
 import EditProduct from './components/products/editProduct';
 import ViewProducts from './components/products/viewProducts';
+import WarehouseStock from './components/warehouse/WarehouseStock';
 
 import CreateBaseUnit from './components/baseUnits/createBaseUnit';
 import EditBaseUnit from './components/baseUnits/editBaseUnit';
@@ -157,7 +159,7 @@ const isTokenValid = (token: string | null) => {
 const PrivateRoute: React.FC<{ children: React.ReactElement }> = ({ children }) => {
   const token = typeof window !== 'undefined' ? localStorage.getItem('token') : null;
   const location = useLocation();
-  const { hasPermission, loading } = usePermissions();
+  const { hasPermission, loading, isDemo } = usePermissions();
   const requirePrefixSetup = typeof window !== 'undefined' ? localStorage.getItem('requirePrefixSetup') === 'true' : false;
 
   if (!isTokenValid(token)) {
@@ -166,13 +168,15 @@ const PrivateRoute: React.FC<{ children: React.ReactElement }> = ({ children }) 
   }
 
   // If prefix setup is required, force user to PrefixSettings before anything else
-  if (requirePrefixSetup && location.pathname !== '/PrefixSettings') {
+  if (!isDemo && requirePrefixSetup && location.pathname !== '/PrefixSettings') {
     return <Navigate to="/PrefixSettings" replace />;
   }
 
   const required = permissionForPath(location.pathname);
   if (required && loading) return <div className="p-6">Loading permissions...</div>;
-  if (required && !hasPermission(required.component, required.action)) {
+  const demoReadPreview = isDemo && required && hasPermission(required.component,
+    ({ manageRolesAndPermissions: 'view_role', manageUsers: 'view_user', manageProducts: 'read' } as Record<string, string>)[required.component] || required.action);
+  if (required && !hasPermission(required.component, required.action) && !demoReadPreview) {
     return <div role="alert" className="p-6">Access denied.
       <button className="ml-3 underline" onClick={() => { localStorage.removeItem('token'); localStorage.removeItem('user'); window.location.href = '/'; }}>Sign out</button>
     </div>;
@@ -191,6 +195,7 @@ const App: React.FC = () => {
     <CurrencyProvider>
       <PermissionProvider>
         <BrowserRouter>
+          <DemoInteractions />
           <StandaloneThemeControl />
           <Routes>
             {/* Public Routes */}
@@ -231,12 +236,21 @@ const App: React.FC = () => {
 
               {/* Warehouses */}
               <Route path="/viewWarehouses" element={<ViewWarehouses />} />
+              <Route path="/warehouses/:id/stock" element={<WarehouseStock />} />
               <Route path="/createWarehouse" element={<CreateWarehouse />} />
               <Route path="/editWarehouse/:id" element={<EditWarehouse />} />
 
               {/* Products */}
-              <Route path="/viewProducts" element={<ViewProducts />} />
-              <Route path="/createProduct" element={<CreateProduct />} />
+              <Route path="/pos-products" element={<ViewProducts key="pos-products" />} />
+              <Route path="/inventory-items" element={<ViewProducts key="inventory-items" />} />
+              <Route path="/inventory-items/needs-review" element={<ViewProducts key="inventory-review" />} />
+              <Route path="/pos-products/new" element={<CreateProduct key="new-pos-product" />} />
+              <Route path="/pos-products/new-dish" element={<NewDish />} />
+              <Route path="/inventory-items/new" element={<CreateProduct key="new-inventory-item" />} />
+              <Route path="/pos-products/:id/edit" element={<EditProduct key="edit-pos-product" />} />
+              <Route path="/inventory-items/:id/edit" element={<EditProduct key="edit-inventory-item" />} />
+              <Route path="/viewProducts" element={<Navigate to="/pos-products" replace />} />
+              <Route path="/createProduct" element={<Navigate to="/pos-products/new" replace />} />
               <Route path="/editProduct/:id" element={<EditProduct />} />
 
               {/* Base Units */}
@@ -334,7 +348,7 @@ const App: React.FC = () => {
               <Route path="/reports/kitchen-waste" element={<KitchenWasteReport />} />
               <Route path="/reports/z-bill" element={<ZBillReport />} />
               <Route path="/reports_z-report" element={<ZBillReport />} />
-              {/* <Route path="/reports_register" element={<ZBillReport />} /> Missing route placeholder */}
+              <Route path="/reports_register" element={<div className="ss-card p-6"><h1 className="text-xl font-bold">Register Reports</h1><p className="mt-3 text-muted">This directory is not connected yet. Saved register summaries are available under Reports → Z-bill.</p><Link to="/reports/z-bill" className="ss-button mt-4">View Z-bills</Link></div>} />
             </Route>
 
             {/* Fallback Route */}
@@ -360,6 +374,7 @@ const App: React.FC = () => {
 };
 
 const POSEntry: React.FC = () => {
+  const { isDemo } = usePermissions();
   const token = typeof window !== 'undefined' ? localStorage.getItem('token') : null;
   const [sessionId, setSessionId] = React.useState<string | null>(null);
   const [checking, setChecking] = React.useState(true);
@@ -367,6 +382,7 @@ const POSEntry: React.FC = () => {
 
   // On mount, check if there's already an active session before showing CashInModal
   React.useEffect(() => {
+    if (isDemo) { setChecking(false); return; }
     const _token = localStorage.getItem('token');
     const _api = (import.meta.env.VITE_API_URL || 'http://localhost:5000/api') as string;
     fetch(`${_api}/pos/active`, {
@@ -391,7 +407,7 @@ const POSEntry: React.FC = () => {
         if (stored) setSessionId(stored);
       })
       .finally(() => setChecking(false));
-  }, []);
+  }, [isDemo]);
 
   const openSession = async (_cashInHand: number, denominations?: Record<string, number>) => {
     try {
@@ -423,10 +439,11 @@ const POSEntry: React.FC = () => {
     );
   }
 
+  if (isDemo) return <POSGate />;
   if (!sessionId) {
     return <CashInModal onSubmit={openSession} onCancel={() => window.location.assign('/dashboard')} />;
   }
-  return <POSScreen />;
+  return <POSGate />;
 };
 
 export default App;

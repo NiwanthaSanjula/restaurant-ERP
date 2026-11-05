@@ -32,7 +32,7 @@ const ViewSaleReturns: React.FC = () => {
   const fetchReturns = async () => {
     setLoading(true);
     try {
-      const token = sessionStorage.getItem('token');
+      const token = localStorage.getItem('token');
       const params = new URLSearchParams();
       params.append('page', String(pagination.page));
       params.append('limit', String(pagination.limit));

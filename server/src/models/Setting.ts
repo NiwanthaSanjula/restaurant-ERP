@@ -17,6 +17,7 @@ interface ISystemSettings {
   dateFormat: 'MM/DD/YYYY' | 'DD/MM/YYYY';
   postalCode?: string;
   address: string;
+  defaultPosWarehouseId?: string | null;
 }
 
 interface IMailSettings {
@@ -71,6 +72,7 @@ const prefixField = (defaultValue: string) => ({
 
 const SettingSchema = new Schema<ISetting>({
   system: {
+    defaultPosWarehouseId: { type: String, default: undefined },
     companyLogo: { type: String, required: true },
     defaultEmail: { 
       type: String, 

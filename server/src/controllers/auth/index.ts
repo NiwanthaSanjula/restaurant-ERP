@@ -7,6 +7,7 @@ import PrefixSetting from '../../models/PrefixSetting';
 import User from '../../models/User';
 import { sendEmail } from '../../utils/email';
 import { administratorPermissions, clientPermissionMap, resolveRoleAccess } from '../../config/rbac';
+import { isPublicDemoUser } from '../../config/publicDemo';
 
 // Utilities
 const generateJwtToken = (id: string): string => {
@@ -72,6 +73,9 @@ export const postLogin = async (req: express.Request, res: express.Response): Pr
       return;
     }
 
+    if (isPublicDemoUser(user)) {
+      res.status(401).json({ status: 'error', message: 'Use Try Demo for the public visitor session.' }); return;
+    }
     if (!user.isActive) {
       console.log(`User account is deactivated: "${email}"`);
       res.status(401).json({ status: 'error', message: 'Account is deactivated' });

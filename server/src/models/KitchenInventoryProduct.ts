@@ -2,6 +2,7 @@ import mongoose, { Document, Schema, Types } from 'mongoose';
 
 export interface IKitchenInventoryProduct extends Document {
   name: string;
+  isSellable: boolean;
   unitId: Types.ObjectId;
   /** Optional link to POS Product (isInventory SKU) — stock alert is read from its warehouse */
   inventoryProductId?: Types.ObjectId | null;
@@ -10,12 +11,29 @@ export interface IKitchenInventoryProduct extends Document {
   averageCost?: number;
   minStockLevel?: number;
   description?: string;
+  warehouseIssueConversion?: {
+    productId: Types.ObjectId; sourceUnitId: Types.ObjectId; stockUnit: string; sourceShort: string;
+    kitchenUnitId: Types.ObjectId; kitchenShort: string; warehouseQuantity: number; kitchenQuantity: number;
+    factor: number; revision: number; confirmedBy: Types.ObjectId; confirmedAt: Date;
+  };
   createdAt: Date;
   updatedAt: Date;
 }
 
 const kitchenInventoryProductSchema = new Schema<IKitchenInventoryProduct>(
   {
+    isSellable: { type: Boolean, default: false, validate: (value: boolean) => value === false },
+    warehouseIssueConversion: {
+      type: new Schema({
+        productId: { type: Schema.Types.ObjectId, ref: 'Product', required: true },
+        sourceUnitId: { type: Schema.Types.ObjectId, ref: 'Unit', required: true },
+        stockUnit: { type: String, required: true }, sourceShort: { type: String, required: true },
+        kitchenUnitId: { type: Schema.Types.ObjectId, ref: 'Unit', required: true }, kitchenShort: { type: String, required: true },
+        warehouseQuantity: { type: Number, required: true }, kitchenQuantity: { type: Number, required: true },
+        factor: { type: Number, required: true }, revision: { type: Number, required: true },
+        confirmedBy: { type: Schema.Types.ObjectId, ref: 'User', required: true }, confirmedAt: { type: Date, required: true }
+      }, { _id: false }), default: undefined
+    },
     name: {
       type: String,
       required: [true, 'Product name is required'],

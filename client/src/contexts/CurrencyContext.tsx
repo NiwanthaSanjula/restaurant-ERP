@@ -57,6 +57,7 @@ export const CurrencyProvider: React.FC<{ children: ReactNode }> = ({ children }
 
   useEffect(() => {
     const bootstrap = async () => {
+      if (!localStorage.getItem('token')) { setCurrencies([]); setSelectedCurrency(null); return; }
       try {
         const [currencyResult, settingsResult] = await Promise.allSettled([
           currencyService.getCurrencies(),
@@ -83,6 +84,8 @@ export const CurrencyProvider: React.FC<{ children: ReactNode }> = ({ children }
     };
 
     bootstrap();
+    window.addEventListener('auth-change', bootstrap);
+    return () => window.removeEventListener('auth-change', bootstrap);
   }, []);
   const value = useMemo<CurrencyContextType>(() => ({
     currencies,

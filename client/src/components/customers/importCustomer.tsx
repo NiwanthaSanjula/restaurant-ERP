@@ -4,6 +4,8 @@ import { useNavigate } from 'react-router-dom';
 import { showErrorToast, showSuccessToast } from '../../utils/toast';
 import Loader from '../common/Loader';
 import PermissionGate from '../common/PermissionGate';
+import { HOSTED_MODE } from '../../services/hostedMode';
+import HostedFileNotice from '../common/HostedFileNotice';
 
 const ImportCustomer: React.FC = () => {
   const [file, setFile] = useState<File | null>(null);
@@ -56,6 +58,7 @@ const ImportCustomer: React.FC = () => {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (HOSTED_MODE) return;
     if (!file) {
       showErrorToast('Please select a file to upload');
       return;
@@ -101,6 +104,7 @@ const ImportCustomer: React.FC = () => {
           <div className="bg-surface rounded-lg border border-line p-6 max-w-md text-center">
             <h2 className="text-xl font-semibold text-foreground">Access denied</h2>
             <p className="text-muted mt-2">You do not have permission to import customers.</p>
+            <HostedFileNotice />
             <button
               type="button"
               onClick={() => navigate('/viewCustomers')}
@@ -155,13 +159,14 @@ const ImportCustomer: React.FC = () => {
 
           {/* Upload Section */}
           <form onSubmit={handleSubmit} className="space-y-4">
+            <HostedFileNotice />
             <div>
               <label className="block text-base font-medium text-foreground mb-2">
                 Select File <span className="text-danger">*</span>
               </label>
               <input
                 id="file-input"
-                type="file"
+                type="file" disabled={HOSTED_MODE}
                 accept=".xlsx,.xls,.csv"
                 onChange={handleFileChange}
                 required
@@ -229,7 +234,7 @@ const ImportCustomer: React.FC = () => {
               </button>
               <button
                 type="submit"
-                disabled={loading || !file}
+                disabled={HOSTED_MODE || loading || !file}
                 className="px-4 py-2 text-base font-medium rounded bg-primary text-on-primary hover:bg-primary-hover focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary transition-colors duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 {loading ? 'Importing...' : 'Import Customers'}

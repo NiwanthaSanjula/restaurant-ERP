@@ -1,7 +1,8 @@
 import axios from 'axios';
-import { Calendar, Eye, MoreVertical, Plus, RotateCcw, Trash2 } from 'lucide-react';
-import React, { useEffect, useRef, useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { Calendar, ChevronLeft, ChevronRight, Eye, MoreVertical, Plus, RotateCcw, Trash2 } from 'lucide-react';
+import React, { useCallback, useEffect, useRef, useState } from 'react';
+import { Link, useNavigate, useSearchParams } from 'react-router-dom';
+import PermissionGate from '../common/PermissionGate';
 import { useCurrency } from '../../contexts/CurrencyContext';
 import { toBusinessDateInputValue } from '../../utils/date';
 import { showErrorToast, showSuccessToast } from '../../utils/toast';
@@ -26,7 +27,9 @@ interface PurchaseRow {
   due: number | null;
   paymentStatus: 'Paid' | 'Partial' | 'Unpaid';
   paymentMethod?: string;
-  purchaseStatus: 'Received' | 'Pending';
+  purchaseStatus: 'Received' | 'Pending' | 'Ordered';
+  stockReceiptVersion?: number;
+  stockReceivedAt?: string;
   purchaseDate?: string;
   items: Array<{
     productId: string;
@@ -40,6 +43,7 @@ interface PurchaseRow {
 }
 
 const ViewPurchases: React.FC = () => {
+  const [searchParams] = useSearchParams();
   const { currencyCode } = useCurrency();
   const [purchases, setPurchases] = useState<PurchaseRow[]>([]);
   const [loading, setLoading] = useState(false);
@@ -54,7 +58,9 @@ const ViewPurchases: React.FC = () => {
   const [showDateDropdown, setShowDateDropdown] = useState(false);
   const [selectedDateRange, setSelectedDateRange] = useState<string>('');
   const [filterSupplier, setFilterSupplier] = useState('');
-  const [filterWarehouse, setFilterWarehouse] = useState('');
+  const [filterWarehouse, setFilterWarehouse] = useState(() => searchParams.get('warehouseId') || '');
+  const [receivingId, setReceivingId] = useState<string | null>(null);
+  const [receiptDestination, setReceiptDestination] = useState<{ id: string; name: string } | null>(null);
   const [filterStatus, setFilterStatus] = useState('');
   const [filterPaymentStatus, setFilterPaymentStatus] = useState('');
   const [suppliers, setSuppliers] = useState<Array<{ _id: string; name: string }>>([]);
@@ -62,6 +68,28 @@ const ViewPurchases: React.FC = () => {
   const [pagination, setPagination] = useState({ page: 1, limit: 10, total: 0 });
   const [openActionId, setOpenActionId] = useState<string | null>(null);
   const actionMenuRef = useRef<HTMLDivElement>(null);
+  const tableScrollRef = useRef<HTMLDivElement>(null);
+  const [tableScroll, setTableScroll] = useState({ left: false, right: false });
+  const updateTableScroll = useCallback(() => {
+    const container = tableScrollRef.current;
+    if (!container) return;
+    const next = { left: container.scrollLeft > 1, right: container.scrollLeft + container.clientWidth < container.scrollWidth - 1 };
+    setTableScroll(previous => previous.left === next.left && previous.right === next.right ? previous : next);
+  }, []);
+  useEffect(() => {
+    const container = tableScrollRef.current;
+    if (!container) return;
+    updateTableScroll();
+    const observer = typeof ResizeObserver === 'undefined' ? null : new ResizeObserver(updateTableScroll);
+    observer?.observe(container);
+    if (container.firstElementChild) observer?.observe(container.firstElementChild);
+    window.addEventListener('resize', updateTableScroll);
+    return () => { observer?.disconnect(); window.removeEventListener('resize', updateTableScroll); };
+  }, [updateTableScroll]);
+  const scrollTable = (direction: number) => {
+    const container = tableScrollRef.current;
+    if (container) container.scrollBy({ left: direction * Math.max(240, container.clientWidth * 0.8), behavior: 'auto' });
+  };
   const navigate = useNavigate();
   const api = (import.meta.env.VITE_API_URL || 'http://localhost:5000/api') as string;
   const getAuthToken = () =>
@@ -162,6 +190,19 @@ const ViewPurchases: React.FC = () => {
     } catch (e) {
       console.error('Failed to fetch suppliers:', e);
     }
+  };
+
+  const receiveStock = async (purchase: PurchaseRow) => {
+    if (!window.confirm(`Receive this order into ${purchase.warehouseId.name}? This adds its quantities once, in each item's stock unit.`)) return;
+    setReceivingId(purchase._id);
+    setOpenActionId(null);
+    try {
+      const result = await axios.post(`${api}/purchases/${purchase._id}/receive`, {}, { headers: { Authorization: `Bearer ${getAuthToken()}` } });
+      showSuccessToast(result.data.message || 'Stock received');
+      setReceiptDestination({ id: purchase.warehouseId._id, name: purchase.warehouseId.name });
+      await fetchPurchases();
+    } catch (error: any) { showErrorToast(error.response?.data?.message || 'Could not confirm receipt. Refresh the order before retrying.'); }
+    finally { setReceivingId(null); }
   };
 
   const fetchWarehouses = async () => {
@@ -334,13 +375,14 @@ const ViewPurchases: React.FC = () => {
   const totalDue = purchasePaymentTotal(purchases, 'due');
 
   return (
-    <div className="p-8 bg-canvas min-h-screen">
-      <div className="flex justify-between items-center mb-8">
+    <div className="min-w-0 p-4 sm:p-6 lg:p-8 bg-canvas min-h-screen">
+      {receiptDestination && <div role="status" className="mb-4 rounded-xl border border-secondary-line bg-secondary-soft p-4 text-sm">Stock received in <strong>{receiptDestination.name}</strong>. <Link to={`/warehouses/${receiptDestination.id}/stock`} className="font-semibold underline">View Warehouse Stock</Link></div>}
+      <div className="flex flex-wrap justify-between items-center gap-4 mb-8">
         <div>
           <h1 className="text-4xl font-black text-foreground mb-2">Purchases</h1>
           <p className="text-muted font-bold">View all purchase transactions</p>
         </div>
-        <div className="flex items-center gap-4">
+        <div className="flex flex-wrap items-center gap-4">
           {selectedIds.length > 0 && (
             <button
               type="button"
@@ -350,17 +392,17 @@ const ViewPurchases: React.FC = () => {
               <Trash2 size={20} /> Delete Multiple ({selectedIds.length})
             </button>
           )}
-          <Link
+          <PermissionGate component="manageProducts" action="update"><Link
             to="/createPurchase"
             className="bg-primary text-on-primary px-6 py-3 rounded-lg hover:bg-primary-hover font-black flex items-center gap-2 transition"
           >
             <Plus size={20} /> Create Purchase
-          </Link>
+          </Link></PermissionGate>
         </div>
       </div>
 
       {/* Filters */}
-      <div className="grid grid-cols-4 gap-4 mb-8">
+      <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4 mb-8 [&>div]:min-w-0">
         <div>
           <label className="block text-sm font-black text-foreground mb-2">Search</label>
           <SearchBar onSearch={setSearchQuery} placeholder="Search purchases..." />
@@ -487,7 +529,7 @@ const ViewPurchases: React.FC = () => {
       </div>
 
       {/* Additional Filters */}
-      <div className="grid grid-cols-2 gap-4 mb-8">
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-8 [&>div]:min-w-0">
         <div>
           <label className="block text-sm font-black text-foreground mb-2">Status</label>
           <select
@@ -516,7 +558,20 @@ const ViewPurchases: React.FC = () => {
       </div>
 
       {/* Purchases Table */}
-      <div className="bg-surface rounded-2xl border border-line overflow-hidden">
+      {(tableScroll.left || tableScroll.right) && (
+        <div className="mb-2 flex items-center justify-between gap-3">
+          <p id="purchase-table-scroll-help" className="text-xs text-muted">Scroll horizontally to see all columns, or use the arrow buttons.</p>
+          <div className="flex shrink-0 gap-1">
+            <button type="button" aria-label="Scroll purchases table left" aria-controls="purchase-table-scroll" disabled={!tableScroll.left}
+              onClick={() => scrollTable(-1)} className="ss-icon-button border border-line disabled:opacity-40 disabled:cursor-not-allowed"><ChevronLeft size={18} /></button>
+            <button type="button" aria-label="Scroll purchases table right" aria-controls="purchase-table-scroll" disabled={!tableScroll.right}
+              onClick={() => scrollTable(1)} className="ss-icon-button border border-line disabled:opacity-40 disabled:cursor-not-allowed"><ChevronRight size={18} /></button>
+          </div>
+        </div>
+      )}
+      <div ref={tableScrollRef} id="purchase-table-scroll" role="region" aria-label="Purchases table" tabIndex={0}
+        aria-describedby={tableScroll.left || tableScroll.right ? 'purchase-table-scroll-help' : undefined}
+        onScroll={updateTableScroll} className="max-w-full bg-surface rounded-2xl border border-line overflow-x-auto custom-scrollbar">
         <table className="w-full text-left">
           <thead className="bg-surface-muted text-muted text-[10px] uppercase tracking-[0.2em] font-black">
             <tr>
@@ -620,6 +675,11 @@ const ViewPurchases: React.FC = () => {
                         </button>
                         {openActionId === purchase._id && (
                           <div className="absolute right-0 top-full mt-1 z-30 min-w-[200px] bg-surface border border-line rounded-lg py-1">
+                            {purchase.purchaseStatus !== 'Received' && <PermissionGate component="manageProducts" action="update">
+                              <button type="button" onClick={() => receiveStock(purchase)} disabled={receivingId !== null || purchase.stockReceiptVersion !== 1}
+                                title={purchase.stockReceiptVersion !== 1 ? 'Legacy stock posting must be reviewed before receiving' : 'Receive this order once into its warehouse'}
+                                className="w-full px-4 py-2 text-left text-sm text-primary hover:bg-surface-raised disabled:opacity-50 disabled:cursor-not-allowed">{receivingId === purchase._id ? 'Receiving...' : 'Receive Stock'}</button>
+                            </PermissionGate>}
                             <button
                               type="button"
                               onClick={() => { fetchPurchaseDetails(purchase._id); setOpenActionId(null); }}
@@ -682,8 +742,8 @@ const ViewPurchases: React.FC = () => {
 
       {/* Pagination */}
       {purchases.length > 0 && (
-        <div className="mt-6 flex items-center justify-between">
-          <div className="flex items-center gap-2">
+        <div className="mt-6 flex flex-wrap items-center justify-between gap-3">
+          <div className="flex flex-wrap items-center gap-2">
             <span className="text-sm text-muted font-bold">Records per page:</span>
             <select
               value={pagination.limit}

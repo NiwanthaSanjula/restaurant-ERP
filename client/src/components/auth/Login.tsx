@@ -12,6 +12,7 @@ const Login: React.FC = () => {
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
+  const [demoLoading, setDemoLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [fieldErrors, setFieldErrors] = useState<{ email?: string; password?: string }>({});
   const [mounted, setMounted] = useState(false);
@@ -62,6 +63,7 @@ const Login: React.FC = () => {
       }
       localStorage.setItem('token', data.data.token);
       localStorage.setItem('user', JSON.stringify(data.data.user));
+      window.dispatchEvent(new Event('auth-change'));
       await refreshPermissions();
       // Clear any legacy systemType
       localStorage.removeItem('systemType');
@@ -74,6 +76,21 @@ const Login: React.FC = () => {
     } finally {
       setLoading(false);
     }
+  };
+
+  const tryDemo = async () => {
+    setDemoLoading(true); setError(null);
+    try {
+      const res = await fetch(`${import.meta.env.VITE_API_URL || 'http://localhost:5000/api'}/auth/demo`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: '{}' });
+      const result = await res.json();
+      if (!res.ok || !result.data?.token) throw new Error(result.message || 'Unable to start the demo.');
+      localStorage.setItem('token', result.data.token);
+      localStorage.setItem('user', JSON.stringify(result.data.user));
+      window.dispatchEvent(new Event('auth-change'));
+      localStorage.removeItem('requirePrefixSetup');
+      await refreshPermissions(); navigate('/dashboard');
+    } catch (err) { setError(err instanceof Error ? err.message : 'Unable to start the demo.'); }
+    finally { setDemoLoading(false); }
   };
 
   return (
@@ -111,6 +128,10 @@ const Login: React.FC = () => {
             <p className="text-muted text-lg text-center opacity-0 animate-login-fade-in-up" style={{ animationDelay: '0.3s' }}>Sign in to your account to continue</p>
           </div>
 
+          <div className="mb-6 space-y-2">
+            <button type="button" onClick={tryDemo} disabled={loading || demoLoading} className="ss-button w-full bg-primary text-on-primary font-semibold py-3">{demoLoading ? 'Opening demo…' : 'Try Demo'}</button>
+            <p className="text-xs text-muted text-center">Explore every directory with a read-only visitor session. No account needed.</p>
+          </div>
           {error && (
             <div key={error} className="mb-4 text-sm text-danger bg-danger-soft border border-danger-line rounded-xl px-4 py-2.5 flex items-center gap-2 animate-login-shake">
               <svg className="w-4 h-4 flex-shrink-0 text-danger" fill="currentColor" viewBox="0 0 20 20">

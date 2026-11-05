@@ -1,7 +1,7 @@
 // Only these system fields are used by ordinary staff's currency, navbar and invoice screens.
 export const STAFF_SYSTEM_FIELDS = [
   'companyLogo', 'currency', 'companyName', 'defaultEmail', 'companyMobile',
-  'address', 'city', 'country', 'postalCode'
+  'address', 'city', 'country', 'postalCode', 'defaultPosWarehouseId'
 ] as const;
 
 export const SYSTEM_FIELDS = [

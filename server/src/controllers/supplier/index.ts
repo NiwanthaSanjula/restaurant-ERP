@@ -1,5 +1,5 @@
 import { Request, Response } from 'express';
-import { body, param } from 'express-validator';
+import { body, param, validationResult } from 'express-validator';
 import { authenticate } from '../../middleware/auth';
 import Product from '../../models/Product';
 import Supplier from '../../models/Supplier';
@@ -105,6 +105,8 @@ export const createSupplierValidators = [
 export const createSupplier = [
   async (req: Request, res: Response): Promise<void> => {
     try {
+      const errors = validationResult(req);
+      if (!errors.isEmpty()) { res.status(400).json({ status: 'error', message: errors.array()[0].msg }); return; }
       const { name, companyName, mobile } = req.body;
       const exists = await Supplier.findOne({ name }).collation({ locale: 'en', strength: 2 });
       if (exists) { res.status(409).json({ status: 'error', message: 'Supplier with this name already exists' }); return; }

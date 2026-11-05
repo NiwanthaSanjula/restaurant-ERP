@@ -10,6 +10,7 @@ export interface IPurchase extends Document {
     quantity: number; 
     cost: number;    
     subTotal: number;
+    stockUnit?: string;
   }[];
   subtotal: number;
   discount: number;
@@ -21,6 +22,9 @@ export interface IPurchase extends Document {
   paymentMethod?: string;
   purchaseStatus: 'Received' | 'Pending' | 'Ordered';
   createdBy: mongoose.Types.ObjectId;
+  stockReceiptVersion?: number;
+  stockReceivedAt?: Date;
+  createPayloadHash?: string;
 }
 
 const PurchaseSchema: Schema = new Schema({
@@ -32,7 +36,8 @@ const PurchaseSchema: Schema = new Schema({
     productId: { type: Schema.Types.ObjectId, ref: 'Product', required: true },
     quantity: { type: Number, required: true },
     cost: { type: Number, required: true },
-    subTotal: { type: Number, required: true }
+    subTotal: { type: Number, required: true },
+    stockUnit: { type: String }
   }],
   subtotal: { type: Number, default: 0 },
   discount: { type: Number, default: 0 },
@@ -43,7 +48,10 @@ const PurchaseSchema: Schema = new Schema({
   paymentStatus: { type: String, enum: ['Paid', 'Partial', 'Unpaid'], default: 'Unpaid' },
   paymentMethod: { type: String },
   purchaseStatus: { type: String, enum: ['Received', 'Pending', 'Ordered'], default: 'Received' },
-  createdBy: { type: Schema.Types.ObjectId, ref: 'User', required: true }
+  createdBy: { type: Schema.Types.ObjectId, ref: 'User', required: true },
+  stockReceiptVersion: { type: Number },
+  stockReceivedAt: { type: Date },
+  createPayloadHash: { type: String }
 }, { timestamps: true });
 
 export default mongoose.model<IPurchase>('Purchase', PurchaseSchema);

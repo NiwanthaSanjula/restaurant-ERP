@@ -16,6 +16,9 @@ function fixture(storageFails = false) {
 }
 
 describe('shared live business branding', () => {
+  it('resolves bundled portfolio logos on the client origin without an API uploads dependency', () => {
+    expect(fixture().branding.resolveBrandLogo('/portfolio-assets/la-tavola-logo.jpg')).toBe('/portfolio-assets/la-tavola-logo.jpg');
+  });
   it('normalizes partial fields, defaults and initials without keeping unrelated settings', () => {
     const { branding } = fixture();
     expect(branding.normalizeBranding({ companyName: '  Lotus Kitchen  ', companyLogo: '/logo.png', password: 'fixture-only' })).toEqual({ companyName: 'Lotus Kitchen', companyLogo: '/logo.png' });

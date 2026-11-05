@@ -1,7 +1,7 @@
 import mongoose, { Document, Schema, Types } from 'mongoose';
 
 export type KitchenMovementType = 'in' | 'out';
-export type KitchenMovementSource = 'manual' | 'sale';
+export type KitchenMovementSource = 'manual' | 'sale' | 'warehouse_issue';
 
 export interface IKitchenStockMovement extends Document {
   kitchenProductId: Types.ObjectId;
@@ -13,6 +13,12 @@ export interface IKitchenStockMovement extends Document {
   source: KitchenMovementSource;
   saleId?: Types.ObjectId;
   createdBy?: Types.ObjectId;
+  warehouseIssue?: {
+    warehouseId: Types.ObjectId; productId: Types.ObjectId; warehouseName: string; productName: string;
+    kitchenName: string; sourceQuantity: number; sourceUnit: string; kitchenUnit: string;
+    sourceBefore: number; sourceAfter: number; kitchenBefore: number; kitchenAfter: number;
+    factor: number; conversionRevision: number; warehouseQuantity: number; kitchenQuantity: number; requestHash: string;
+  };
   createdAt: Date;
   updatedAt: Date;
 }
@@ -40,7 +46,7 @@ const kitchenStockMovementSchema = new Schema<IKitchenStockMovement>(
     },
     costAtTime: {
       type: Number,
-      default: 0
+      default: function(this: IKitchenStockMovement) { return this.source === 'warehouse_issue' ? undefined : 0; }
     },
     reason: {
       type: String,
@@ -51,9 +57,20 @@ const kitchenStockMovementSchema = new Schema<IKitchenStockMovement>(
       trim: true,
       maxlength: [1000, 'Note cannot exceed 1000 characters']
     },
+    warehouseIssue: {
+      type: new Schema({
+        warehouseId: { type: Schema.Types.ObjectId, ref: 'Warehouse', required: true },
+        productId: { type: Schema.Types.ObjectId, ref: 'Product', required: true },
+        warehouseName: { type: String, required: true }, productName: { type: String, required: true }, kitchenName: { type: String, required: true },
+        sourceQuantity: { type: Number, required: true }, sourceUnit: { type: String, required: true }, kitchenUnit: { type: String, required: true },
+        sourceBefore: { type: Number, required: true }, sourceAfter: { type: Number, required: true }, kitchenBefore: { type: Number, required: true }, kitchenAfter: { type: Number, required: true },
+        factor: { type: Number, required: true }, conversionRevision: { type: Number, required: true },
+        warehouseQuantity: { type: Number, required: true }, kitchenQuantity: { type: Number, required: true }, requestHash: { type: String, required: true }
+      }, { _id: false }), default: undefined
+    },
     source: {
       type: String,
-      enum: ['manual', 'sale'],
+      enum: ['manual', 'sale', 'warehouse_issue'],
       default: 'manual'
     },
     saleId: {

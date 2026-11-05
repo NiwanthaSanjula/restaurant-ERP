@@ -79,6 +79,7 @@ export const getKitchenProductMovements = [
         return;
       }
       const movements = await KitchenStockMovement.find({ kitchenProductId: req.params.id })
+        .select('-warehouseIssue.requestHash')
         .sort({ createdAt: -1 })
         .limit(limit)
         .populate('createdBy', 'name email')
@@ -139,6 +140,7 @@ export const createKitchenProduct = async (req: AuthRequest, res: Response): Pro
       return;
     }
     const doc = await KitchenInventoryProduct.create({
+      isSellable: false,
       name: String(name).trim(),
       unitId,
       currentStock: openingQty,

@@ -1,4 +1,5 @@
 import express from 'express';
+import { requirePermission } from '../middleware/permissions';
 import { deleteBaseUnit, deleteBaseUnitValidators } from '../controllers/baseUnit';
 import { deleteBrand, deleteBrandValidators } from '../controllers/brand';
 import { clearCart, clearCartValidators, removeCartItem, removeCartItemValidators } from '../controllers/cart';
@@ -52,7 +53,7 @@ router.delete('/sales/:id', ...deleteSaleValidators, deleteSale);
 router.delete('/sales/:id/payments/:index', ...deletePaymentValidators, deletePayment);
 
 // Purchases
-router.delete('/purchases/:id', authenticate, deletePurchase);
+router.delete('/purchases/:id', authenticate, requirePermission('managePurchases', 'read'), requirePermission('manageProducts', 'update'), deletePurchase);
 
 // Purchase Returns (bulk-delete before :id so route matches first)
 router.delete('/purchase-returns/bulk-delete', bulkDeletePurchaseReturns);

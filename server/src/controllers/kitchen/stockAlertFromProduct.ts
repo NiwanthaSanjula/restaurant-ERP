@@ -61,6 +61,8 @@ export function enrichKitchenProductDoc(doc: any, warehouseId?: string): any {
   const minLocal = doc.minStockLevel != null ? doc.minStockLevel : null;
   return {
     ...doc,
+    // Kitchen records are ingredients, never standalone POS menu items.
+    isSellable: false,
     stockAlertFromProduct: stockAlertFromProduct != null ? stockAlertFromProduct : null,
     minStockLevelEffective:
       stockAlertFromProduct != null ? stockAlertFromProduct : minLocal

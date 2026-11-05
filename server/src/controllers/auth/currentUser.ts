@@ -9,7 +9,7 @@ export async function getCurrentUser(req: AuthRequest, res: Response) {
     if (!access) return res.status(403).json({ status: 'error', message: 'An active, valid assigned role is required.' });
     return res.json({ status: 'success', data: { user: {
       id: req.user._id, name: req.user.name, email: req.user.email, role: req.user.role,
-      roleId: access.roleId, roleName: access.roleName, permissions: clientPermissionMap(access.permissions)
+      roleId: access.roleId, roleName: access.roleName, permissions: clientPermissionMap(access.permissions), isDemo: req.isDemo === true
     } } });
   } catch {
     return res.status(500).json({ status: 'error', message: 'Unable to load permissions.' });

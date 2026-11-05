@@ -1,11 +1,12 @@
 import { Request, Response } from 'express';
 import Currency from '../models/Currency';
+import { AuthRequest } from '../middleware/auth';
 
 export const getCurrencies = async (req: Request, res: Response) => {
   try {
     let currencies = await Currency.find({ isActive: true }).sort({ code: 1 });
 
-    if (!currencies.length) {
+    if (!currencies.length && !(req as AuthRequest).isDemo) {
       const defaults = [
         { name: 'Sri Lankan Rupee', code: 'LKR', symbol: 'Rs.' },
         { name: 'US Dollar', code: 'USD', symbol: '$' },

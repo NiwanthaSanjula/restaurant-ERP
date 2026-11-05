@@ -15,6 +15,8 @@ import {
     X,
 } from 'lucide-react';
 import React, { useEffect, useRef, useState } from 'react';
+import { HOSTED_MODE } from '../../services/hostedMode';
+import HostedFileNotice from '../common/HostedFileNotice';
 import { useNavigate } from 'react-router-dom';
 import { toast } from 'react-toastify';
 import { usePermissions } from '../../contexts/PermissionContext';
@@ -295,6 +297,7 @@ const ReceiptSettings: React.FC = () => {
   // ── Logo upload ────────────────────────────────────────────────────────────
 
   const handleLogoUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (HOSTED_MODE) return;
     const file = e.target.files?.[0];
     if (!file) return;
 
@@ -324,6 +327,7 @@ const ReceiptSettings: React.FC = () => {
   };
 
   const handleRemoveLogo = async () => {
+    if (HOSTED_MODE) return;
     try {
       const response = await fetch(`${apiBase}/settings/receipt-logo`, {
         method: 'DELETE',
@@ -476,7 +480,7 @@ const ReceiptSettings: React.FC = () => {
                   />
                 </div>
                 <button
-                  onClick={handleRemoveLogo}
+                  onClick={handleRemoveLogo} disabled={HOSTED_MODE} aria-label="Remove receipt logo"
                   className="absolute -top-1 -right-1 bg-danger text-on-danger rounded-full p-0.5 hover:bg-danger-hover transition shadow"
                 >
                   <X size={11} />
@@ -488,10 +492,11 @@ const ReceiptSettings: React.FC = () => {
               </div>
             )}
             <div className="flex flex-col gap-2">
-              <input ref={fileInputRef} type="file" accept="image/*" className="hidden" onChange={handleLogoUpload} />
+              <HostedFileNotice />
+              <input ref={fileInputRef} type="file" disabled={HOSTED_MODE} accept="image/*" className="hidden" onChange={handleLogoUpload} />
               <button
                 onClick={() => fileInputRef.current?.click()}
-                disabled={uploading}
+                disabled={uploading || HOSTED_MODE}
                 className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium border border-line-strong rounded-lg hover:bg-surface-raised transition text-muted disabled:opacity-50"
               >
                 <Upload size={13} />
@@ -499,7 +504,7 @@ const ReceiptSettings: React.FC = () => {
               </button>
               {settings.header.logoUrl && (
                 <button
-                  onClick={handleRemoveLogo}
+                  onClick={handleRemoveLogo} disabled={HOSTED_MODE}
                   className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium border border-danger-line rounded-lg hover:bg-danger-soft transition text-danger"
                 >
                   <Trash2 size={13} /> Remove

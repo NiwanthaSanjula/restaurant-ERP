@@ -4,6 +4,8 @@ import { checkPermissionInMap, getRolePermissions } from '../config/rbac';
 import { AuthRequest } from '../middleware/auth';
 import { pickSettingsFields, STAFF_SYSTEM_FIELDS, SYSTEM_FIELDS } from '../utils/settingsFields';
 import { readPublicBranding } from '../services/branding';
+import mongoose from 'mongoose';
+import Warehouse from '../models/Warehouse';
 
 // Sign-in branding is intentionally separate from authenticated settings reads.
 export const getBranding = async (_req: Request, res: Response) => {
@@ -44,6 +46,14 @@ export const updateSettings = async (req: Request, res: Response) => {
     for (const field of SYSTEM_FIELDS) {
       const dotted = pickSettingsFields(req.body, [`system.${field}`]);
       if (Object.keys(dotted).length) fields[field] = dotted[`system.${field}`];
+    }
+    if (Object.prototype.hasOwnProperty.call(fields, 'defaultPosWarehouseId')) {
+      const id = fields.defaultPosWarehouseId;
+      if (id === null || id === '') fields.defaultPosWarehouseId = null;
+      else if (typeof id !== 'string' || !mongoose.isValidObjectId(id) || !await Warehouse.findOne({ _id: id, isActive: true }).select('_id').lean()) {
+        return res.status(400).json({ success: false, message: 'Choose an active selling location, or clear the default.' });
+      }
+      else fields.defaultPosWarehouseId = new mongoose.Types.ObjectId(id).toHexString();
     }
     if (!Object.keys(fields).length) {
       return res.status(400).json({ success: false, message: 'No supported system settings provided.' });

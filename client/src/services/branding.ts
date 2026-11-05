@@ -21,6 +21,7 @@ export function brandInitials(name: string): string {
 
 export function resolveBrandLogo(logo: string): string {
   if (!logo) return '';
+  if (logo.startsWith('/portfolio-assets/')) return logo;
   if (/^https?:\/\//i.test(logo) || logo.startsWith('data:')) return logo;
   return `${API_URL.replace(/\/api\/?$/, '')}${logo.startsWith('/') ? '' : '/'}${logo}`;
 }

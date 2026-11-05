@@ -3,14 +3,17 @@ import { useNavigate } from 'react-router-dom';
 import CashInModal from './CashInModal';
 import POSCheckout from './POSCheckout';
 import PosSessionBackdrop from './PosSessionBackdrop';
+import { usePermissions } from '../../contexts/PermissionContext';
 import { fetchActivePosSession, openPosSession, type PosDenominations } from '../../services/posSessionService';
 
 const POSGate: React.FC = () => {
   const navigate = useNavigate();
+  const { isDemo } = usePermissions();
   const [loading, setLoading] = useState(true);
   const [sessionId, setSessionId] = useState<string | null>(null);
 
   const refreshSession = useCallback(async () => {
+    if (isDemo) { setLoading(false); return; }
     // Token is stored in localStorage by the auth flow
     const token = localStorage.getItem('token');
     if (!token) {
@@ -35,7 +38,7 @@ const POSGate: React.FC = () => {
     } finally {
       setLoading(false);
     }
-  }, [navigate]);
+  }, [navigate, isDemo]);
 
   useEffect(() => {
     refreshSession();
@@ -64,6 +67,7 @@ const POSGate: React.FC = () => {
     );
   }
 
+  if (isDemo) return <POSCheckout />;
   if (!sessionId) {
     return (
       <>
